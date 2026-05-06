@@ -912,7 +912,8 @@ var T = {
     not_enough_stock:"الكمية أكبر من المخزون",
     stock_added:"✅ تم إضافة المخزون", stock_removed:"✅ تم صرف المخزون",
     unit:"قطعة", cost:"التكلفة", price:"السعر", inv_value:"قيمة المخزون",
-    curr:"ر.ع", min:"الحد الأدنى", inv_add:"إضافة", inv_remove:"صرف"
+    curr:"ر.ع", min:"الحد الأدنى", inv_add:"إضافة", inv_remove:"صرف",
+    inventory:"المخزون"
   },
   en: {
     dir:"ltr",lang:"en",
@@ -983,7 +984,8 @@ var T = {
     not_enough_stock:"Not enough stock available",
     stock_added:"✅ Stock added", stock_removed:"✅ Stock removed",
     unit:"Unit", cost:"Cost", price:"Price", inv_value:"Stock Value",
-    curr:"OMR", min:"Min", inv_add:"Add", inv_remove:"Remove"
+    curr:"OMR", min:"Min", inv_add:"Add", inv_remove:"Remove",
+    inventory:"Inventory"
   }
 };
 
@@ -1003,7 +1005,7 @@ function setLang(l) {
 
 function applyTr() {
   document.querySelector(".logo-sub").textContent = t("logo_sub");
-  var navKeys = ["dashboard","customers","gallery","send","settings"];
+  var navKeys = ["dashboard","customers","gallery","send","inventory","settings"];
   document.querySelectorAll(".nav-item").forEach(function(el, i) {
     if (i >= navKeys.length) return;
     var nodes = el.childNodes;
