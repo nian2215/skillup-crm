@@ -1657,6 +1657,36 @@ function openInvMo(type, productId) {
   document.getElementById('inv-mo-type').value = type;
   document.getElementById('inv-mo-pid').value  = productId || '';
 
+  // ── تطبيق الترجمة على كل حقول النافذة ──
+  function sl(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+  function sp(id,v){var e=document.getElementById(id);if(e)e.placeholder=v;}
+  sl('inv-lbl-name',       t('inv_f_name'));
+  sl('inv-lbl-cat',        t('inv_f_cat'));
+  sl('inv-lbl-icon',       t('inv_f_icon'));
+  sl('inv-lbl-sku',        t('inv_f_sku'));
+  sl('inv-lbl-barcode',    t('inv_f_barcode'));
+  sl('inv-lbl-unit',       t('inv_f_unit'));
+  sl('inv-lbl-p-supplier', t('inv_f_supplier'));
+  sl('inv-lbl-cost',       t('inv_f_cost'));
+  sl('inv-lbl-price',      t('inv_f_price'));
+  sl('inv-lbl-qty',        t('inv_f_qty'));
+  sl('inv-lbl-minqty',     t('inv_f_minqty'));
+  sl('inv-lbl-notes',      t('inv_f_notes'));
+  sl('inv-lbl-m-product',  t('inv_f_m_product'));
+  sl('inv-lbl-m-qty',      t('inv_f_m_qty'));
+  sl('inv-lbl-m-date',     t('inv_f_m_date'));
+  sl('inv-lbl-m-supplier', t('inv_f_m_supplier'));
+  sl('inv-lbl-m-note',     t('inv_f_note'));
+  sl('inv-btn-cancel',     t('inv_btn_cancel'));
+  sl('inv-btn-save',       t('inv_btn_save'));
+  sp('inv-p-name',     t('inv_ph_name'));
+  sp('inv-p-cat',      t('inv_ph_cat'));
+  sp('inv-p-unit',     t('inv_ph_unit'));
+  sp('inv-p-supplier', t('inv_ph_supplier'));
+  sp('inv-p-notes',    t('inv_ph_notes'));
+  sp('inv-m-supplier', t('inv_ph_supplier'));
+  sp('inv-m-note',     t('inv_ph_note'));
+
   if (type === 'product') {
     document.getElementById('inv-mo-title').textContent = t('add_product');
     document.getElementById('inv-form-product').style.display = 'block';
@@ -1692,11 +1722,12 @@ function openInvMo(type, productId) {
 function editProduct(id) {
   var p = INV_PRODUCTS.find(function(x){ return x.id===id; });
   if (!p) return;
+  // تطبيق الترجمة أولاً
+  openInvMo('product');
+  // ثم ملء البيانات
   document.getElementById('inv-mo-type').value  = 'product';
   document.getElementById('inv-mo-pid').value   = id;
   document.getElementById('inv-mo-title').textContent = t('edit_product');
-  document.getElementById('inv-form-product').style.display  = 'block';
-  document.getElementById('inv-form-movement').style.display = 'none';
   document.getElementById('inv-p-name').value     = p.name     || '';
   document.getElementById('inv-p-cat').value      = p.category || '';
   document.getElementById('inv-p-sku').value      = p.sku      || '';
@@ -1709,7 +1740,6 @@ function editProduct(id) {
   document.getElementById('inv-p-supplier').value = p.supplier || '';
   document.getElementById('inv-p-notes').value    = p.notes    || '';
   document.getElementById('inv-p-icon').value     = p.icon     || '📦';
-  openMo('inventory');
 }
 
 // Save inventory form
