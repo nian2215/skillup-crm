@@ -901,21 +901,21 @@ body::before {
 
     <!-- الرسالة -->
     <div class="send-card">
-      <h3>✍️ نص الرسالة</h3>
+      <h3 id="send-a-msg-title">✍️ نص الرسالة</h3>
       <textarea class="msg-area" id="wmsg" rows="4">مرحباً 👋 لدينا وصول جديد! ✨ تفضل/ي بزيارتنا.</textarea>
     </div>
 
     <!-- الصور المحددة -->
     <div class="send-card">
-      <h3>🖼️ الصور المرفقة
-        <span style="font-size:12px;font-weight:400;color:var(--tx3);margin-right:8px;">— اذهب للمعرض وحدد الصور أولاً</span>
+      <h3>🖼️ <span id="send-a-img-title">الصور المرفقة</span>
+        <span id="send-a-img-sub" style="font-size:12px;font-weight:400;color:var(--tx3);margin-right:8px;">— اذهب للمعرض وحدد الصور أولاً</span>
       </h3>
 
       <!-- لا توجد صور -->
       <div id="send-imgs-empty" style="text-align:center;padding:24px;border:2px dashed rgba(192,132,252,.2);border-radius:12px;color:var(--tx3);">
         <div style="font-size:32px;margin-bottom:8px;">🖼️</div>
-        <div style="font-size:13px;">لم تحدد أي صور من المعرض بعد</div>
-        <button onclick="goTab('gallery');setMobActive('gallery')"
+        <div id="send-no-imgs-txt" style="font-size:13px;">لم تحدد أي صور من المعرض بعد</div>
+        <button onclick="goTab('gallery');setMobActive('gallery')" id="send-go-gallery-btn"
           style="margin-top:12px;padding:9px 20px;border-radius:20px;border:1px solid rgba(192,132,252,.3);background:rgba(192,132,252,.08);color:#c084fc;font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;">
           📷 اذهب للمعرض
         </button>
@@ -924,8 +924,8 @@ body::before {
       <!-- توجد صور -->
       <div id="send-imgs-wrap" style="display:none;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-          <span style="font-size:13px;color:var(--tx2);">الصور المحددة: <strong id="spcount" style="color:var(--rose);">0</strong></span>
-          <button onclick="goTab('gallery');setMobActive('gallery')"
+          <span style="font-size:13px;color:var(--tx2);"><span id="send-pics-lbl">الصور المحددة:</span> <strong id="spcount" style="color:var(--rose);">0</strong></span>
+          <button onclick="goTab('gallery');setMobActive('gallery')" id="send-change-imgs-btn"
             style="padding:6px 14px;border-radius:20px;border:1px solid rgba(192,132,252,.3);background:rgba(192,132,252,.08);color:#c084fc;font-family:Tajawal,sans-serif;font-size:12px;cursor:pointer;">
             + تغيير الصور
           </button>
@@ -934,7 +934,7 @@ body::before {
         <div id="send-imgs-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;"></div>
 
         <!-- زر تحميل الصور -->
-        <button onclick="downloadSelectedImgs()"
+        <button onclick="downloadSelectedImgs()" id="send-download-imgs-btn"
           style="width:100%;padding:13px;border-radius:12px;border:2px solid rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34d399;font-family:Tajawal,sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all .25s;margin-bottom:10px;"
           onmouseover="this.style.background='rgba(52,211,153,.2)'" onmouseout="this.style.background='rgba(52,211,153,.1)'">
           ⬇️ تحميل كل الصور لهاتفك أولاً
@@ -942,18 +942,18 @@ body::before {
 
         <!-- تعليمات -->
         <div style="background:rgba(244,114,182,.06);border:1px solid rgba(244,114,182,.2);border-radius:12px;padding:14px 16px;font-size:13px;line-height:2;">
-          <div style="color:#f9a8d4;font-weight:700;margin-bottom:6px;">📋 خطوات الإرسال:</div>
-          1️⃣ اضغط <strong style="color:#34d399;">تحميل الصور</strong> — ستنزل لجهازك<br>
-          2️⃣ اختر المجموعة أدناه — سيفتح واتساب مع الرسالة<br>
-          3️⃣ اضغط 📎 وارفق الصور المحملة<br>
-          4️⃣ أرسل — ثم ستنتقل للزبون التالي تلقائياً بعد ثانيتين
+          <div id="send-steps-title" style="color:#f9a8d4;font-weight:700;margin-bottom:6px;">📋 خطوات الإرسال:</div>
+          <div id="send-step1">1️⃣ اضغط <strong style="color:#34d399;">تحميل الصور</strong> — ستنزل لجهازك</div>
+          <div id="send-step2">2️⃣ اختر المجموعة أدناه — سيفتح واتساب مع الرسالة</div>
+          <div id="send-step3">3️⃣ اضغط 📎 وارفق الصور المحملة</div>
+          <div id="send-step4">4️⃣ أرسل — ثم ستنتقل للزبون التالي تلقائياً بعد ثانيتين</div>
         </div>
       </div>
     </div>
 
     <!-- اختيار المجموعة -->
     <div class="send-card">
-      <h3>👥 اختر من ترسل لهم</h3>
+      <h3 id="send-grp-title">👥 اختر من ترسل لهم</h3>
       <div class="grp-btns" style="display:flex;gap:10px;flex-wrap:wrap;">
         <button class="btn" style="background:rgba(52,211,153,.12);color:var(--green);border-color:rgba(52,211,153,.3);flex:1;" onclick="sendGrp('green')" id="btn-grp-green">🟢 المنتظمون</button>
         <button class="btn" style="background:rgba(251,191,36,.12);color:var(--yellow);border-color:rgba(251,191,36,.3);flex:1;" onclick="sendGrp('yellow')" id="btn-grp-yellow">🟡 المتوسطون</button>
@@ -969,7 +969,7 @@ body::before {
 
     <!-- بحث عن زبون -->
     <div class="send-card">
-      <h3>🔍 ابحث عن الزبون</h3>
+      <h3 id="send-b-search-title">🔍 ابحث عن الزبون</h3>
       <input type="text" id="send-b-search" placeholder="اكتب اسم الزبون أو رقم هاتفه..."
         oninput="filterSendB()"
         style="width:100%;padding:13px 16px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
@@ -984,7 +984,7 @@ body::before {
             <div id="send-b-name" style="font-size:15px;font-weight:700;"></div>
             <div id="send-b-phone" style="font-size:13px;color:var(--tx3);"></div>
           </div>
-          <button onclick="clearSendB()"
+          <button onclick="clearSendB()" id="send-b-change-btn"
             style="padding:6px 12px;border-radius:20px;border:1px solid rgba(248,113,113,.3);background:rgba(248,113,113,.08);color:var(--red);font-family:Tajawal,sans-serif;font-size:12px;cursor:pointer;">
             ✕ تغيير
           </button>
@@ -994,23 +994,23 @@ body::before {
 
     <!-- الرسالة المخصصة -->
     <div class="send-card">
-      <h3>✍️ الرسالة المخصصة</h3>
+      <h3 id="send-b-msg-title">✍️ الرسالة المخصصة</h3>
       <textarea class="msg-area" id="wmsg-b" rows="4" placeholder="اكتب رسالة خاصة بهذا الزبون..."></textarea>
       <!-- اقتراحات سريعة -->
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;">
-        <button onclick="appendMsgB('مرحباً 👋 كيف حالك؟ لدينا عروض خاصة لك!')"
+        <button onclick="appendMsgB('مرحباً 👋 كيف حالك؟ لدينا عروض خاصة لك!')" id="send-b-quick-greet"
           style="padding:6px 12px;border-radius:20px;border:1px solid var(--bdr);background:rgba(255,255,255,.04);color:var(--tx2);font-family:Tajawal,sans-serif;font-size:12px;cursor:pointer;">
           👋 تحية
         </button>
-        <button onclick="appendMsgB('عزيزي/عزيزتي، لدينا وصول جديد يناسبك! ✨')"
+        <button onclick="appendMsgB('عزيزي/عزيزتي، لدينا وصول جديد يناسبك! ✨')" id="send-b-quick-new"
           style="padding:6px 12px;border-radius:20px;border:1px solid var(--bdr);background:rgba(255,255,255,.04);color:var(--tx2);font-family:Tajawal,sans-serif;font-size:12px;cursor:pointer;">
           🆕 وصول جديد
         </button>
-        <button onclick="appendMsgB('شكراً لتسوقك معنا! 🙏 نتمنى رضاك دائماً.')"
+        <button onclick="appendMsgB('شكراً لتسوقك معنا! 🙏 نتمنى رضاك دائماً.')" id="send-b-quick-thanks"
           style="padding:6px 12px;border-radius:20px;border:1px solid var(--bdr);background:rgba(255,255,255,.04);color:var(--tx2);font-family:Tajawal,sans-serif;font-size:12px;cursor:pointer;">
           🙏 شكر
         </button>
-        <button onclick="appendMsgB('عرض خاص لك اليوم فقط! 🎁 لا تفوته.')"
+        <button onclick="appendMsgB('عرض خاص لك اليوم فقط! 🎁 لا تفوته.')" id="send-b-quick-offer"
           style="padding:6px 12px;border-radius:20px;border:1px solid var(--bdr);background:rgba(255,255,255,.04);color:var(--tx2);font-family:Tajawal,sans-serif;font-size:12px;cursor:pointer;">
           🎁 عرض خاص
         </button>
@@ -1019,17 +1019,17 @@ body::before {
 
     <!-- الصور الخاصة -->
     <div class="send-card">
-      <h3>🖼️ صور خاصة بهذا الزبون</h3>
+      <h3 id="send-b-imgs-title">🖼️ صور خاصة بهذا الزبون</h3>
 
       <!-- اختيار الصور -->
       <div style="margin-bottom:14px;">
-        <div style="font-size:13px;color:var(--tx3);margin-bottom:10px;">اختر صوراً من المعرض أو ارفع صوراً جديدة مخصصة:</div>
+        <div id="send-b-imgs-sub" style="font-size:13px;color:var(--tx3);margin-bottom:10px;">اختر صوراً من المعرض أو ارفع صوراً جديدة مخصصة:</div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <button onclick="openBGalPicker()"
+          <button onclick="openBGalPicker()" id="send-b-from-gallery-btn"
             style="padding:10px 18px;border-radius:12px;border:1px solid rgba(192,132,252,.3);background:rgba(192,132,252,.08);color:#c084fc;font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;">
             📷 اختر من المعرض
           </button>
-          <label style="padding:10px 18px;border-radius:12px;border:1px solid rgba(244,114,182,.3);background:rgba(244,114,182,.08);color:var(--rose);font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;">
+          <label id="send-b-upload-lbl" style="padding:10px 18px;border-radius:12px;border:1px solid rgba(244,114,182,.3);background:rgba(244,114,182,.08);color:var(--rose);font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;">
             ⬆️ ارفع صورة جديدة
             <input type="file" accept="image/*" multiple style="display:none;" onchange="addBCustomImgs(event)">
           </label>
@@ -1042,7 +1042,7 @@ body::before {
 
       <!-- زر تحميل -->
       <div id="send-b-dl-wrap" style="display:none;margin-top:12px;">
-        <button onclick="downloadBImgs()"
+        <button onclick="downloadBImgs()" id="send-b-download-btn"
           style="width:100%;padding:12px;border-radius:12px;border:2px solid rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34d399;font-family:Tajawal,sans-serif;font-size:14px;font-weight:800;cursor:pointer;"
           onmouseover="this.style.background='rgba(52,211,153,.2)'" onmouseout="this.style.background='rgba(52,211,153,.1)'">
           ⬇️ تحميل صور هذا الزبون لهاتفك
@@ -1051,7 +1051,7 @@ body::before {
     </div>
 
     <!-- زر الإرسال -->
-    <button onclick="sendBCustom()"
+    <button onclick="sendBCustom()" id="send-b-main-btn"
       style="width:100%;padding:16px;border-radius:30px;border:none;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;font-family:Tajawal,sans-serif;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 6px 24px rgba(37,211,102,.4);margin-bottom:20px;transition:all .3s;"
       onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
       📤 فتح واتساب وإرسال الرسالة
@@ -1060,8 +1060,8 @@ body::before {
     <!-- نافذة اختيار الصور من المعرض -->
     <div id="b-gal-picker" style="display:none;background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:16px;padding:16px;margin-top:10px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-        <span style="font-size:14px;font-weight:700;color:var(--rose);">اختر الصور:</span>
-        <button onclick="closeBGalPicker()"
+        <span id="send-b-picker-title" style="font-size:14px;font-weight:700;color:var(--rose);">اختر الصور:</span>
+        <button onclick="closeBGalPicker()" id="send-b-picker-done-btn"
           style="padding:5px 12px;border-radius:20px;border:1px solid var(--bdr);background:rgba(255,255,255,.05);color:var(--tx2);font-family:Tajawal,sans-serif;font-size:12px;cursor:pointer;">
           ✓ تم
         </button>
@@ -1462,7 +1462,40 @@ var T = {
     no_loyalty_customers:"لا يوجد زبائن بعد",
     pts_lbl:"نقطة",
     view_history:"📋 السجل",
-    add_pts_btn:"⭐ إضافة",redeem_pts_btn:"🎁 استبدال"
+    add_pts_btn:"⭐ إضافة",redeem_pts_btn:"🎁 استبدال",
+
+    send_tab_a:"📢 إرسال جماعي — نفس الصور للجميع",
+    send_tab_b:"👤 إرسال مخصص — زبون واحد بصوره الخاصة",
+    send_a_msg_title:"✍️ نص الرسالة",
+    send_a_img_title:"🖼️ الصور المرفقة",
+    send_a_img_sub:"— اذهب للمعرض وحدد الصور أولاً",
+    send_no_imgs:"لم تحدد أي صور من المعرض بعد",
+    send_go_gallery:"📷 اذهب للمعرض",
+    send_pics_lbl:"الصور المحددة:",
+    send_change_imgs:"+ تغيير الصور",
+    send_download_imgs:"⬇️ تحميل كل الصور لهاتفك أولاً",
+    send_steps_title:"📋 خطوات الإرسال:",
+    send_step1:"اضغط <strong style='color:#34d399;'>تحميل الصور</strong> — ستنزل لجهازك",
+    send_step2:"اختر المجموعة أدناه — سيفتح واتساب مع الرسالة",
+    send_step3:"اضغط 📎 وارفق الصور المحملة",
+    send_step4:"أرسل — ثم ستنتقل للزبون التالي تلقائياً بعد ثانيتين",
+    send_grp_title:"👥 اختر من ترسل لهم",
+    send_b_search_title:"🔍 ابحث عن الزبون",
+    send_b_search_ph:"اكتب اسم الزبون أو رقم هاتفه...",
+    send_b_change:"✕ تغيير",
+    send_b_msg_title:"✍️ الرسالة المخصصة",
+    send_b_msg_ph:"اكتب رسالة خاصة بهذا الزبون...",
+    send_b_quick_greet:"👋 تحية",send_b_quick_new:"🆕 وصول جديد",
+    send_b_quick_thanks:"🙏 شكر",send_b_quick_offer:"🎁 عرض خاص",
+    send_b_imgs_title:"🖼️ صور خاصة بهذا الزبون",
+    send_b_imgs_sub:"اختر صوراً من المعرض أو ارفع صوراً جديدة مخصصة:",
+    send_b_from_gallery:"📷 اختر من المعرض",
+    send_b_upload:"⬆️ ارفع صورة جديدة",
+    send_b_no_imgs:"لم تختر صوراً بعد — اختيار الصور اختياري",
+    send_b_download:"⬇️ تحميل صور هذا الزبون لهاتفك",
+    send_b_btn:"📤 فتح واتساب وإرسال الرسالة",
+    send_b_picker_title:"اختر الصور:",
+    send_b_picker_done:"✓ تم"
   },
   en: {
     dir:"ltr",lang:"en",
@@ -1595,7 +1628,40 @@ var T = {
     no_loyalty_customers:"No customers yet",
     pts_lbl:"pts",
     view_history:"📋 History",
-    add_pts_btn:"⭐ Add",redeem_pts_btn:"🎁 Redeem"
+    add_pts_btn:"⭐ Add",redeem_pts_btn:"🎁 Redeem",
+
+    send_tab_a:"📢 Bulk Send — Same photos for everyone",
+    send_tab_b:"👤 Custom Send — One customer with their own photos",
+    send_a_msg_title:"✍️ Message Text",
+    send_a_img_title:"🖼️ Attached Photos",
+    send_a_img_sub:"— Go to Gallery and select photos first",
+    send_no_imgs:"No photos selected from the gallery yet",
+    send_go_gallery:"📷 Go to Gallery",
+    send_pics_lbl:"Selected photos:",
+    send_change_imgs:"+ Change Photos",
+    send_download_imgs:"⬇️ Download all photos to your device first",
+    send_steps_title:"📋 Sending Steps:",
+    send_step1:"Press <strong style='color:#34d399;'>Download Photos</strong> — they will save to your device",
+    send_step2:"Choose a group below — WhatsApp will open with the message",
+    send_step3:"Tap 📎 and attach the downloaded photos",
+    send_step4:"Send — then it will move to the next customer automatically after 2 seconds",
+    send_grp_title:"👥 Choose Recipients",
+    send_b_search_title:"🔍 Search Customer",
+    send_b_search_ph:"Type customer name or phone number...",
+    send_b_change:"✕ Change",
+    send_b_msg_title:"✍️ Custom Message",
+    send_b_msg_ph:"Write a personal message for this customer...",
+    send_b_quick_greet:"👋 Greeting",send_b_quick_new:"🆕 New Arrival",
+    send_b_quick_thanks:"🙏 Thank You",send_b_quick_offer:"🎁 Special Offer",
+    send_b_imgs_title:"🖼️ Photos for this Customer",
+    send_b_imgs_sub:"Select photos from the gallery or upload new ones:",
+    send_b_from_gallery:"📷 Choose from Gallery",
+    send_b_upload:"⬆️ Upload New Photo",
+    send_b_no_imgs:"No photos selected — photos are optional",
+    send_b_download:"⬇️ Download this customer's photos",
+    send_b_btn:"📤 Open WhatsApp & Send Message",
+    send_b_picker_title:"Select Photos:",
+    send_b_picker_done:"✓ Done"
   }
 };
 
@@ -1797,6 +1863,42 @@ function applyTr() {
   sp2("lred-search",       t("lred_search_ph"));
 
   sx("btn-close-lhist",    t("btn_close_lhist"));
+
+  // ── ترجمة تبويب الإرسال ──
+  sx("send-tab-a",            t("send_tab_a"));
+  sx("send-tab-b",            t("send_tab_b"));
+  sx("send-a-msg-title",      t("send_a_msg_title"));
+  sx("send-a-img-title",      t("send_a_img_title"));
+  sx("send-a-img-sub",        t("send_a_img_sub"));
+  sx("send-no-imgs-txt",      t("send_no_imgs"));
+  sx("send-go-gallery-btn",   t("send_go_gallery"));
+  sx("send-pics-lbl",         t("send_pics_lbl"));
+  sx("send-change-imgs-btn",  t("send_change_imgs"));
+  sx("send-download-imgs-btn",t("send_download_imgs"));
+  sx("send-steps-title",      t("send_steps_title"));
+  document.getElementById("send-step1") && (document.getElementById("send-step1").innerHTML = "1️⃣ " + t("send_step1"));
+  sx("send-step2",            "2️⃣ " + t("send_step2"));
+  sx("send-step3",            "3️⃣ " + t("send_step3"));
+  sx("send-step4",            "4️⃣ " + t("send_step4"));
+  sx("send-grp-title",        t("send_grp_title"));
+  sx("send-b-search-title",   t("send_b_search_title"));
+  sp2("send-b-search",        t("send_b_search_ph"));
+  sx("send-b-change-btn",     t("send_b_change"));
+  sx("send-b-msg-title",      t("send_b_msg_title"));
+  sp2("wmsg-b",               t("send_b_msg_ph"));
+  sx("send-b-quick-greet",    t("send_b_quick_greet"));
+  sx("send-b-quick-new",      t("send_b_quick_new"));
+  sx("send-b-quick-thanks",   t("send_b_quick_thanks"));
+  sx("send-b-quick-offer",    t("send_b_quick_offer"));
+  sx("send-b-imgs-title",     t("send_b_imgs_title"));
+  sx("send-b-imgs-sub",       t("send_b_imgs_sub"));
+  sx("send-b-from-gallery-btn", t("send_b_from_gallery"));
+  sx("send-b-upload-lbl",     t("send_b_upload"));
+  sx("send-b-imgs-empty",     t("send_b_no_imgs"));
+  sx("send-b-download-btn",   t("send_b_download"));
+  sx("send-b-main-btn",       t("send_b_btn"));
+  sx("send-b-picker-title",   t("send_b_picker_title"));
+  sx("send-b-picker-done-btn",t("send_b_picker_done"));
 }
 
 // ===== COUNTRIES =====
