@@ -94,19 +94,29 @@ nav{
   flex-direction:column;
 }
 .hero-badge{
-  display:inline-flex; align-items:center; gap:8px;
+  display:inline-flex;
+  flex-direction:row-reverse;
+  align-items:center;
+  gap:10px;
   background:rgba(192,132,252,.1);
   border:1px solid rgba(192,132,252,.25);
-  border-radius:30px; padding:6px 18px;
-  font-size:13px; color:var(--lilac);
+  border-radius:30px;
+  padding:8px 20px;
+  font-size:13px;
+  color:var(--lilac);
   margin-bottom:28px;
   white-space:nowrap;
-  flex-direction:row;
-  width:auto;
-  max-width:100%;
   animation:fadeup .6s ease both;
+  direction:rtl;
 }
-.hero-badge span{ width:7px; height:7px; border-radius:50%; background:var(--rose); display:inline-block; animation:pulse 2s infinite; }
+.badge-dot{
+  width:8px; height:8px;
+  border-radius:50%;
+  background:var(--rose);
+  flex-shrink:0;
+  animation:pulse 2s infinite;
+}
+
 @keyframes pulse{ 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
 .hero h1{
   font-family:'Playfair Display','Tajawal',sans-serif;
@@ -474,7 +484,7 @@ footer{
 <section class="hero">
   <div style="max-width:900px;width:100%;display:flex;flex-direction:column;align-items:center;">
     <div class="hero-badge">
-      <span></span>
+      <span class="badge-dot"></span>
       <span id="hero-badge-txt">الحل الأمثل لإدارة زبائن نشاطك التجاري</span>
     </div>
     <h1>
