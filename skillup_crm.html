@@ -1148,19 +1148,19 @@ body::before {
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;" id="loyalty-tier-stats">
     <div class="stat-card" style="border-color:rgba(205,127,50,.4);background:linear-gradient(135deg,#1a0e00,#120a00);">
       <div style="font-size:28px;font-weight:900;color:#cd7f32;" id="ls-bronze">0</div>
-      <div class="stat-label">🥉 برونز <span style="font-size:11px;color:var(--tx3);" id="ls-bronze-r">(0-99)</span></div>
+      <div class="stat-label"><span id="lbl-tier-bronze">🥉 برونز</span> <span style="font-size:11px;color:var(--tx3);" id="ls-bronze-r">(0-99)</span></div>
     </div>
     <div class="stat-card" style="border-color:rgba(192,192,192,.4);background:linear-gradient(135deg,#151515,#0e0e0e);">
       <div style="font-size:28px;font-weight:900;color:#c0c0c0;" id="ls-silver">0</div>
-      <div class="stat-label">🥈 فضة <span style="font-size:11px;color:var(--tx3);" id="ls-silver-r">(100-299)</span></div>
+      <div class="stat-label"><span id="lbl-tier-silver">🥈 فضة</span> <span style="font-size:11px;color:var(--tx3);" id="ls-silver-r">(100-299)</span></div>
     </div>
     <div class="stat-card" style="border-color:rgba(255,215,0,.4);background:linear-gradient(135deg,#1a1400,#120f00);">
       <div style="font-size:28px;font-weight:900;color:#ffd700;" id="ls-gold">0</div>
-      <div class="stat-label">🥇 ذهب <span style="font-size:11px;color:var(--tx3);" id="ls-gold-r">(300-599)</span></div>
+      <div class="stat-label"><span id="lbl-tier-gold">🥇 ذهب</span> <span style="font-size:11px;color:var(--tx3);" id="ls-gold-r">(300-599)</span></div>
     </div>
     <div class="stat-card" style="border-color:rgba(96,165,250,.4);background:linear-gradient(135deg,#001a2e,#00101c);">
       <div style="font-size:28px;font-weight:900;color:#60a5fa;" id="ls-platinum">0</div>
-      <div class="stat-label">💎 بلاتين <span style="font-size:11px;color:var(--tx3);" id="ls-platinum-r">(600+)</span></div>
+      <div class="stat-label"><span id="lbl-tier-platinum">💎 بلاتين</span> <span style="font-size:11px;color:var(--tx3);" id="ls-platinum-r">(600+)</span></div>
     </div>
   </div>
 
@@ -1190,7 +1190,7 @@ body::before {
   <!-- سجل آخر الحركات -->
   <div style="margin-top:28px;">
     <div style="font-size:16px;font-weight:700;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
-      📋 <span>آخر حركات النقاط</span>
+      📋 <span id="loyalty-last-tx-title">آخر حركات النقاط</span>
     </div>
     <div class="cust-list" id="loyalty-tx-log"></div>
   </div>
@@ -1198,43 +1198,43 @@ body::before {
   <!-- إعدادات النظام -->
   <div style="margin-top:28px;">
     <div style="font-size:16px;font-weight:700;color:var(--purple);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
-      ⚙️ <span>إعدادات نظام النقاط</span>
+      <span id="loyalty-cfg-title">⚙️ إعدادات نظام النقاط</span>
     </div>
     <div style="background:rgba(192,132,252,.06);border:1px solid rgba(192,132,252,.2);border-radius:16px;padding:20px;">
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:16px;">
 
         <div>
-          <label style="display:block;font-size:12px;color:var(--tx2);margin-bottom:6px;font-weight:600;">⭐ نقاط لكل ريال عُماني</label>
+          <label id="cfg-pts-per-omr-lbl" style="display:block;font-size:12px;color:var(--tx2);margin-bottom:6px;font-weight:600;">⭐ نقاط لكل ريال عُماني</label>
           <input type="number" id="cfg-pts-per-omr" min="0.1" step="0.1" placeholder="1"
             style="width:100%;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:10px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
             onfocus="this.style.borderColor='var(--purple)'" onblur="this.style.borderColor='var(--bdr)'">
-          <div style="font-size:11px;color:var(--tx3);margin-top:4px;">مثال: 2 = نقطتان لكل ريال</div>
+          <div id="cfg-pts-per-omr-hint" style="font-size:11px;color:var(--tx3);margin-top:4px;">مثال: 2 = نقطتان لكل ريال</div>
         </div>
 
         <div>
-          <label style="display:block;font-size:12px;color:var(--tx2);margin-bottom:6px;font-weight:600;">💰 قيمة النقطة عند الاستبدال (ر.ع)</label>
+          <label id="cfg-omr-per-pt-lbl" style="display:block;font-size:12px;color:var(--tx2);margin-bottom:6px;font-weight:600;">💰 قيمة النقطة عند الاستبدال (ر.ع)</label>
           <input type="number" id="cfg-omr-per-pt" min="0.001" step="0.001" placeholder="0.1"
             style="width:100%;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:10px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
             onfocus="this.style.borderColor='var(--purple)'" onblur="this.style.borderColor='var(--bdr)'">
-          <div style="font-size:11px;color:var(--tx3);margin-top:4px;">مثال: 0.1 = 100 نقطة = 10 ر.ع</div>
+          <div id="cfg-omr-per-pt-hint" style="font-size:11px;color:var(--tx3);margin-top:4px;">مثال: 0.1 = 100 نقطة = 10 ر.ع</div>
         </div>
 
         <div>
-          <label style="display:block;font-size:12px;color:var(--tx2);margin-bottom:6px;font-weight:600;">🥈 حد مستوى الفضة (نقطة)</label>
+          <label id="cfg-silver-thr-lbl" style="display:block;font-size:12px;color:var(--tx2);margin-bottom:6px;font-weight:600;">🥈 حد مستوى الفضة (نقطة)</label>
           <input type="number" id="cfg-silver-thr" min="1" placeholder="100"
             style="width:100%;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:10px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
             onfocus="this.style.borderColor='#c0c0c0'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
 
         <div>
-          <label style="display:block;font-size:12px;color:var(--tx2);margin-bottom:6px;font-weight:600;">🥇 حد مستوى الذهب (نقطة)</label>
+          <label id="cfg-gold-thr-lbl" style="display:block;font-size:12px;color:var(--tx2);margin-bottom:6px;font-weight:600;">🥇 حد مستوى الذهب (نقطة)</label>
           <input type="number" id="cfg-gold-thr" min="1" placeholder="300"
             style="width:100%;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:10px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
             onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
 
         <div>
-          <label style="display:block;font-size:12px;color:var(--tx2);margin-bottom:6px;font-weight:600;">💎 حد مستوى البلاتين (نقطة)</label>
+          <label id="cfg-platinum-thr-lbl" style="display:block;font-size:12px;color:var(--tx2);margin-bottom:6px;font-weight:600;">💎 حد مستوى البلاتين (نقطة)</label>
           <input type="number" id="cfg-platinum-thr" min="1" placeholder="600"
             style="width:100%;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:10px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
             onfocus="this.style.borderColor='#60a5fa'" onblur="this.style.borderColor='var(--bdr)'">
@@ -1243,12 +1243,12 @@ body::before {
       </div>
       <!-- معاينة الحساب -->
       <div id="cfg-preview" style="background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.15);border-radius:10px;padding:12px 16px;margin-bottom:14px;font-size:13px;color:var(--tx2);">
-        مثال: شراء بـ <strong style="color:var(--gold);" id="cfg-ex-amt">10</strong> ر.ع
+        <span id="cfg-preview-title">معاينة حية:</span> شراء بـ <strong style="color:var(--gold);" id="cfg-ex-amt">10</strong> ر.ع
         = <strong style="color:var(--accent);" id="cfg-ex-pts">10</strong> نقطة
         | قيمة الاستبدال = <strong style="color:var(--green);" id="cfg-ex-omr">1.000</strong> ر.ع
       </div>
-      <button onclick="saveLoyaltyConfig()" style="padding:10px 24px;background:linear-gradient(135deg,var(--purple),var(--rose));border:none;border-radius:10px;color:#fff;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">
-        💾 حفظ الإعدادات
+      <button id="btn-save-loyalty-cfg" onclick="saveLoyaltyConfig()" style="padding:10px 24px;background:linear-gradient(135deg,var(--purple),var(--rose));border:none;border-radius:10px;color:#fff;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">
+        💾 حفظ إعدادات النقاط
       </button>
     </div>
   </div>
@@ -1417,7 +1417,52 @@ var T = {
     inv_ph_name:"مثال: حقيبة جلدية بنية", inv_ph_cat:"مثال: حقائب، إلكترونيات...",
     inv_ph_unit:"قطعة / كيلو / متر", inv_ph_supplier:"اسم المورد",
     inv_ph_notes:"أي ملاحظات إضافية...", inv_ph_note:"سبب الصرف / اسم المشتري / رقم الفاتورة...",
-    inv_btn_cancel:"إلغاء", inv_btn_save:"💾 حفظ"
+    inv_btn_cancel:"إلغاء", inv_btn_save:"💾 حفظ",
+
+    loyalty:"نقاط الولاء",
+    loyalty_title:"🏅 نقاط الولاء",
+    btn_add_pts:"⭐ إضافة نقاط",
+    btn_redeem_pts:"🎁 استبدال نقاط",
+    lbl_bronze:"🥉 برونز",lbl_silver:"🥈 فضة",lbl_gold:"🥇 ذهب",lbl_platinum:"💎 بلاتين",
+    loyalty_search:"ابحث عن زبون...",
+    all_tiers:"🏅 كل المستويات",
+    tier_bronze:"🥉 برونز",tier_silver:"🥈 فضة",tier_gold:"🥇 ذهب",tier_platinum:"💎 بلاتين",
+    sort_pts_desc:"⬇ أعلى نقاط",sort_pts_asc:"⬆ أقل نقاط",sort_name:"أ-ي الاسم",
+    last_tx_title:"آخر حركات النقاط",
+    loyalty_cfg_title:"⚙️ إعدادات نظام النقاط",
+    cfg_pts_per_omr:"⭐ نقاط لكل ريال عُماني",cfg_pts_per_omr_hint:"مثال: 2 = نقطتان لكل ريال",
+    cfg_omr_per_pt:"💰 قيمة النقطة عند الاستبدال (ر.ع)",cfg_omr_per_pt_hint:"مثال: 0.1 = 100 نقطة = 10 ر.ع",
+    cfg_silver_thr:"🥈 حد مستوى الفضة (نقطة)",cfg_gold_thr:"🥇 حد مستوى الذهب (نقطة)",
+    cfg_platinum_thr:"💎 حد مستوى البلاتين (نقطة)",
+    cfg_preview_title:"معاينة حية:",
+    cfg_preview_txt:"مقابل كل",cfg_preview_pts:"نقطة =",cfg_preview_omr:"ر.ع",
+    btn_save_loyalty_cfg:"💾 حفظ إعدادات النقاط",
+    loyalty_cfg_saved:"✅ تم حفظ إعدادات النقاط",
+
+    ladd_title:"⭐ إضافة نقاط",
+    ladd_cust_lbl:"اختر الزبون",ladd_search_ph:"ابحث عن زبون...",
+    ladd_pts_lbl:"عدد النقاط",ladd_type_lbl:"نوع الإضافة",
+    ladd_ref_lbl:"مرجع (رقم فاتورة...)",ladd_note_lbl:"ملاحظة",
+    ladd_type_purchase:"شراء 🛍️",ladd_type_welcome:"ترحيب 👋",
+    ladd_type_referral:"إحالة 🤝",ladd_type_manual:"يدوي ✏️",
+    btn_cancel_ladd:"إلغاء",btn_save_ladd:"⭐ إضافة النقاط",
+
+    lred_title:"🎁 استبدال نقاط",
+    lred_cust_lbl:"اختر الزبون",lred_search_ph:"ابحث عن زبون...",
+    lred_pts_lbl:"عدد النقاط للاستبدال",
+    lred_ref_lbl:"مرجع",
+    lred_calc_omr_lbl:"القيمة:",lred_calc_rem_lbl:"المتبقي:",
+    btn_cancel_lred:"إلغاء",btn_save_lred:"🎁 استبدال",
+
+    lhist_curr_bal:"الرصيد الحالي",lhist_total_earned:"إجمالي مكتسبة",
+    lhist_total_redeemed:"إجمالي مستبدلة",lhist_omr_val:"قيمة ر.ع",
+    lhist_no_tx:"لا توجد حركات بعد",
+    btn_close_lhist:"إغلاق",
+
+    no_loyalty_customers:"لا يوجد زبائن بعد",
+    pts_lbl:"نقطة",
+    view_history:"📋 السجل",
+    add_pts_btn:"⭐ إضافة",redeem_pts_btn:"🎁 استبدال"
   },
   en: {
     dir:"ltr",lang:"en",
@@ -1505,7 +1550,52 @@ var T = {
     inv_ph_name:"Example: Brown Leather Bag", inv_ph_cat:"Example: Bags, Electronics...",
     inv_ph_unit:"Unit / Kg / Meter", inv_ph_supplier:"Supplier name",
     inv_ph_notes:"Any additional notes...", inv_ph_note:"Reason / Buyer name / Invoice number...",
-    inv_btn_cancel:"Cancel", inv_btn_save:"💾 Save"
+    inv_btn_cancel:"Cancel", inv_btn_save:"💾 Save",
+
+    loyalty:"Loyalty Points",
+    loyalty_title:"🏅 Loyalty Points",
+    btn_add_pts:"⭐ Add Points",
+    btn_redeem_pts:"🎁 Redeem Points",
+    lbl_bronze:"🥉 Bronze",lbl_silver:"🥈 Silver",lbl_gold:"🥇 Gold",lbl_platinum:"💎 Platinum",
+    loyalty_search:"Search customer...",
+    all_tiers:"🏅 All Tiers",
+    tier_bronze:"🥉 Bronze",tier_silver:"🥈 Silver",tier_gold:"🥇 Gold",tier_platinum:"💎 Platinum",
+    sort_pts_desc:"⬇ Highest Points",sort_pts_asc:"⬆ Lowest Points",sort_name:"A-Z Name",
+    last_tx_title:"Latest Point Transactions",
+    loyalty_cfg_title:"⚙️ Points System Settings",
+    cfg_pts_per_omr:"⭐ Points per OMR",cfg_pts_per_omr_hint:"Example: 2 = 2 pts per OMR",
+    cfg_omr_per_pt:"💰 Point value when redeeming (OMR)",cfg_omr_per_pt_hint:"Example: 0.1 = 100 pts = 10 OMR",
+    cfg_silver_thr:"🥈 Silver tier threshold (pts)",cfg_gold_thr:"🥇 Gold tier threshold (pts)",
+    cfg_platinum_thr:"💎 Platinum tier threshold (pts)",
+    cfg_preview_title:"Live Preview:",
+    cfg_preview_txt:"For every",cfg_preview_pts:"pts =",cfg_preview_omr:"OMR",
+    btn_save_loyalty_cfg:"💾 Save Points Settings",
+    loyalty_cfg_saved:"✅ Points settings saved",
+
+    ladd_title:"⭐ Add Points",
+    ladd_cust_lbl:"Select Customer",ladd_search_ph:"Search customer...",
+    ladd_pts_lbl:"Number of Points",ladd_type_lbl:"Type",
+    ladd_ref_lbl:"Reference (Invoice No...)",ladd_note_lbl:"Note",
+    ladd_type_purchase:"Purchase 🛍️",ladd_type_welcome:"Welcome 👋",
+    ladd_type_referral:"Referral 🤝",ladd_type_manual:"Manual ✏️",
+    btn_cancel_ladd:"Cancel",btn_save_ladd:"⭐ Add Points",
+
+    lred_title:"🎁 Redeem Points",
+    lred_cust_lbl:"Select Customer",lred_search_ph:"Search customer...",
+    lred_pts_lbl:"Points to Redeem",
+    lred_ref_lbl:"Reference",
+    lred_calc_omr_lbl:"Value:",lred_calc_rem_lbl:"Remaining:",
+    btn_cancel_lred:"Cancel",btn_save_lred:"🎁 Redeem",
+
+    lhist_curr_bal:"Current Balance",lhist_total_earned:"Total Earned",
+    lhist_total_redeemed:"Total Redeemed",lhist_omr_val:"OMR Value",
+    lhist_no_tx:"No transactions yet",
+    btn_close_lhist:"Close",
+
+    no_loyalty_customers:"No customers yet",
+    pts_lbl:"pts",
+    view_history:"📋 History",
+    add_pts_btn:"⭐ Add",redeem_pts_btn:"🎁 Redeem"
   }
 };
 
@@ -1650,6 +1740,63 @@ function applyTr() {
   sp2("inv-p-notes",    t("inv_ph_notes"));
   sp2("inv-m-supplier", t("inv_ph_supplier"));
   sp2("inv-m-note",     t("inv_ph_note"));
+
+  // ── ترجمة تبويب الولاء ──
+  sx("title-loyalty",        t("loyalty_title"));
+  sx("btn-add-pts",          t("btn_add_pts"));
+  sx("btn-redeem-pts",       t("btn_redeem_pts"));
+  sx("nav-loyalty",          t("loyalty"));
+
+  sx("lbl-tier-bronze",   t("lbl_bronze"));
+  sx("lbl-tier-silver",   t("lbl_silver"));
+  sx("lbl-tier-gold",     t("lbl_gold"));
+  sx("lbl-tier-platinum", t("lbl_platinum"));
+
+  sp2("loyalty-search", t("loyalty_search"));
+  so("loyalty-tier-filter", 0, t("all_tiers"));
+  so("loyalty-tier-filter", 1, t("tier_bronze"));
+  so("loyalty-tier-filter", 2, t("tier_silver"));
+  so("loyalty-tier-filter", 3, t("tier_gold"));
+  so("loyalty-tier-filter", 4, t("tier_platinum"));
+  so("loyalty-sort", 0, t("sort_pts_desc"));
+  so("loyalty-sort", 1, t("sort_pts_asc"));
+  so("loyalty-sort", 2, t("sort_name"));
+
+  sx("loyalty-last-tx-title",  t("last_tx_title"));
+  sx("loyalty-cfg-title",      t("loyalty_cfg_title"));
+  sx("cfg-pts-per-omr-lbl",    t("cfg_pts_per_omr"));
+  sx("cfg-pts-per-omr-hint",   t("cfg_pts_per_omr_hint"));
+  sx("cfg-omr-per-pt-lbl",     t("cfg_omr_per_pt"));
+  sx("cfg-omr-per-pt-hint",    t("cfg_omr_per_pt_hint"));
+  sx("cfg-silver-thr-lbl",     t("cfg_silver_thr"));
+  sx("cfg-gold-thr-lbl",       t("cfg_gold_thr"));
+  sx("cfg-platinum-thr-lbl",   t("cfg_platinum_thr"));
+  sx("cfg-preview-title",      t("cfg_preview_title"));
+  sx("btn-save-loyalty-cfg",   t("btn_save_loyalty_cfg"));
+
+  sx("ladd-modal-title",   t("ladd_title"));
+  sx("ladd-cust-lbl",      t("ladd_cust_lbl"));
+  sx("ladd-pts-lbl",       t("ladd_pts_lbl"));
+  sx("ladd-type-lbl",      t("ladd_type_lbl"));
+  sx("ladd-ref-lbl",       t("ladd_ref_lbl"));
+  sx("ladd-note-lbl",      t("ladd_note_lbl"));
+  sx("btn-cancel-ladd",    t("btn_cancel_ladd"));
+  sx("btn-save-ladd",      t("btn_save_ladd"));
+  sp2("ladd-search",       t("ladd_search_ph"));
+  so("ladd-type", 0, t("ladd_type_purchase"));
+  so("ladd-type", 1, t("ladd_type_welcome"));
+  so("ladd-type", 2, t("ladd_type_referral"));
+  so("ladd-type", 3, t("ladd_type_manual"));
+
+  sx("lred-modal-title",   t("lred_title"));
+  sx("lred-cust-lbl",      t("lred_cust_lbl"));
+  sx("lred-pts-lbl",       t("lred_pts_lbl"));
+  sx("lred-ref-lbl",       t("lred_ref_lbl"));
+  sx("btn-cancel-lred",    t("btn_cancel_lred"));
+  sx("btn-save-lred",      t("btn_save_lred"));
+  sp2("lred-search",       t("lred_search_ph"));
+
+  sx("btn-close-lhist",    t("btn_close_lhist"));
 }
 
 // ===== COUNTRIES =====
@@ -3900,13 +4047,13 @@ async function saveScanResults() {
 <div class="mo" id="mo-loyalty-add">
   <div class="modal" style="max-width:480px;width:95%;">
     <div class="mh">
-      <div class="mt" style="color:var(--gold);">⭐ إضافة نقاط لزبون</div>
+      <div class="mt" id="ladd-modal-title" style="color:var(--gold);">⭐ إضافة نقاط لزبون</div>
       <button class="mc" onclick="closeMo('loyalty-add')">✕</button>
     </div>
 
     <!-- بحث الزبون -->
     <div style="margin-bottom:14px;">
-      <label style="display:block;font-size:13px;color:var(--tx2);margin-bottom:6px;font-weight:600;">🔍 ابحث عن الزبون</label>
+      <label id="ladd-cust-lbl" style="display:block;font-size:13px;color:var(--tx2);margin-bottom:6px;font-weight:600;">🔍 ابحث عن الزبون</label>
       <input type="text" id="ladd-search" placeholder="الاسم أو الهاتف..." oninput="loyaltySearchCustomer('ladd')"
         style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;">
       <div id="ladd-results" style="margin-top:6px;"></div>
@@ -3927,7 +4074,7 @@ async function saveScanResults() {
     <div id="ladd-form" style="display:none;">
       <div class="mg" style="margin-bottom:14px;">
         <div class="field">
-          <label style="font-size:13px;color:var(--tx2);font-weight:600;">نوع الإضافة</label>
+          <label id="ladd-type-lbl" style="font-size:13px;color:var(--tx2);font-weight:600;">نوع الإضافة</label>
           <select id="ladd-type" onchange="onLaddTypeChange()" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;">
             <option value="earn_purchase">🛍️ شراء</option>
             <option value="earn_welcome">👋 ترحيب</option>
@@ -3944,27 +4091,27 @@ async function saveScanResults() {
           <div id="ladd-pts-calc" style="margin-top:5px;font-size:12px;color:var(--gold);font-weight:700;display:none;"></div>
         </div>
         <div class="field">
-          <label style="font-size:13px;color:var(--tx2);font-weight:600;">⭐ عدد النقاط</label>
+          <label id="ladd-pts-lbl" style="font-size:13px;color:var(--tx2);font-weight:600;">⭐ عدد النقاط</label>
           <input type="number" id="ladd-points" min="1" value="10" placeholder="10"
             style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
             onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
         <div class="field">
-          <label style="font-size:13px;color:var(--tx2);font-weight:600;">📋 رقم الفاتورة (اختياري)</label>
+          <label id="ladd-ref-lbl" style="font-size:13px;color:var(--tx2);font-weight:600;">📋 رقم الفاتورة (اختياري)</label>
           <input type="text" id="ladd-ref" placeholder="INV-001"
             style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
             onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
         <div class="field">
-          <label style="font-size:13px;color:var(--tx2);font-weight:600;">📝 ملاحظة</label>
+          <label id="ladd-note-lbl" style="font-size:13px;color:var(--tx2);font-weight:600;">📝 ملاحظة</label>
           <input type="text" id="ladd-note" placeholder="سبب الإضافة..."
             style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
             onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
       </div>
       <div class="mact">
-        <button class="btn" onclick="closeMo('loyalty-add')">إلغاء</button>
-        <button class="btn b-pink" onclick="saveLoyaltyAdd()" style="background:linear-gradient(135deg,#f0c040,#fb923c);border:none;">⭐ إضافة النقاط</button>
+        <button class="btn" id="btn-cancel-ladd" onclick="closeMo('loyalty-add')">إلغاء</button>
+        <button class="btn b-pink" id="btn-save-ladd" onclick="saveLoyaltyAdd()" style="background:linear-gradient(135deg,#f0c040,#fb923c);border:none;">⭐ إضافة النقاط</button>
       </div>
     </div>
   </div>
@@ -3976,12 +4123,12 @@ async function saveScanResults() {
 <div class="mo" id="mo-loyalty-redeem">
   <div class="modal" style="max-width:480px;width:95%;">
     <div class="mh">
-      <div class="mt" style="color:var(--green);">🎁 استبدال النقاط</div>
+      <div class="mt" id="lred-modal-title" style="color:var(--green);">🎁 استبدال النقاط</div>
       <button class="mc" onclick="closeMo('loyalty-redeem')">✕</button>
     </div>
 
     <div style="margin-bottom:14px;">
-      <label style="display:block;font-size:13px;color:var(--tx2);margin-bottom:6px;font-weight:600;">🔍 ابحث عن الزبون</label>
+      <label id="lred-cust-lbl" style="display:block;font-size:13px;color:var(--tx2);margin-bottom:6px;font-weight:600;">🔍 ابحث عن الزبون</label>
       <input type="text" id="lred-search" placeholder="الاسم أو الهاتف..." oninput="loyaltySearchCustomer('lred')"
         style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;">
       <div id="lred-results" style="margin-top:6px;"></div>
@@ -4004,7 +4151,7 @@ async function saveScanResults() {
     <div id="lred-form" style="display:none;">
       <div class="mg" style="margin-bottom:14px;">
         <div class="field">
-          <label style="font-size:13px;color:var(--tx2);font-weight:600;">🎯 النقاط المراد استبدالها</label>
+          <label id="lred-pts-lbl" style="font-size:13px;color:var(--tx2);font-weight:600;">🎯 النقاط المراد استبدالها</label>
           <input type="number" id="lred-points" min="1" placeholder="أدخل عدد النقاط..." oninput="updateRedeemCalc()"
             style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
             onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--bdr)'">
@@ -4023,15 +4170,15 @@ async function saveScanResults() {
         </div>
 
         <div class="field">
-          <label style="font-size:13px;color:var(--tx2);font-weight:600;">📋 رقم الفاتورة</label>
+          <label id="lred-ref-lbl" style="font-size:13px;color:var(--tx2);font-weight:600;">📋 رقم الفاتورة</label>
           <input type="text" id="lred-ref" placeholder="INV-001"
             style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
             onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
       </div>
       <div class="mact">
-        <button class="btn" onclick="closeMo('loyalty-redeem')">إلغاء</button>
-        <button class="btn b-pink" onclick="saveLoyaltyRedeem()" style="background:linear-gradient(135deg,#34d399,#059669);border:none;">🎁 تأكيد الاستبدال</button>
+        <button class="btn" id="btn-cancel-lred" onclick="closeMo('loyalty-redeem')">إلغاء</button>
+        <button class="btn b-pink" id="btn-save-lred" onclick="saveLoyaltyRedeem()" style="background:linear-gradient(135deg,#34d399,#059669);border:none;">🎁 تأكيد الاستبدال</button>
       </div>
     </div>
   </div>
@@ -4050,7 +4197,7 @@ async function saveScanResults() {
     <div id="lhist-list" style="max-height:60vh;overflow-y:auto;"></div>
     <div class="mact" style="margin-top:12px;">
       <button class="btn b-pink" onclick="openLoyaltyAddFor(_lhistCustId)" style="background:linear-gradient(135deg,#f0c040,#fb923c);border:none;">⭐ إضافة نقاط</button>
-      <button class="btn" onclick="closeMo('loyalty-history')">إغلاق</button>
+      <button class="btn" id="btn-close-lhist" onclick="closeMo('loyalty-history')">إغلاق</button>
     </div>
   </div>
 </div>
@@ -4125,7 +4272,7 @@ function saveLoyaltyConfig() {
   LOYALTY_SETTINGS.gold_threshold     = gold;
   LOYALTY_SETTINGS.platinum_threshold = plat;
   saveLoyaltySettings();
-  toast('✅ تم حفظ إعدادات الولاء');
+  toast(t('loyalty_cfg_saved'));
   renderLoyaltyList();
 }
 
