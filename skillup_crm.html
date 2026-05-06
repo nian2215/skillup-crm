@@ -549,6 +549,176 @@ body::before {
 .section.active { display: block; }
 .warn-bar { background: rgba(192,132,252,.08); border: 1px solid rgba(192,132,252,.25); border-radius: var(--rs); padding: 14px 18px; margin-bottom: 14px; font-size: 13px; color: #c084fc; }
 
+/* ══════════════════════════════════════
+   MOBILE RESPONSIVE — شاشات الموبايل
+══════════════════════════════════════ */
+
+/* شريط التنقل السفلي للموبايل */
+.mobile-nav {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  background: linear-gradient(180deg, rgba(21,14,26,.97) 0%, rgba(15,9,20,1) 100%);
+  border-top: 1px solid rgba(192,132,252,.2);
+  backdrop-filter: blur(20px);
+  padding: 8px 4px env(safe-area-inset-bottom, 8px);
+  display: none;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}
+.mob-nav-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 6px 4px; cursor: pointer; border-radius: 12px;
+  transition: all .2s; color: var(--tx3); font-size: 10px; font-family: 'Tajawal', sans-serif;
+  border: none; background: none;
+}
+.mob-nav-item svg { width: 22px; height: 22px; }
+.mob-nav-item.active { color: var(--rose); }
+.mob-nav-item.active svg { filter: drop-shadow(0 0 4px rgba(244,114,182,.6)); }
+
+/* هيدر الموبايل */
+.mobile-header {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 150;
+  background: rgba(15,9,20,.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(192,132,252,.15);
+  padding: 12px 16px;
+  flex-direction: row; align-items: center; justify-content: space-between;
+}
+.mob-logo { display: flex; align-items: center; gap: 8px; }
+.mob-logo-txt {
+  font-size: 18px; font-weight: 800;
+  background: linear-gradient(135deg, #f472b6, #c084fc);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.mob-lang-btn {
+  padding: 6px 14px; border-radius: 20px;
+  border: 1px solid rgba(192,132,252,.3); background: rgba(192,132,252,.08);
+  color: #c084fc; font-family: 'Tajawal', sans-serif; font-size: 12px;
+  font-weight: 700; cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  /* إخفاء السايدبار وإظهار الموبايل */
+  .sidebar       { display: none !important; }
+  .mobile-header { display: flex !important; }
+  .mobile-nav    { display: flex !important; }
+
+  /* المحتوى الرئيسي */
+  .main {
+    margin-right: 0 !important;
+    max-width: 100vw !important;
+    padding: 80px 14px 90px !important;
+  }
+
+  /* عنوان الصفحة */
+  .page-title { font-size: 20px !important; }
+
+  /* الـ topbar — يصبح عمودي */
+  .topbar {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    margin-bottom: 16px !important;
+  }
+  .topbar > div:last-child {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  /* الأزرار */
+  .add-btn {
+    font-size: 12px !important;
+    padding: 10px 16px !important;
+  }
+
+  /* إحصائيات الرئيسية — عمودان */
+  .stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+  .stat-card { padding: 16px 12px !important; }
+  .stat-val  { font-size: 28px !important; }
+
+  /* بحث الزبائن — عمود واحد */
+  .search-wrap {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    padding: 12px !important;
+  }
+
+  /* بطاقة الزبون */
+  .cust-card {
+    padding: 12px !important;
+    flex-wrap: wrap !important;
+  }
+  .cust-meta { font-size: 11px !important; }
+
+  /* أزرار الإجراءات */
+  .cact { flex-wrap: wrap !important; gap: 4px !important; }
+  .ibtn { padding: 6px 7px !important; }
+  .ibtn span { font-size: 9px !important; }
+
+  /* النوافذ */
+  .modal {
+    width: 96% !important;
+    max-width: 96% !important;
+    padding: 20px 16px !important;
+    max-height: 92vh !important;
+    border-radius: 18px !important;
+  }
+  .mg { grid-template-columns: 1fr !important; }
+
+  /* الشبكات الداخلية */
+  .stats-grid,
+  div[style*="grid-template-columns:repeat(4"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  div[style*="grid-template-columns:1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* المعرض */
+  .gal-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) !important; }
+  .gal-upload { padding: 24px 16px !important; }
+
+  /* إحصائيات المخزون */
+  #tab-inventory div[style*="grid-template-columns:repeat(4"] {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* بحث المخزون */
+  #tab-inventory div[style*="display:flex;gap:10px;margin-bottom:16px"] {
+    flex-wrap: wrap !important;
+  }
+  #inv-search { min-width: unset !important; width: 100% !important; }
+
+  /* نافذة المخزون — شبكات داخلية */
+  #inv-form-product div[style*="grid-template-columns:1fr 1fr"],
+  #inv-form-product div[style*="grid-template-columns:1fr auto"],
+  #inv-form-movement div[style*="grid-template-columns:1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* أزرار المجموعات */
+  .grp-btns { gap: 7px !important; }
+  .grp-btns .btn { font-size: 12px !important; padding: 8px 12px !important; }
+
+  /* نافذة المسح */
+  #mo-scan .modal { padding: 18px 14px !important; }
+
+  /* البطاقات */
+  .card { padding: 16px !important; }
+
+  /* الإعدادات */
+  .cfg-grid { grid-template-columns: 1fr !important; }
+  .set-card  { padding: 16px !important; }
+}
+
 /* === SCROLLBAR === */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg2); }
@@ -562,6 +732,39 @@ body::before {
 </head>
 <body>
 <div class="particles" id="particles"></div>
+<!-- ═══ MOBILE HEADER ═══ -->
+<div class="mobile-header" id="mob-header">
+  <div class="mob-logo">
+    <img class="logo-img" style="width:32px;height:32px;border-radius:8px;" src="https://i.imgur.com/8mXGpqR.png" onerror="this.style.display='none'">
+    <span class="mob-logo-txt">SkillUp</span>
+  </div>
+  <button class="mob-lang-btn" onclick="toggleMobLang()" id="mob-lang-btn">EN</button>
+</div>
+
+<!-- ═══ MOBILE BOTTOM NAV ═══ -->
+<nav class="mobile-nav" id="mob-nav">
+  <button class="mob-nav-item active" id="mob-tab-dashboard" onclick="goTab('dashboard');setMobActive('dashboard')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <span id="mob-lbl-dash">الرئيسية</span>
+  </button>
+  <button class="mob-nav-item" id="mob-tab-customers" onclick="goTab('customers');setMobActive('customers')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <span id="mob-lbl-cust">الزبائن</span>
+  </button>
+  <button class="mob-nav-item" id="mob-tab-inventory" onclick="goTab('inventory');setMobActive('inventory')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+    <span id="mob-lbl-inv">المخزون</span>
+  </button>
+  <button class="mob-nav-item" id="mob-tab-gallery" onclick="goTab('gallery');setMobActive('gallery')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    <span id="mob-lbl-gal">المعرض</span>
+  </button>
+  <button class="mob-nav-item" id="mob-tab-settings" onclick="goTab('settings');setMobActive('settings')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <span id="mob-lbl-set">الإعدادات</span>
+  </button>
+</nav>
+
 <div class="app">
 <aside class="sidebar">
   <div class="logo-wrap">
@@ -1033,6 +1236,7 @@ function setLang(l) {
   document.getElementById("lang-ar").classList.toggle("lang-active", l === "ar");
   document.getElementById("lang-en").classList.toggle("lang-active", l === "en");
   applyTr();
+  updateMobNav();
   renderD(); renderC(); renderGal();
 }
 
@@ -2512,6 +2716,7 @@ pickC("green");
 document.getElementById("lang-ar").classList.toggle("lang-active", LANG==="ar");
 document.getElementById("lang-en").classList.toggle("lang-active", LANG==="en");
 applyTr();
+updateMobNav();
 renderD();
 renderC();
 
@@ -2857,6 +3062,33 @@ renderC();
 </style>
 
 <script>
+// ════════════════════════════════════
+// MOBILE — وظائف الموبايل
+// ════════════════════════════════════
+function setMobActive(tab) {
+  document.querySelectorAll('.mob-nav-item').forEach(function(el) {
+    el.classList.remove('active');
+  });
+  var el = document.getElementById('mob-tab-' + tab);
+  if (el) el.classList.add('active');
+}
+
+function toggleMobLang() {
+  setLang(LANG === 'ar' ? 'en' : 'ar');
+}
+
+function updateMobNav() {
+  var isAr = LANG === 'ar';
+  var langBtn = document.getElementById('mob-lang-btn');
+  if (langBtn) langBtn.textContent = isAr ? 'EN' : 'عربي';
+  var lbls = { dash: isAr?'الرئيسية':'Home', cust: isAr?'الزبائن':'Customers',
+               inv: isAr?'المخزون':'Inventory', gal: isAr?'المعرض':'Gallery',
+               set: isAr?'الإعدادات':'Settings' };
+  Object.keys(lbls).forEach(function(k) {
+    var el = document.getElementById('mob-lbl-'+k); if (el) el.textContent = lbls[k];
+  });
+}
+
 // ════════════════════════════════════
 // WEBCAM — كاميرا الكمبيوتر
 // ════════════════════════════════════
