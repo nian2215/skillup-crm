@@ -713,10 +713,11 @@ body::before {
 <div id="tab-inventory" class="section">
   <div class="topbar">
     <div class="page-title" id="title-inv">📦 المخزون</div>
-    <div style="display:flex;gap:10px;align-items:center;">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
       <button class="add-btn" onclick="openInvMo('product')" id="btn-add-product">+ إضافة منتج</button>
       <button class="add-btn" style="background:linear-gradient(135deg,#34d399,#059669);" onclick="openInvMo('in')" id="btn-add-in">↓ وارد</button>
       <button class="add-btn" style="background:linear-gradient(135deg,#f87171,#dc2626);" onclick="openInvMo('out')" id="btn-add-out">↑ صادر</button>
+      <button class="add-btn" style="background:linear-gradient(135deg,#f0c040,#f472b6);" onclick="openScanMo()">📷 مسح وصل</button>
     </div>
   </div>
 
@@ -2547,6 +2548,425 @@ renderC();
 
   </div>
 </div>
+
+<!-- ════════════════════════════════════════
+     MODAL: مسح الوصل الضوئي
+════════════════════════════════════════ -->
+<div class="mo" id="mo-scan">
+  <div class="modal" style="max-width:600px;">
+    <div class="mh">
+      <div class="mt">📷 مسح وصل ذكي</div>
+      <button class="mc" onclick="closeScanMo()">✕</button>
+    </div>
+
+    <!-- STEP 1: رفع الصورة -->
+    <div id="scan-step1">
+      <div style="border:2px dashed rgba(244,114,182,.35);border-radius:16px;padding:36px;text-align:center;cursor:pointer;position:relative;transition:all .3s;background:rgba(244,114,182,.04);"
+           id="scan-dropzone"
+           onclick="document.getElementById('scan-file-input').click()"
+           ondragover="event.preventDefault();this.style.borderColor='var(--rose)'"
+           ondragleave="this.style.borderColor='rgba(244,114,182,.35)'"
+           ondrop="handleScanDrop(event)">
+        <div style="font-size:48px;margin-bottom:12px;">🧾</div>
+        <div style="font-size:16px;font-weight:700;color:var(--tx);margin-bottom:6px;">اسحب صورة الوصل هنا</div>
+        <div style="font-size:13px;color:var(--tx3);">أو اضغط لاختيار صورة · JPG · PNG · PDF</div>
+        <input type="file" id="scan-file-input" accept="image/*" style="display:none" onchange="handleScanFile(event)">
+      </div>
+
+      <!-- Camera capture button -->
+      <button onclick="document.getElementById('scan-camera-input').click()"
+        style="width:100%;margin-top:12px;padding:12px;border-radius:12px;border:1px solid rgba(192,132,252,.3);background:rgba(192,132,252,.08);color:#c084fc;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .25s;"
+        onmouseover="this.style.background='rgba(192,132,252,.18)'" onmouseout="this.style.background='rgba(192,132,252,.08)'">
+        📸 التقاط صورة من الكاميرا مباشرة
+      </button>
+      <input type="file" id="scan-camera-input" accept="image/*" capture="environment" style="display:none" onchange="handleScanFile(event)">
+
+      <!-- Preview -->
+      <div id="scan-preview-wrap" style="display:none;margin-top:16px;text-align:center;">
+        <img id="scan-preview-img" style="max-width:100%;max-height:220px;border-radius:12px;border:1px solid rgba(244,114,182,.3);">
+        <div style="margin-top:10px;">
+          <button onclick="startScan()"
+            style="padding:13px 36px;border-radius:30px;border:none;background:linear-gradient(135deg,#f0c040,#f472b6);color:#fff;font-family:Tajawal,sans-serif;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 4px 20px rgba(244,114,182,.4);">
+            🔍 تحليل الوصل تلقائياً
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: جاري التحليل -->
+    <div id="scan-step2" style="display:none;text-align:center;padding:32px 0;">
+      <div style="font-size:48px;margin-bottom:16px;animation:spin2 1.5s linear infinite;display:inline-block;">⚙️</div>
+      <div style="font-size:16px;font-weight:700;color:var(--tx);margin-bottom:8px;">جاري تحليل الوصل...</div>
+      <div style="font-size:13px;color:var(--tx3);">الذكاء الاصطناعي يقرأ البيانات</div>
+      <div style="margin-top:20px;height:4px;background:var(--bdr);border-radius:2px;overflow:hidden;">
+        <div style="height:100%;background:linear-gradient(90deg,#f0c040,#f472b6);border-radius:2px;animation:scanprog 2s ease-in-out infinite;"></div>
+      </div>
+    </div>
+
+    <!-- STEP 3: النتائج -->
+    <div id="scan-step3" style="display:none;">
+      <div style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:12px;padding:12px 16px;margin-bottom:18px;font-size:13px;color:var(--green);font-weight:700;">
+        ✅ تم استخراج البيانات — راجع وعدّل إذا لزم ثم احفظ
+      </div>
+
+      <!-- عدد المنتجات المستخرجة -->
+      <div id="scan-items-container"></div>
+
+      <!-- ملاحظة المورد والتاريخ -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:6px;">🏭 المورد</label>
+          <input type="text" id="scan-supplier" placeholder="اسم المورد"
+            style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:10px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
+        </div>
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:6px;">📅 تاريخ الوصل</label>
+          <input type="date" id="scan-date"
+            style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:10px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--bdr);">
+        <button onclick="closeScanMo()"
+          style="padding:12px 24px;border-radius:30px;border:1px solid var(--bdr);background:rgba(255,255,255,.05);color:var(--tx2);font-family:Tajawal,sans-serif;font-weight:600;font-size:14px;cursor:pointer;">
+          إلغاء
+        </button>
+        <button onclick="scanRescanImg()"
+          style="padding:12px 24px;border-radius:30px;border:1px solid rgba(192,132,252,.3);background:rgba(192,132,252,.08);color:#c084fc;font-family:Tajawal,sans-serif;font-weight:600;font-size:14px;cursor:pointer;">
+          🔄 إعادة المسح
+        </button>
+        <button onclick="saveScanResults()"
+          style="padding:12px 32px;border-radius:30px;border:none;background:linear-gradient(135deg,var(--rose),var(--purple));color:#fff;font-family:Tajawal,sans-serif;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 4px 16px rgba(244,114,182,.35);">
+          💾 حفظ في المخزن
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 4: خطأ -->
+    <div id="scan-step4" style="display:none;text-align:center;padding:28px 0;">
+      <div style="font-size:42px;margin-bottom:12px;">⚠️</div>
+      <div style="font-size:15px;font-weight:700;color:var(--red);margin-bottom:8px;" id="scan-err-msg">حدث خطأ</div>
+      <button onclick="scanRescanImg()"
+        style="margin-top:12px;padding:11px 28px;border-radius:30px;border:1px solid rgba(248,113,113,.3);background:rgba(248,113,113,.1);color:var(--red);font-family:Tajawal,sans-serif;font-weight:700;font-size:14px;cursor:pointer;">
+        🔄 حاول مجدداً
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<style>
+@keyframes spin2 { to { transform: rotate(360deg); } }
+@keyframes scanprog {
+  0%   { width: 0%;   margin-right: 100%; }
+  50%  { width: 60%;  margin-right: 0%; }
+  100% { width: 0%;   margin-right: 0%; }
+}
+.scan-item-row {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(192,132,252,.15);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.scan-item-row input {
+  width: 100%;
+  padding: 9px 12px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--bdr);
+  border-radius: 8px;
+  color: var(--tx);
+  font-family: Tajawal, sans-serif;
+  font-size: 13px;
+  outline: none;
+}
+.scan-item-row input:focus { border-color: var(--rose); }
+.scan-item-row label { display:block; font-size:12px; color:var(--tx3); margin-bottom:4px; font-weight:600; }
+</style>
+
+<script>
+// ════════════════════════════════════
+// GEMINI VISION — مسح الوصولات
+// ════════════════════════════════════
+var GEMINI_KEY = 'AIzaSyC1vBNyMI2HCXQ5j7H4L_mbWX5fZiJGqN8';
+var GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + GEMINI_KEY;
+
+var _scanImageB64 = null;
+var _scanImageMime = 'image/jpeg';
+
+function openScanMo() {
+  // reset
+  _scanImageB64 = null;
+  document.getElementById('scan-step1').style.display = '';
+  document.getElementById('scan-step2').style.display = 'none';
+  document.getElementById('scan-step3').style.display = 'none';
+  document.getElementById('scan-step4').style.display = 'none';
+  document.getElementById('scan-preview-wrap').style.display = 'none';
+  document.getElementById('scan-file-input').value = '';
+  document.getElementById('scan-camera-input').value = '';
+  document.getElementById('mo-scan').classList.add('open');
+}
+
+function closeScanMo() {
+  document.getElementById('mo-scan').classList.remove('open');
+}
+
+function handleScanDrop(e) {
+  e.preventDefault();
+  document.getElementById('scan-dropzone').style.borderColor = 'rgba(244,114,182,.35)';
+  var file = e.dataTransfer.files[0];
+  if (file) loadScanFile(file);
+}
+
+function handleScanFile(e) {
+  var file = e.target.files[0];
+  if (file) loadScanFile(file);
+}
+
+function loadScanFile(file) {
+  _scanImageMime = file.type || 'image/jpeg';
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var dataUrl = ev.target.result;
+    // Extract base64 part
+    _scanImageB64 = dataUrl.split(',')[1];
+    // Show preview
+    document.getElementById('scan-preview-img').src = dataUrl;
+    document.getElementById('scan-preview-wrap').style.display = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+function scanRescanImg() {
+  document.getElementById('scan-step3').style.display = 'none';
+  document.getElementById('scan-step4').style.display = 'none';
+  document.getElementById('scan-step1').style.display = '';
+}
+
+async function startScan() {
+  if (!_scanImageB64) return;
+
+  // Show loading
+  document.getElementById('scan-step1').style.display = 'none';
+  document.getElementById('scan-step2').style.display = '';
+  document.getElementById('scan-step3').style.display = 'none';
+  document.getElementById('scan-step4').style.display = 'none';
+
+  var prompt = `أنت نظام ذكي لقراءة الوصولات والفواتير. استخرج جميع المنتجات/البضائع من هذه الصورة.
+
+أرجع JSON فقط بهذا الشكل بالضبط (بدون أي نص إضافي):
+{
+  "supplier": "اسم المورد أو الشركة إن وجد",
+  "date": "YYYY-MM-DD إن وجد وإلا اتركه فارغاً",
+  "items": [
+    {
+      "name": "اسم المنتج",
+      "qty": 1,
+      "unit": "قطعة",
+      "cost": 0,
+      "price": 0,
+      "barcode": "",
+      "category": ""
+    }
+  ]
+}
+
+تعليمات مهمة:
+- استخرج كل منتج/صنف موجود في الوصل بشكل منفصل
+- الكميات والأسعار أرقام فقط بدون رموز عملة
+- إذا كان هناك سعر وحدة فضعه في cost
+- إذا لم تجد معلومة اتركها 0 أو فارغة
+- الوصل قد يكون بالعربي أو الإنجليزي أو مختلط`;
+
+  try {
+    var res = await fetch(GEMINI_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            { text: prompt },
+            { inline_data: { mime_type: _scanImageMime, data: _scanImageB64 } }
+          ]
+        }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 2048 }
+      })
+    });
+
+    var data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error?.message || 'خطأ في الاتصال بالخدمة');
+    }
+
+    var text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    // Clean JSON from markdown if wrapped
+    text = text.replace(/```json/g,'').replace(/```/g,'').trim();
+
+    var parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch(e) {
+      // Try to extract JSON from text
+      var match = text.match(/\{[\s\S]*\}/);
+      if (match) parsed = JSON.parse(match[0]);
+      else throw new Error('لم يتمكن النظام من قراءة الوصل — تأكد من وضوح الصورة');
+    }
+
+    showScanResults(parsed);
+
+  } catch(err) {
+    document.getElementById('scan-step2').style.display = 'none';
+    document.getElementById('scan-step4').style.display = '';
+    document.getElementById('scan-err-msg').textContent = '⚠️ ' + (err.message || 'حدث خطأ — حاول مجدداً');
+  }
+}
+
+function showScanResults(data) {
+  document.getElementById('scan-step2').style.display = 'none';
+  document.getElementById('scan-step3').style.display = '';
+
+  // Fill supplier & date
+  document.getElementById('scan-supplier').value = data.supplier || '';
+  document.getElementById('scan-date').value = data.date || new Date().toISOString().split('T')[0];
+
+  // Build items UI
+  var items = data.items || [];
+  var container = document.getElementById('scan-items-container');
+  container.innerHTML = '';
+
+  if (items.length === 0) {
+    container.innerHTML = '<div style="color:var(--red);font-size:13px;text-align:center;padding:12px;">لم يتم العثور على منتجات في الوصل — جرب صورة أوضح</div>';
+    return;
+  }
+
+  var header = document.createElement('div');
+  header.style.cssText = 'font-size:13px;font-weight:700;color:var(--rose);margin-bottom:12px;';
+  header.textContent = '📦 تم استخراج ' + items.length + ' منتج — راجع البيانات:';
+  container.appendChild(header);
+
+  items.forEach(function(item, i) {
+    var row = document.createElement('div');
+    row.className = 'scan-item-row';
+    row.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span style="font-size:12px;font-weight:700;color:var(--lilac);">المنتج ${i+1}</span>
+        <button onclick="removeScanItem(this)" style="background:rgba(248,113,113,.15);border:none;color:var(--red);border-radius:6px;padding:3px 8px;cursor:pointer;font-size:11px;">✕ حذف</button>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div>
+          <label>اسم المنتج *</label>
+          <input type="text" class="si-name" value="${escH(item.name||'')}">
+        </div>
+        <div>
+          <label>الكمية</label>
+          <input type="number" class="si-qty" value="${item.qty||1}" min="0" step="0.001">
+        </div>
+        <div>
+          <label>الوحدة</label>
+          <input type="text" class="si-unit" value="${escH(item.unit||'قطعة')}">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
+        <div>
+          <label>سعر التكلفة</label>
+          <input type="number" class="si-cost" value="${item.cost||0}" min="0" step="0.001">
+        </div>
+        <div>
+          <label>سعر البيع</label>
+          <input type="number" class="si-price" value="${item.price||0}" min="0" step="0.001">
+        </div>
+        <div>
+          <label>الفئة</label>
+          <input type="text" class="si-cat" value="${escH(item.category||'')}">
+        </div>
+        <div>
+          <label>باركود</label>
+          <input type="text" class="si-barcode" value="${escH(item.barcode||'')}">
+        </div>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function removeScanItem(btn) {
+  btn.closest('.scan-item-row').remove();
+}
+
+function escH(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function saveScanResults() {
+  var rows = document.querySelectorAll('#scan-items-container .scan-item-row');
+  if (rows.length === 0) { toast('لا توجد منتجات للحفظ','warn'); return; }
+
+  var supplier = document.getElementById('scan-supplier').value.trim();
+  var date     = document.getElementById('scan-date').value;
+  var saved    = 0;
+  var errors   = 0;
+  var uid      = _sb._getUser() ? _sb._getUser().id : null;
+
+  for (var i = 0; i < rows.length; i++) {
+    var row  = rows[i];
+    var name = row.querySelector('.si-name').value.trim();
+    if (!name) { errors++; continue; }
+
+    var qty   = parseFloat(row.querySelector('.si-qty').value)    || 0;
+    var unit  = row.querySelector('.si-unit').value.trim()        || 'قطعة';
+    var cost  = parseFloat(row.querySelector('.si-cost').value)   || 0;
+    var price = parseFloat(row.querySelector('.si-price').value)  || 0;
+    var cat   = row.querySelector('.si-cat').value.trim();
+    var bcode = row.querySelector('.si-barcode').value.trim();
+
+    // Check if product already exists
+    var existing = INV_PRODUCTS.find(function(p){ return p.name.trim() === name; });
+
+    if (existing) {
+      // Update quantity of existing product
+      existing.qty = (existing.qty || 0) + qty;
+      await updateProductQtyInSupabase(existing.id, existing.qty);
+
+      // Add movement record
+      var mov = { type:'in', qty:qty, supplier:supplier, note:'مسح وصل تلقائي', date:date || new Date().toISOString().split('T')[0] };
+      INV_MOVEMENTS.unshift(Object.assign({id: Date.now() + '_' + i, productId: existing.id}, mov));
+      await saveMovementToSupabase(mov, existing.id);
+
+    } else {
+      // Create new product
+      var newP = {
+        _isNew:true, name:name, category:cat, icon:'📦',
+        sku:'', barcode:bcode, unit:unit, cost:cost, price:price,
+        qty:qty, minQty:0, supplier:supplier, notes:'مضاف بالمسح الضوئي'
+      };
+      var newId = await saveProductToSupabase(newP);
+      if (newId) {
+        newP.id = newId;
+        newP._isNew = false;
+        INV_PRODUCTS.unshift(newP);
+
+        // Add movement
+        var mov2 = { type:'in', qty:qty, supplier:supplier, note:'مسح وصل تلقائي', date:date || new Date().toISOString().split('T')[0] };
+        INV_MOVEMENTS.unshift(Object.assign({id: Date.now() + '_' + i + '_n', productId: newId}, mov2));
+        await saveMovementToSupabase(mov2, newId);
+      }
+    }
+    saved++;
+  }
+
+  saveInv();
+  renderInv();
+  renderInvStats();
+  closeScanMo();
+
+  if (saved > 0)   toast('✅ تم حفظ ' + saved + ' منتج في المخزون', 'ok');
+  if (errors > 0)  toast('⚠️ ' + errors + ' منتج بدون اسم تم تجاهله', 'warn');
+}
+</script>
 
 </body>
 </html>
