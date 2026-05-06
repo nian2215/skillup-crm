@@ -1201,26 +1201,54 @@ var _sb = {
     },
     signOut: function() {
       localStorage.removeItem('sku_sess');
-      window.location.href = './skillup_auth.html';
+      // استخدام replace بدلاً من href حتى لا يُضاف للتاريخ
+      window.location.replace('./skillup_auth.html');
     },
     onAuthStateChange: function() {}
   }
 };
 
-// Check session on load - with debug
+// ── منع الرجوع بزر Back بعد تسجيل الدخول ──
+history.pushState(null, '', window.location.href);
+window.addEventListener('popstate', function() {
+  // إذا ضغط Back نتحقق من الجلسة أولاً
+  var s = localStorage.getItem('sku_sess');
+  if (!s) {
+    window.location.replace('./skillup_auth.html');
+  } else {
+    history.pushState(null, '', window.location.href);
+  }
+});
+
+// Check session on load
 function checkSession() {
   var raw = localStorage.getItem('sku_sess');
-  console.log('Session raw:', raw ? raw.substring(0,50) : 'NULL');
-  
+  if (!raw) {
+    window.location.replace('./skillup_auth.html');
+    return;
+  }
+  // التحقق من انتهاء صلاحية الجلسة
+  try {
+    var sd = JSON.parse(raw);
+    var expiry = sd.expires_at || 0;
+    var now    = Math.floor(Date.now() / 1000);
+    if (expiry > 0 && now >= expiry) {
+      localStorage.removeItem('sku_sess');
+      window.location.replace('./skillup_auth.html');
+      return;
+    }
+  } catch(e) {
+    localStorage.removeItem('sku_sess');
+    window.location.replace('./skillup_auth.html');
+    return;
+  }
+
   _sb.auth.getSession().then(function(r) {
-    console.log('Session result:', r.data && r.data.session ? 'FOUND' : 'NOT FOUND');
     if (r.data && r.data.session) {
       _user = _sb._getUser() || r.data.session.user || {};
-      console.log('User:', _user);
       loadFromSupabase();
     } else {
-      console.log('No session found - redirecting to auth');
-      window.location.href = './skillup_auth.html';
+      window.location.replace('./skillup_auth.html');
     }
   });
 }
@@ -1679,7 +1707,9 @@ function svCfg() { localStorage.setItem("sku6_cfg", JSON.stringify(CFG)); }
 
 // Logout function
 function logout() {
-  _sb.auth.signOut();
+  localStorage.removeItem('sku_sess');
+  // replace يمنع الرجوع بزر Back
+  window.location.replace('./skillup_auth.html');
 }
 
 // ===== TOAST =====

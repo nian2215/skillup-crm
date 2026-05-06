@@ -143,13 +143,34 @@ var URL_ = 'https://kgqmbegbmefftgstkizp.supabase.co';
 var KEY_ = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtncW1iZWdibWVmZnRnc3RraXpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3NjA0MzEsImV4cCI6MjA5MzMzNjQzMX0.bKZMer5IaLzjtGYS5i_9VWoqn-tUAuCSCY_Ba7sH5h4';
 var LANG = 'ar';
 
-// Check session
+// ── منع الرجوع بعد تسجيل الخروج ──
+// استبدال حالة التاريخ حتى لا يرجع المتصفح لصفحة CRM
+history.replaceState(null, '', window.location.href);
+window.addEventListener('popstate', function() {
+  history.pushState(null, '', window.location.href);
+});
+
+// ── فحص الجلسة ──
+// نتحقق أن الجلسة موجودة وليست منتهية الصلاحية
 var sess = localStorage.getItem('sku_sess');
 if (sess) {
   try {
     var sd = JSON.parse(sess);
-    if (sd.access_token) window.location.href = './skillup_crm.html';
-  } catch(e) {}
+    // التحقق من وجود التوكن وأنه لم تنته صلاحيته
+    if (sd && sd.access_token) {
+      var expiry = sd.expires_at || (sd.expires_in ? Math.floor(Date.now()/1000) + sd.expires_in : 0);
+      var now    = Math.floor(Date.now() / 1000);
+      if (expiry === 0 || now < expiry) {
+        // جلسة صالحة — ننقل للتطبيق
+        window.location.replace('./skillup_crm.html');
+      } else {
+        // الجلسة منتهية — نحذفها
+        localStorage.removeItem('sku_sess');
+      }
+    }
+  } catch(e) {
+    localStorage.removeItem('sku_sess');
+  }
 }
 
 // ── TABS ──
