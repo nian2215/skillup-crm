@@ -146,7 +146,7 @@ var sess = localStorage.getItem('sku_sess');
 if (sess) {
   try {
     var sd = JSON.parse(sess);
-    if (sd.access_token) window.location.href = 'skillup_crm.html';
+    if (sd.access_token) window.location.href = './skillup_crm.html';
   } catch(e) {}
 }
 
@@ -214,7 +214,7 @@ async function doLogin() {
       throw new Error(LANG==='ar'?'البريد أو كلمة المرور غير صحيحة':'Invalid email or password');
     }
     localStorage.setItem('sku_sess', JSON.stringify(d));
-    window.location.href = 'skillup_crm.html';
+    window.location.href = './skillup_crm.html';
   } catch(e) {
     showAlert(e.message);
   } finally {

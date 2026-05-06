@@ -1118,7 +1118,7 @@ var _sb = {
     },
     signOut: function() {
       localStorage.removeItem('sku_sess');
-      window.location.href = 'skillup_auth.html';
+      window.location.href = './skillup_auth.html';
     },
     onAuthStateChange: function() {}
   }
@@ -1137,7 +1137,7 @@ function checkSession() {
       loadFromSupabase();
     } else {
       console.log('No session found - redirecting to auth');
-      window.location.href = 'skillup_auth.html';
+      window.location.href = './skillup_auth.html';
     }
   });
 }
