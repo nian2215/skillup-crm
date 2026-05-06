@@ -2275,96 +2275,169 @@ renderC();
 
 <!-- INVENTORY MODAL -->
 <div class="mo" id="mo-inventory">
-  <div class="mo-box" style="max-width:520px;">
-    <div class="mo-head">
-      <span id="inv-mo-title">إضافة منتج</span>
-      <button class="mo-close" onclick="closeMo('inventory')">✕</button>
+  <div class="modal" style="max-width:600px;width:95%;max-height:90vh;overflow-y:auto;">
+
+    <!-- HEADER -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--bdr);">
+      <div style="font-size:20px;font-weight:800;color:var(--rose);" id="inv-mo-title">إضافة منتج</div>
+      <button onclick="closeMo('inventory')" style="width:32px;height:32px;border-radius:50%;border:1px solid var(--bdr);background:rgba(255,255,255,.05);color:var(--tx2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">✕</button>
     </div>
+
     <input type="hidden" id="inv-mo-type">
     <input type="hidden" id="inv-mo-pid">
 
-    <!-- PRODUCT FORM -->
+    <!-- ═══ PRODUCT FORM ═══ -->
     <div id="inv-form-product">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="fg" style="grid-column:1/-1;">
-          <label id="inv-lbl-name">اسم المنتج *</label>
-          <input type="text" id="inv-p-name" placeholder="مثال: حقيبة جلد">
+
+      <!-- Row 1: Name full width -->
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:13px;font-weight:700;color:var(--rose);margin-bottom:8px;" id="inv-lbl-name">📦 اسم المنتج *</label>
+        <input type="text" id="inv-p-name" placeholder="مثال: حقيبة جلدية بنية"
+          style="width:100%;padding:13px 16px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:15px;outline:none;transition:border .2s;"
+          onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
+      </div>
+
+      <!-- Row 2: Category + Icon -->
+      <div style="display:grid;grid-template-columns:1fr auto;gap:12px;margin-bottom:16px;">
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;" id="inv-lbl-cat">🏷️ الفئة</label>
+          <input type="text" id="inv-p-cat" placeholder="مثال: حقائب، إلكترونيات..."
+            style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
-        <div class="fg">
-          <label id="inv-lbl-cat">الفئة</label>
-          <input type="text" id="inv-p-cat" placeholder="مثال: حقائب">
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">الأيقونة</label>
+          <input type="text" id="inv-p-icon" value="📦"
+            style="width:70px;padding:12px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:22px;outline:none;text-align:center;"
+            onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
-        <div class="fg">
-          <label id="inv-lbl-icon">الأيقونة</label>
-          <input type="text" id="inv-p-icon" placeholder="📦" style="font-size:20px;">
+      </div>
+
+      <!-- Row 3: SKU + Barcode -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">🔑 رمز المنتج (SKU)</label>
+          <input type="text" id="inv-p-sku" placeholder="SKU-001"
+            style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
-        <div class="fg">
-          <label id="inv-lbl-sku">رمز المنتج (SKU)</label>
-          <input type="text" id="inv-p-sku" placeholder="SKU-001">
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">🔲 الباركود</label>
+          <input type="text" id="inv-p-barcode" placeholder="1234567890"
+            style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
-        <div class="fg">
-          <label id="inv-lbl-barcode">الباركود</label>
-          <input type="text" id="inv-p-barcode" placeholder="1234567890">
+      </div>
+
+      <!-- Row 4: Unit + Supplier -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">📐 وحدة القياس</label>
+          <input type="text" id="inv-p-unit" placeholder="قطعة / كيلو / متر"
+            style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
-        <div class="fg">
-          <label id="inv-lbl-unit">وحدة القياس</label>
-          <input type="text" id="inv-p-unit" placeholder="قطعة / كيلو / متر">
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">🏭 المورد</label>
+          <input type="text" id="inv-p-supplier" placeholder="اسم المورد"
+            style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
-        <div class="fg">
-          <label id="inv-lbl-supplier">المورد</label>
-          <input type="text" id="inv-p-supplier" placeholder="اسم المورد">
+      </div>
+
+      <!-- Row 5: Cost + Price -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">💸 سعر التكلفة (ر.ع)</label>
+          <input type="number" id="inv-p-cost" placeholder="0.000" step="0.001" min="0"
+            style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
-        <div class="fg">
-          <label id="inv-lbl-cost">سعر التكلفة (ر.ع)</label>
-          <input type="number" id="inv-p-cost" placeholder="0.000" step="0.001" min="0">
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">🏷️ سعر البيع (ر.ع)</label>
+          <input type="number" id="inv-p-price" placeholder="0.000" step="0.001" min="0"
+            style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
-        <div class="fg">
-          <label id="inv-lbl-price">سعر البيع (ر.ع)</label>
-          <input type="number" id="inv-p-price" placeholder="0.000" step="0.001" min="0">
+      </div>
+
+      <!-- Row 6: Qty + MinQty -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">📊 الكمية الحالية</label>
+          <input type="number" id="inv-p-qty" placeholder="0" min="0"
+            style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
-        <div class="fg">
-          <label id="inv-lbl-qty">الكمية الحالية</label>
-          <input type="number" id="inv-p-qty" placeholder="0" min="0">
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">⚠️ الحد الأدنى للتنبيه</label>
+          <input type="number" id="inv-p-minqty" placeholder="5" min="0"
+            style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
-        <div class="fg">
-          <label id="inv-lbl-minqty">الحد الأدنى للتنبيه</label>
-          <input type="number" id="inv-p-minqty" placeholder="5" min="0">
-        </div>
-        <div class="fg" style="grid-column:1/-1;">
-          <label id="inv-lbl-notes">ملاحظات</label>
-          <input type="text" id="inv-p-notes" placeholder="أي ملاحظات...">
-        </div>
+      </div>
+
+      <!-- Row 7: Notes -->
+      <div style="margin-bottom:20px;">
+        <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">📝 ملاحظات</label>
+        <input type="text" id="inv-p-notes" placeholder="أي ملاحظات إضافية..."
+          style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+          onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
       </div>
     </div>
 
-    <!-- MOVEMENT FORM -->
+    <!-- ═══ MOVEMENT FORM ═══ -->
     <div id="inv-form-movement" style="display:none;">
-      <div class="fg">
-        <label id="inv-lbl-prod">اختر المنتج *</label>
-        <select id="inv-m-product"></select>
+
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:13px;font-weight:700;color:var(--rose);margin-bottom:8px;">📦 المنتج *</label>
+        <select id="inv-m-product"
+          style="width:100%;padding:13px 16px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;">
+        </select>
       </div>
-      <div class="fg">
-        <label id="inv-lbl-qty2">الكمية *</label>
-        <input type="number" id="inv-m-qty" placeholder="0" min="0.001" step="0.001">
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">🔢 الكمية *</label>
+          <input type="number" id="inv-m-qty" placeholder="0" min="0.001" step="0.001"
+            style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
+        </div>
+        <div>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">📅 التاريخ</label>
+          <input type="date" id="inv-m-date"
+            style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
+        </div>
       </div>
-      <div class="fg">
-        <label id="inv-lbl-date">التاريخ</label>
-        <input type="date" id="inv-m-date">
+
+      <div id="inv-supplier-row" style="margin-bottom:16px;">
+        <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">🏭 المورد</label>
+        <input type="text" id="inv-m-supplier" placeholder="اسم المورد"
+          style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+          onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
       </div>
-      <div class="fg" id="inv-supplier-row">
-        <label id="inv-lbl-supp">المورد</label>
-        <input type="text" id="inv-m-supplier" placeholder="اسم المورد">
-      </div>
-      <div class="fg">
-        <label id="inv-lbl-note">ملاحظة</label>
-        <input type="text" id="inv-m-note" placeholder="سبب الصرف / اسم المشتري...">
+
+      <div style="margin-bottom:20px;">
+        <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">📝 ملاحظة</label>
+        <input type="text" id="inv-m-note" placeholder="سبب الصرف / اسم المشتري / رقم الفاتورة..."
+          style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+          onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
       </div>
     </div>
 
-    <div class="mo-foot">
-      <button class="mo-cancel" onclick="closeMo('inventory')" id="btn-cancel-inv">إلغاء</button>
-      <button class="mo-save" onclick="saveInvMo()" id="btn-save-inv">💾 حفظ</button>
+    <!-- FOOTER BUTTONS -->
+    <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--bdr);">
+      <button onclick="closeMo('inventory')"
+        style="padding:12px 28px;border-radius:30px;border:1px solid var(--bdr);background:rgba(255,255,255,.05);color:var(--tx2);font-family:Tajawal,sans-serif;font-weight:600;font-size:14px;cursor:pointer;">
+        إلغاء
+      </button>
+      <button onclick="saveInvMo()"
+        style="padding:12px 32px;border-radius:30px;border:none;background:linear-gradient(135deg,var(--rose),var(--purple));color:#fff;font-family:Tajawal,sans-serif;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 4px 16px rgba(244,114,182,.35);">
+        💾 حفظ
+      </button>
     </div>
+
   </div>
 </div>
 
