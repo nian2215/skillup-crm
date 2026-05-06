@@ -1262,11 +1262,15 @@ async function loadFromSupabase() {
       });
     }
     renderD(); renderC(); renderGal();
+    // Also load inventory
+    loadInventoryFromSupabase();
   } catch(e) {
     console.error('Load error:', e);
     // Fallback to localStorage
     CL = JSON.parse(localStorage.getItem("sku6_c") || "[]");
     GL = JSON.parse(localStorage.getItem("sku6_g") || "[]");
+    INV_PRODUCTS  = JSON.parse(localStorage.getItem('sku6_inv_p') || '[]');
+    INV_MOVEMENTS = JSON.parse(localStorage.getItem('sku6_inv_m') || '[]');
     renderD(); renderC(); renderGal();
   }
 }
@@ -1291,9 +1295,104 @@ var INV_MOVEMENTS = JSON.parse(localStorage.getItem('sku6_inv_m') || '[]');
 var INV_SUPPLIERS = JSON.parse(localStorage.getItem('sku6_inv_s') || '[]');
 
 function saveInv() {
+  // Backup to localStorage
   localStorage.setItem('sku6_inv_p', JSON.stringify(INV_PRODUCTS));
   localStorage.setItem('sku6_inv_m', JSON.stringify(INV_MOVEMENTS));
-  localStorage.setItem('sku6_inv_s', JSON.stringify(INV_SUPPLIERS));
+}
+
+// Load inventory from Supabase
+async function loadInventoryFromSupabase() {
+  try {
+    var tok = _sb._getToken();
+    var uid = _sb._getUser() ? _sb._getUser().id : null;
+    if (!tok || !uid) return;
+
+    // Load products
+    var pRes = await new Promise(function(res) {
+      _sb.from('products').select('*').order('created_at', {ascending:false}).then(res);
+    });
+    if (pRes.data) {
+      INV_PRODUCTS = pRes.data.map(function(p) {
+        return {
+          id: p.id, name: p.name, category: p.category||'',
+          icon: p.icon||'📦', sku: p.sku||'', barcode: p.barcode||'',
+          unit: p.unit||'قطعة', cost: p.cost||0, price: p.price||0,
+          qty: p.qty||0, minQty: p.min_qty||0,
+          supplier: p.supplier||'', notes: p.notes||''
+        };
+      });
+    }
+
+    // Load movements
+    var mRes = await new Promise(function(res) {
+      _sb.from('inventory_movements').select('*').order('created_at', {ascending:false}).then(res);
+    });
+    if (mRes.data) {
+      INV_MOVEMENTS = mRes.data.map(function(m) {
+        return {
+          id: m.id, productId: m.product_id,
+          type: m.type, qty: m.qty,
+          note: m.note||'', supplier: m.supplier||'',
+          date: m.date||''
+        };
+      });
+    }
+
+    saveInv(); // backup to localStorage
+  } catch(e) {
+    console.error('Inventory load error:', e);
+    // Fallback to localStorage
+    INV_PRODUCTS  = JSON.parse(localStorage.getItem('sku6_inv_p') || '[]');
+    INV_MOVEMENTS = JSON.parse(localStorage.getItem('sku6_inv_m') || '[]');
+  }
+}
+
+// Save product to Supabase
+async function saveProductToSupabase(p) {
+  var uid = _sb._getUser() ? _sb._getUser().id : null;
+  if (!uid) return null;
+  var dbData = {
+    user_id: uid, name: p.name, category: p.category||'',
+    icon: p.icon||'📦', sku: p.sku||'', barcode: p.barcode||'',
+    unit: p.unit||'قطعة', cost: p.cost||0, price: p.price||0,
+    qty: p.qty||0, min_qty: p.minQty||0,
+    supplier: p.supplier||'', notes: p.notes||''
+  };
+  if (p._isNew) {
+    var res = await _sb.from('products')._insert(dbData);
+    return res.data ? res.data.id : null;
+  } else {
+    var upd = _sb.from('products');
+    upd.eq('id', p.id);
+    await upd._update(dbData);
+    return p.id;
+  }
+}
+
+// Save movement to Supabase
+async function saveMovementToSupabase(m, productId) {
+  var uid = _sb._getUser() ? _sb._getUser().id : null;
+  if (!uid) return;
+  await _sb.from('inventory_movements')._insert({
+    user_id: uid, product_id: productId,
+    type: m.type, qty: m.qty,
+    note: m.note||'', supplier: m.supplier||'',
+    date: m.date || new Date().toISOString().split('T')[0]
+  });
+}
+
+// Update product qty in Supabase
+async function updateProductQtyInSupabase(productId, newQty) {
+  var upd = _sb.from('products');
+  upd.eq('id', productId);
+  await upd._update({qty: newQty});
+}
+
+// Delete product from Supabase
+async function deleteProductFromSupabase(productId) {
+  var del = _sb.from('products');
+  del.eq('id', productId);
+  await del._delete();
 }
 
 // Get unique categories
@@ -1549,8 +1648,13 @@ function saveInvMo() {
     var prod = INV_PRODUCTS.find(function(x){ return x.id===pid; });
     if (!prod) return;
     if (type === 'out' && prod.qty < qty) { toast(t('not_enough_stock'), 'err'); return; }
-    prod.qty = type === 'in' ? prod.qty + qty : prod.qty - qty;
-    INV_MOVEMENTS.push({ id: Date.now().toString(), productId: pid, type: type, qty: qty, note: note, supplier: supp, date: date });
+    var newQty = type === 'in' ? prod.qty + qty : prod.qty - qty;
+    prod.qty = newQty;
+    var mov = { id: Date.now().toString(), productId: pid, type: type, qty: qty, note: note, supplier: supp, date: date };
+    INV_MOVEMENTS.push(mov);
+    // Save to Supabase
+    saveMovementToSupabase(mov, pid);
+    updateProductQtyInSupabase(pid, newQty);
     toast(type === 'in' ? t('stock_added') : t('stock_removed'));
   }
 
@@ -1562,6 +1666,7 @@ function saveInvMo() {
 // Delete product
 function delProduct(id) {
   if (!confirm(t('del_confirm'))) return;
+  deleteProductFromSupabase(id);
   INV_PRODUCTS = INV_PRODUCTS.filter(function(p){ return p.id !== id; });
   saveInv();
   renderInv();
