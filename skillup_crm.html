@@ -717,7 +717,7 @@ body::before {
       <button class="add-btn" onclick="openInvMo('product')" id="btn-add-product">+ إضافة منتج</button>
       <button class="add-btn" style="background:linear-gradient(135deg,#34d399,#059669);" onclick="openInvMo('in')" id="btn-add-in">↓ وارد</button>
       <button class="add-btn" style="background:linear-gradient(135deg,#f87171,#dc2626);" onclick="openInvMo('out')" id="btn-add-out">↑ صادر</button>
-      <button class="add-btn" style="background:linear-gradient(135deg,#f0c040,#f472b6);" onclick="openScanMo()">📷 مسح وصل</button>
+      <button class="add-btn" style="background:linear-gradient(135deg,#f0c040,#f472b6);" onclick="openScanMo()" id="btn-scan-receipt">📷 مسح وصل</button>
     </div>
   </div>
 
@@ -914,7 +914,11 @@ var T = {
     stock_added:"✅ تم إضافة المخزون", stock_removed:"✅ تم صرف المخزون",
     unit:"قطعة", cost:"التكلفة", price:"السعر", inv_value:"قيمة المخزون",
     curr:"ر.ع", min:"الحد الأدنى", inv_add:"إضافة", inv_remove:"صرف",
-    inventory:"المخزون"
+    inventory:"المخزون",
+    btn_add_product:"+ إضافة منتج", btn_stock_in:"↓ وارد", btn_stock_out:"↑ صادر", btn_scan:"📷 مسح وصل",
+    inv_title:"📦 المخزون", inv_lbl_products:"إجمالي المنتجات",
+    inv_lbl_value:"قيمة المخزون (ر.ع)", inv_lbl_low:"منتجات تحت الحد الأدنى",
+    inv_lbl_out2:"نفذت من المخزون", inv_movements_title:"📋 سجل الحركات"
   },
   en: {
     dir:"ltr",lang:"en",
@@ -986,7 +990,11 @@ var T = {
     stock_added:"✅ Stock added", stock_removed:"✅ Stock removed",
     unit:"Unit", cost:"Cost", price:"Price", inv_value:"Stock Value",
     curr:"OMR", min:"Min", inv_add:"Add", inv_remove:"Remove",
-    inventory:"Inventory"
+    inventory:"Inventory",
+    btn_add_product:"+ Add Product", btn_stock_in:"↓ Stock In", btn_stock_out:"↑ Stock Out", btn_scan:"📷 Scan Receipt",
+    inv_title:"📦 Inventory", inv_lbl_products:"Total Products",
+    inv_lbl_value:"Stock Value (OMR)", inv_lbl_low:"Low Stock Items",
+    inv_lbl_out2:"Out of Stock", inv_movements_title:"📋 Movement Log"
   }
 };
 
@@ -1086,6 +1094,18 @@ function applyTr() {
   var glk = document.getElementById("glbl");
   if (glk) { var m = parseInt(glk.textContent)||0; glk.textContent = m+" "+t("imgs_selected"); }
   document.querySelectorAll(".add-btn-txt").forEach(function(el){ el.textContent = t("add_customer"); });
+
+  // ── ترجمة أزرار وعناوين المخزون ──
+  sx("title-inv",           t("inv_title"));
+  sx("btn-add-product",     t("btn_add_product"));
+  sx("btn-add-in",          t("btn_stock_in"));
+  sx("btn-add-out",         t("btn_stock_out"));
+  sx("inv-lbl-products",    t("inv_lbl_products"));
+  sx("inv-lbl-value",       t("inv_lbl_value"));
+  sx("inv-lbl-low",         t("inv_lbl_low"));
+  sx("inv-lbl-out",         t("inv_lbl_out2"));
+  sx("inv-movements-title", t("inv_movements_title"));
+  sx("btn-scan-receipt",    t("btn_scan"));
 }
 
 // ===== COUNTRIES =====
