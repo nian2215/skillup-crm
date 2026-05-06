@@ -744,7 +744,7 @@ body::before {
   <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
     <input type="text" id="inv-search" placeholder="ابحث عن منتج..." oninput="renderInv()" style="flex:1;min-width:200px;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;">
     <select id="inv-cat-filter" onchange="renderInv()" style="padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:13px;outline:none;">
-      <option value="" id="inv-all-cats">كل الفئات</option>
+      <option value="" id="inv-all-cats">--</option>
     </select>
     <select id="inv-status-filter" onchange="renderInv()" style="padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:13px;outline:none;">
       <option value="">كل الحالات</option>
@@ -903,7 +903,16 @@ var T = {
     toast_imported:"تم الاستيراد",toast_cleared:"تم مسح البيانات",
     toast_bad_file:"ملف غير صحيح",toast_conn_err:"خطأ في الاتصال",
     uploading:"رفع",of:"من",uploaded:"تم رفع",pics:"صورة",
-    upload_fail:"فشل رفع",last_buy_lbl:"آخر شراء:",logo_sub:"إدارة الزبائن"
+    upload_fail:"فشل رفع",last_buy_lbl:"آخر شراء:",logo_sub:"إدارة الزبائن",
+    inv_all_cats:"كل الفئات", inv_ok:"متوفر", inv_low:"منخفض ⚠️", inv_out:"نفذ ❌",
+    no_products:"لا يوجد منتجات — اضغط إضافة منتج", no_movements:"لا يوجد حركات بعد",
+    add_product:"إضافة منتج جديد", edit_product:"تعديل المنتج",
+    add_stock:"إضافة للمخزون (وارد)", remove_stock:"صرف من المخزون (صادر)",
+    sel_product:"اختر منتجاً...", qty_req:"أدخل الكمية",
+    not_enough_stock:"الكمية أكبر من المخزون",
+    stock_added:"✅ تم إضافة المخزون", stock_removed:"✅ تم صرف المخزون",
+    unit:"قطعة", cost:"التكلفة", price:"السعر", inv_value:"قيمة المخزون",
+    curr:"ر.ع", min:"الحد الأدنى", inv_add:"إضافة", inv_remove:"صرف"
   },
   en: {
     dir:"ltr",lang:"en",
@@ -965,7 +974,16 @@ var T = {
     toast_imported:"Imported",toast_cleared:"Data cleared",
     toast_bad_file:"Invalid file",toast_conn_err:"Connection error",
     uploading:"Uploading",of:"of",uploaded:"Uploaded",pics:"photos",
-    upload_fail:"Failed to upload",last_buy_lbl:"Last buy:",logo_sub:"Customer Management"
+    upload_fail:"Failed to upload",last_buy_lbl:"Last buy:",logo_sub:"Customer Management",
+    inv_all_cats:"All Categories", inv_ok:"In Stock", inv_low:"Low Stock ⚠️", inv_out:"Out of Stock ❌",
+    no_products:"No products yet — click Add Product", no_movements:"No movements yet",
+    add_product:"Add New Product", edit_product:"Edit Product",
+    add_stock:"Add to Stock (In)", remove_stock:"Remove from Stock (Out)",
+    sel_product:"Select product...", qty_req:"Enter quantity",
+    not_enough_stock:"Not enough stock available",
+    stock_added:"✅ Stock added", stock_removed:"✅ Stock removed",
+    unit:"Unit", cost:"Cost", price:"Price", inv_value:"Stock Value",
+    curr:"OMR", min:"Min", inv_add:"Add", inv_remove:"Remove"
   }
 };
 
@@ -1743,6 +1761,10 @@ function renderD() {
     "<div class=\"stat-card s-yellow\"><div class=\"stat-val sv-yellow\">" + y + "</div><div class=\"stat-label\">🟡 " + t("medium")  + "</div></div>" +
     "<div class=\"stat-card s-red\"><div class=\"stat-val sv-red\">"    + r + "</div><div class=\"stat-label\">🔴 " + t("rare")    + "</div></div>";
   document.getElementById("nb").textContent = CL.length;
+  var navInv = document.getElementById("nav-inv");
+  if (navInv) navInv.textContent = t("inventory");
+  var allCats = document.getElementById("inv-all-cats");
+  if (allCats) allCats.textContent = t("inv_all_cats");
   document.getElementById("latest-lbl").textContent = t("latest");
   var rec = CL.slice(0, 6);
   var rh  = "";
@@ -1910,6 +1932,7 @@ function openAdd() {
   pickC("green");
   document.getElementById("mo-main").classList.add("open");
 }
+function openMo(id) { document.getElementById("mo-"+id).classList.add("open"); }
 function closeMo(id) { document.getElementById("mo-"+id).classList.remove("open"); }
 function editC(id) {
   var c = CL.find(function(x){return x.id===id;}); if(!c) return;
