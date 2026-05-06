@@ -588,6 +588,10 @@ body::before {
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       الإرسال
     </div>
+    <div class="nav-item" onclick="goTab('inventory')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      <span id="nav-inv">المخزون</span>
+    </div>
     <div class="nav-item" onclick="goTab('settings')">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       الإعدادات
@@ -704,6 +708,64 @@ body::before {
 </div>
 
 <!-- SETTINGS -->
+
+<!-- INVENTORY TAB -->
+<div id="tab-inventory" class="section">
+  <div class="topbar">
+    <div class="page-title" id="title-inv">📦 المخزون</div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <button class="add-btn" onclick="openInvMo('product')" id="btn-add-product">+ إضافة منتج</button>
+      <button class="add-btn" style="background:linear-gradient(135deg,#34d399,#059669);" onclick="openInvMo('in')" id="btn-add-in">↓ وارد</button>
+      <button class="add-btn" style="background:linear-gradient(135deg,#f87171,#dc2626);" onclick="openInvMo('out')" id="btn-add-out">↑ صادر</button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;">
+    <div class="stat-card" style="border-color:rgba(244,114,182,.3);">
+      <div class="stat-num" style="color:var(--rose)" id="inv-total-products">0</div>
+      <div class="stat-label" id="inv-lbl-products">إجمالي المنتجات</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(52,211,153,.3);">
+      <div class="stat-num" style="color:#34d399" id="inv-total-value">0</div>
+      <div class="stat-label" id="inv-lbl-value">قيمة المخزون (ر.ع)</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(251,191,36,.3);">
+      <div class="stat-num" style="color:#fbbf24" id="inv-low-stock">0</div>
+      <div class="stat-label" id="inv-lbl-low">منتجات تحت الحد الأدنى</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(248,113,113,.3);">
+      <div class="stat-num" style="color:#f87171" id="inv-out-stock">0</div>
+      <div class="stat-label" id="inv-lbl-out">نفذت من المخزون</div>
+    </div>
+  </div>
+
+  <!-- SEARCH & FILTER -->
+  <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+    <input type="text" id="inv-search" placeholder="ابحث عن منتج..." oninput="renderInv()" style="flex:1;min-width:200px;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;">
+    <select id="inv-cat-filter" onchange="renderInv()" style="padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:13px;outline:none;">
+      <option value="" id="inv-all-cats">كل الفئات</option>
+    </select>
+    <select id="inv-status-filter" onchange="renderInv()" style="padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:13px;outline:none;">
+      <option value="">كل الحالات</option>
+      <option value="ok" id="inv-ok">متوفر</option>
+      <option value="low" id="inv-low">منخفض</option>
+      <option value="out" id="inv-out2">نفذ</option>
+    </select>
+  </div>
+
+  <!-- PRODUCTS TABLE -->
+  <div class="cust-list" id="inv-products-list"></div>
+
+  <!-- MOVEMENTS LOG -->
+  <div style="margin-top:24px;">
+    <div style="font-size:16px;font-weight:700;color:var(--rose);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+      📋 <span id="inv-movements-title">سجل الحركات</span>
+    </div>
+    <div class="cust-list" id="inv-movements-list"></div>
+  </div>
+</div>
+
 <div id="tab-settings" class="section">
   <div class="topbar"><div class="page-title" id="title-settings">⚙️ <span>الإعدادات</span></div></div>
   <div class="set-card blue-card">
@@ -1200,6 +1262,279 @@ async function sv() {
   localStorage.setItem("sku6_c", JSON.stringify(CL));
   localStorage.setItem("sku6_g", JSON.stringify(GL));
 }
+
+// ══════════════════════════════════════════════
+// INVENTORY DATA
+// ══════════════════════════════════════════════
+var INV_PRODUCTS  = JSON.parse(localStorage.getItem('sku6_inv_p') || '[]');
+var INV_MOVEMENTS = JSON.parse(localStorage.getItem('sku6_inv_m') || '[]');
+var INV_SUPPLIERS = JSON.parse(localStorage.getItem('sku6_inv_s') || '[]');
+
+function saveInv() {
+  localStorage.setItem('sku6_inv_p', JSON.stringify(INV_PRODUCTS));
+  localStorage.setItem('sku6_inv_m', JSON.stringify(INV_MOVEMENTS));
+  localStorage.setItem('sku6_inv_s', JSON.stringify(INV_SUPPLIERS));
+}
+
+// Get unique categories
+function getCategories() {
+  var cats = [];
+  INV_PRODUCTS.forEach(function(p){ if(p.category && !cats.includes(p.category)) cats.push(p.category); });
+  return cats;
+}
+
+// Get stock status
+function getStockStatus(p) {
+  if (p.qty <= 0) return 'out';
+  if (p.qty <= p.minQty) return 'low';
+  return 'ok';
+}
+
+// Render inventory stats
+function renderInvStats() {
+  var total  = INV_PRODUCTS.length;
+  var value  = INV_PRODUCTS.reduce(function(a,p){ return a + (p.qty * p.cost); }, 0);
+  var low    = INV_PRODUCTS.filter(function(p){ return getStockStatus(p)==='low'; }).length;
+  var out    = INV_PRODUCTS.filter(function(p){ return getStockStatus(p)==='out'; }).length;
+  document.getElementById('inv-total-products').textContent = total;
+  document.getElementById('inv-total-value').textContent    = value.toFixed(3);
+  document.getElementById('inv-low-stock').textContent      = low;
+  document.getElementById('inv-out-stock').textContent      = out;
+
+  // Low stock alerts
+  var alerts = INV_PRODUCTS.filter(function(p){ return getStockStatus(p) !== 'ok'; });
+  if (alerts.length > 0 && typeof toast === 'function') {
+    var names = alerts.slice(0,3).map(function(p){ return p.name; }).join('، ');
+    toast('⚠️ ' + alerts.length + ' منتجات تحتاج تعبئة: ' + names, 'warn');
+  }
+}
+
+// Render products list
+function renderInv() {
+  var search = (document.getElementById('inv-search') || {}).value || '';
+  var catF   = (document.getElementById('inv-cat-filter') || {}).value || '';
+  var statF  = (document.getElementById('inv-status-filter') || {}).value || '';
+
+  var filtered = INV_PRODUCTS.filter(function(p){
+    var matchS = !search || p.name.toLowerCase().includes(search.toLowerCase()) || (p.barcode||'').includes(search) || (p.sku||'').includes(search);
+    var matchC = !catF   || p.category === catF;
+    var matchT = !statF  || getStockStatus(p) === statF;
+    return matchS && matchC && matchT;
+  });
+
+  // Update category filter
+  var catSel = document.getElementById('inv-cat-filter');
+  if (catSel) {
+    var cats = getCategories();
+    var curVal = catSel.value;
+    catSel.innerHTML = '<option value="">' + t('inv_all_cats') + '</option>';
+    cats.forEach(function(c){ catSel.innerHTML += '<option value="' + c + '">' + c + '</option>'; });
+    catSel.value = curVal;
+  }
+
+  var list = document.getElementById('inv-products-list');
+  if (!list) return;
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="no-cust"><div style="font-size:48px">📦</div><div>' + t('no_products') + '</div></div>';
+    return;
+  }
+
+  var statusColors = { ok: '#34d399', low: '#fbbf24', out: '#f87171' };
+  var statusLabels = { ok: t('inv_ok'), low: t('inv_low'), out: t('inv_out') };
+
+  list.innerHTML = filtered.map(function(p) {
+    var st = getStockStatus(p);
+    var stColor = statusColors[st];
+    var stLabel = statusLabels[st];
+    return '<div class="cust-card" style="cursor:default;">' +
+      '<div style="display:flex;align-items:center;gap:14px;">' +
+        '<div style="width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,rgba(244,114,182,.15),rgba(192,132,252,.1));border:1px solid rgba(244,114,182,.25);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">' + (p.icon||'📦') + '</div>' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-weight:700;font-size:15px;">' + p.name + '</div>' +
+          '<div style="font-size:12px;color:var(--tx3);margin-top:2px;">' +
+            (p.sku ? 'SKU: ' + p.sku + ' · ' : '') +
+            (p.barcode ? '🔲 ' + p.barcode + ' · ' : '') +
+            (p.category ? p.category : '') +
+          '</div>' +
+          (p.supplier ? '<div style="font-size:12px;color:var(--tx3);">🏭 ' + p.supplier + '</div>' : '') +
+        '</div>' +
+        '<div style="text-align:center;margin-left:auto;">' +
+          '<div style="font-size:22px;font-weight:900;color:' + stColor + ';">' + p.qty + '</div>' +
+          '<div style="font-size:11px;color:var(--tx3);">' + (p.unit||t('unit')) + '</div>' +
+        '</div>' +
+        '<div style="text-align:center;">' +
+          '<div style="background:rgba(' + (st==='ok'?'52,211,153':st==='low'?'251,191,36':'248,113,113') + ',.12);border:1px solid rgba(' + (st==='ok'?'52,211,153':st==='low'?'251,191,36':'248,113,113') + ',.3);color:' + stColor + ';font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">' + stLabel + '</div>' +
+          '<div style="font-size:11px;color:var(--tx3);margin-top:4px;">' + t('min') + ': ' + (p.minQty||0) + '</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:6px;flex-direction:column;">' +
+          '<button onclick="openInvMo('in','' + p.id + '')" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(52,211,153,.3);background:rgba(52,211,153,.1);color:#34d399;font-size:11px;cursor:pointer;font-family:Tajawal,sans-serif;">↓ ' + t('inv_add') + '</button>' +
+          '<button onclick="openInvMo('out','' + p.id + '')" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(248,113,113,.3);background:rgba(248,113,113,.1);color:#f87171;font-size:11px;cursor:pointer;font-family:Tajawal,sans-serif;">↑ ' + t('inv_remove') + '</button>' +
+          '<button onclick="editProduct('' + p.id + '')" style="padding:5px 10px;border-radius:8px;border:1px solid var(--bdr);background:rgba(255,255,255,.05);color:var(--tx2);font-size:11px;cursor:pointer;font-family:Tajawal,sans-serif;">✏️ ' + t('edit') + '</button>' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:12px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(192,132,252,.08);font-size:12px;color:var(--tx2);">' +
+        '<span>💰 ' + t('cost') + ': <strong>' + (p.cost||0).toFixed(3) + '</strong></span>' +
+        '<span>🏷️ ' + t('price') + ': <strong>' + (p.price||0).toFixed(3) + '</strong></span>' +
+        '<span>📊 ' + t('inv_value') + ': <strong>' + ((p.qty||0)*(p.cost||0)).toFixed(3) + ' ' + t('curr') + '</strong></span>' +
+        (p.notes ? '<span>📝 ' + p.notes + '</span>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  // Render movements
+  renderMovements();
+  renderInvStats();
+}
+
+// Render movements log
+function renderMovements() {
+  var log = document.getElementById('inv-movements-list');
+  if (!log) return;
+  var recent = INV_MOVEMENTS.slice(-30).reverse();
+  if (recent.length === 0) {
+    log.innerHTML = '<div class="no-cust"><div style="font-size:32px">📋</div><div>' + t('no_movements') + '</div></div>';
+    return;
+  }
+  log.innerHTML = recent.map(function(m) {
+    var p = INV_PRODUCTS.find(function(x){ return x.id===m.productId; });
+    var isIn = m.type === 'in';
+    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;background:rgba(255,255,255,.02);border:1px solid rgba(192,132,252,.08);border-radius:12px;margin-bottom:8px;">' +
+      '<div style="width:36px;height:36px;border-radius:10px;background:rgba(' + (isIn?'52,211,153':'248,113,113') + ',.12);border:1px solid rgba(' + (isIn?'52,211,153':'248,113,113') + ',.25);display:flex;align-items:center;justify-content:center;font-size:16px;">' + (isIn?'↓':'↑') + '</div>' +
+      '<div style="flex:1;">' +
+        '<div style="font-size:14px;font-weight:600;">' + (p?p.name:m.productId) + '</div>' +
+        '<div style="font-size:12px;color:var(--tx3);">' + m.date + (m.note ? ' · ' + m.note : '') + (m.supplier ? ' · 🏭 ' + m.supplier : '') + '</div>' +
+      '</div>' +
+      '<div style="font-size:18px;font-weight:800;color:' + (isIn?'#34d399':'#f87171') + ';">' + (isIn?'+':'-') + m.qty + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// Open inventory modal
+function openInvMo(type, productId) {
+  var mo = document.getElementById('mo-inventory');
+  if (!mo) return;
+
+  // Reset form
+  document.getElementById('inv-mo-type').value = type;
+  document.getElementById('inv-mo-pid').value  = productId || '';
+
+  if (type === 'product') {
+    document.getElementById('inv-mo-title').textContent = t('add_product');
+    document.getElementById('inv-form-product').style.display = 'block';
+    document.getElementById('inv-form-movement').style.display = 'none';
+    // Clear form
+    ['inv-p-name','inv-p-cat','inv-p-sku','inv-p-barcode','inv-p-unit','inv-p-cost','inv-p-price','inv-p-qty','inv-p-minqty','inv-p-supplier','inv-p-notes'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    document.getElementById('inv-p-icon').value = '📦';
+  } else {
+    document.getElementById('inv-mo-title').textContent = type==='in' ? t('add_stock') : t('remove_stock');
+    document.getElementById('inv-form-product').style.display = 'none';
+    document.getElementById('inv-form-movement').style.display = 'block';
+    // Fill product dropdown
+    var sel = document.getElementById('inv-m-product');
+    sel.innerHTML = '<option value="">' + t('sel_product') + '</option>';
+    INV_PRODUCTS.forEach(function(p){
+      sel.innerHTML += '<option value="' + p.id + '"' + (productId===p.id?' selected':'') + '>' + p.name + ' (' + p.qty + ' ' + (p.unit||t('unit')) + ')</option>';
+    });
+    document.getElementById('inv-m-qty').value = '';
+    document.getElementById('inv-m-note').value = '';
+    document.getElementById('inv-m-supplier').value = '';
+    document.getElementById('inv-m-date').value = new Date().toISOString().split('T')[0];
+    // Show supplier field only for 'in'
+    document.getElementById('inv-supplier-row').style.display = type==='in' ? 'block' : 'none';
+  }
+
+  openMo('inventory');
+}
+
+// Edit product
+function editProduct(id) {
+  var p = INV_PRODUCTS.find(function(x){ return x.id===id; });
+  if (!p) return;
+  document.getElementById('inv-mo-type').value  = 'product';
+  document.getElementById('inv-mo-pid').value   = id;
+  document.getElementById('inv-mo-title').textContent = t('edit_product');
+  document.getElementById('inv-form-product').style.display  = 'block';
+  document.getElementById('inv-form-movement').style.display = 'none';
+  document.getElementById('inv-p-name').value     = p.name     || '';
+  document.getElementById('inv-p-cat').value      = p.category || '';
+  document.getElementById('inv-p-sku').value      = p.sku      || '';
+  document.getElementById('inv-p-barcode').value  = p.barcode  || '';
+  document.getElementById('inv-p-unit').value     = p.unit     || '';
+  document.getElementById('inv-p-cost').value     = p.cost     || '';
+  document.getElementById('inv-p-price').value    = p.price    || '';
+  document.getElementById('inv-p-qty').value      = p.qty      || 0;
+  document.getElementById('inv-p-minqty').value   = p.minQty   || '';
+  document.getElementById('inv-p-supplier').value = p.supplier || '';
+  document.getElementById('inv-p-notes').value    = p.notes    || '';
+  document.getElementById('inv-p-icon').value     = p.icon     || '📦';
+  openMo('inventory');
+}
+
+// Save inventory form
+function saveInvMo() {
+  var type      = document.getElementById('inv-mo-type').value;
+  var productId = document.getElementById('inv-mo-pid').value;
+
+  if (type === 'product') {
+    var name = document.getElementById('inv-p-name').value.trim();
+    if (!name) { toast(t('name_req'), 'err'); return; }
+    var p = {
+      id:       productId || Date.now().toString(),
+      name:     name,
+      category: document.getElementById('inv-p-cat').value.trim(),
+      sku:      document.getElementById('inv-p-sku').value.trim(),
+      barcode:  document.getElementById('inv-p-barcode').value.trim(),
+      unit:     document.getElementById('inv-p-unit').value.trim() || t('unit'),
+      cost:     parseFloat(document.getElementById('inv-p-cost').value)  || 0,
+      price:    parseFloat(document.getElementById('inv-p-price').value) || 0,
+      qty:      parseFloat(document.getElementById('inv-p-qty').value)   || 0,
+      minQty:   parseFloat(document.getElementById('inv-p-minqty').value)|| 0,
+      supplier: document.getElementById('inv-p-supplier').value.trim(),
+      notes:    document.getElementById('inv-p-notes').value.trim(),
+      icon:     document.getElementById('inv-p-icon').value.trim() || '📦',
+    };
+    if (productId) {
+      var idx = INV_PRODUCTS.findIndex(function(x){ return x.id===productId; });
+      if (idx>=0) INV_PRODUCTS[idx] = p;
+    } else {
+      INV_PRODUCTS.unshift(p);
+    }
+    toast(productId ? t('toast_edited') : t('toast_added'));
+  } else {
+    var pid  = document.getElementById('inv-m-product').value;
+    var qty  = parseFloat(document.getElementById('inv-m-qty').value) || 0;
+    var note = document.getElementById('inv-m-note').value.trim();
+    var supp = document.getElementById('inv-m-supplier').value.trim();
+    var date = document.getElementById('inv-m-date').value || new Date().toISOString().split('T')[0];
+    if (!pid) { toast(t('sel_product'), 'err'); return; }
+    if (qty <= 0) { toast(t('qty_req'), 'err'); return; }
+    var prod = INV_PRODUCTS.find(function(x){ return x.id===pid; });
+    if (!prod) return;
+    if (type === 'out' && prod.qty < qty) { toast(t('not_enough_stock'), 'err'); return; }
+    prod.qty = type === 'in' ? prod.qty + qty : prod.qty - qty;
+    INV_MOVEMENTS.push({ id: Date.now().toString(), productId: pid, type: type, qty: qty, note: note, supplier: supp, date: date });
+    toast(type === 'in' ? t('stock_added') : t('stock_removed'));
+  }
+
+  saveInv();
+  closeMo('inventory');
+  renderInv();
+}
+
+// Delete product
+function delProduct(id) {
+  if (!confirm(t('del_confirm'))) return;
+  INV_PRODUCTS = INV_PRODUCTS.filter(function(p){ return p.id !== id; });
+  saveInv();
+  renderInv();
+  toast(t('toast_deleted'));
+}
+
+
 function svCfg() { localStorage.setItem("sku6_cfg", JSON.stringify(CFG)); }
 
 // Logout function
@@ -1856,13 +2191,14 @@ function clearAll() {
 }
 
 // ===== TABS =====
-var TABS = ["dashboard","customers","gallery","send","settings"];
+var TABS = ["dashboard","customers","gallery","send","inventory","settings"];
 function goTab(tab) {
   document.querySelectorAll(".nav-item").forEach(function(n){n.classList.remove("active");});
   document.querySelectorAll(".section").forEach(function(s){s.classList.remove("active");});
   var i = TABS.indexOf(tab); if(i<0) return;
   document.querySelectorAll(".nav-item")[i].classList.add("active");
   document.getElementById("tab-"+tab).classList.add("active");
+  if (tab==="inventory") { renderInv(); }
   if (tab==="dashboard") renderD();
   if (tab==="customers") renderC();
   if (tab==="gallery")   { renderGal(); updGalState(); }
@@ -1899,5 +2235,101 @@ renderD();
 renderC();
 
 </script>
+
+<!-- INVENTORY MODAL -->
+<div class="mo" id="mo-inventory">
+  <div class="mo-box" style="max-width:520px;">
+    <div class="mo-head">
+      <span id="inv-mo-title">إضافة منتج</span>
+      <button class="mo-close" onclick="closeMo('inventory')">✕</button>
+    </div>
+    <input type="hidden" id="inv-mo-type">
+    <input type="hidden" id="inv-mo-pid">
+
+    <!-- PRODUCT FORM -->
+    <div id="inv-form-product">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="fg" style="grid-column:1/-1;">
+          <label id="inv-lbl-name">اسم المنتج *</label>
+          <input type="text" id="inv-p-name" placeholder="مثال: حقيبة جلد">
+        </div>
+        <div class="fg">
+          <label id="inv-lbl-cat">الفئة</label>
+          <input type="text" id="inv-p-cat" placeholder="مثال: حقائب">
+        </div>
+        <div class="fg">
+          <label id="inv-lbl-icon">الأيقونة</label>
+          <input type="text" id="inv-p-icon" placeholder="📦" style="font-size:20px;">
+        </div>
+        <div class="fg">
+          <label id="inv-lbl-sku">رمز المنتج (SKU)</label>
+          <input type="text" id="inv-p-sku" placeholder="SKU-001">
+        </div>
+        <div class="fg">
+          <label id="inv-lbl-barcode">الباركود</label>
+          <input type="text" id="inv-p-barcode" placeholder="1234567890">
+        </div>
+        <div class="fg">
+          <label id="inv-lbl-unit">وحدة القياس</label>
+          <input type="text" id="inv-p-unit" placeholder="قطعة / كيلو / متر">
+        </div>
+        <div class="fg">
+          <label id="inv-lbl-supplier">المورد</label>
+          <input type="text" id="inv-p-supplier" placeholder="اسم المورد">
+        </div>
+        <div class="fg">
+          <label id="inv-lbl-cost">سعر التكلفة (ر.ع)</label>
+          <input type="number" id="inv-p-cost" placeholder="0.000" step="0.001" min="0">
+        </div>
+        <div class="fg">
+          <label id="inv-lbl-price">سعر البيع (ر.ع)</label>
+          <input type="number" id="inv-p-price" placeholder="0.000" step="0.001" min="0">
+        </div>
+        <div class="fg">
+          <label id="inv-lbl-qty">الكمية الحالية</label>
+          <input type="number" id="inv-p-qty" placeholder="0" min="0">
+        </div>
+        <div class="fg">
+          <label id="inv-lbl-minqty">الحد الأدنى للتنبيه</label>
+          <input type="number" id="inv-p-minqty" placeholder="5" min="0">
+        </div>
+        <div class="fg" style="grid-column:1/-1;">
+          <label id="inv-lbl-notes">ملاحظات</label>
+          <input type="text" id="inv-p-notes" placeholder="أي ملاحظات...">
+        </div>
+      </div>
+    </div>
+
+    <!-- MOVEMENT FORM -->
+    <div id="inv-form-movement" style="display:none;">
+      <div class="fg">
+        <label id="inv-lbl-prod">اختر المنتج *</label>
+        <select id="inv-m-product"></select>
+      </div>
+      <div class="fg">
+        <label id="inv-lbl-qty2">الكمية *</label>
+        <input type="number" id="inv-m-qty" placeholder="0" min="0.001" step="0.001">
+      </div>
+      <div class="fg">
+        <label id="inv-lbl-date">التاريخ</label>
+        <input type="date" id="inv-m-date">
+      </div>
+      <div class="fg" id="inv-supplier-row">
+        <label id="inv-lbl-supp">المورد</label>
+        <input type="text" id="inv-m-supplier" placeholder="اسم المورد">
+      </div>
+      <div class="fg">
+        <label id="inv-lbl-note">ملاحظة</label>
+        <input type="text" id="inv-m-note" placeholder="سبب الصرف / اسم المشتري...">
+      </div>
+    </div>
+
+    <div class="mo-foot">
+      <button class="mo-cancel" onclick="closeMo('inventory')" id="btn-cancel-inv">إلغاء</button>
+      <button class="mo-save" onclick="saveInvMo()" id="btn-save-inv">💾 حفظ</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
