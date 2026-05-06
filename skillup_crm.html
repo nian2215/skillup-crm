@@ -918,7 +918,19 @@ var T = {
     btn_add_product:"+ إضافة منتج", btn_stock_in:"↓ وارد", btn_stock_out:"↑ صادر", btn_scan:"📷 مسح وصل",
     inv_title:"📦 المخزون", inv_lbl_products:"إجمالي المنتجات",
     inv_lbl_value:"قيمة المخزون (ر.ع)", inv_lbl_low:"منتجات تحت الحد الأدنى",
-    inv_lbl_out2:"نفذت من المخزون", inv_movements_title:"📋 سجل الحركات"
+    inv_lbl_out2:"نفذت من المخزون", inv_movements_title:"📋 سجل الحركات",
+    inv_f_name:"📦 اسم المنتج *", inv_f_cat:"🏷️ الفئة", inv_f_icon:"الأيقونة",
+    inv_f_sku:"🔑 رمز المنتج (SKU)", inv_f_barcode:"🔲 الباركود",
+    inv_f_unit:"📐 وحدة القياس", inv_f_supplier:"🏭 المورد",
+    inv_f_cost:"💸 سعر التكلفة (ر.ع)", inv_f_price:"🏷️ سعر البيع (ر.ع)",
+    inv_f_qty:"📊 الكمية الحالية", inv_f_minqty:"⚠️ الحد الأدنى للتنبيه",
+    inv_f_notes:"📝 ملاحظات", inv_f_note:"📝 ملاحظة",
+    inv_f_m_product:"📦 المنتج *", inv_f_m_qty:"🔢 الكمية *", inv_f_m_date:"📅 التاريخ",
+    inv_f_m_supplier:"🏭 المورد",
+    inv_ph_name:"مثال: حقيبة جلدية بنية", inv_ph_cat:"مثال: حقائب، إلكترونيات...",
+    inv_ph_unit:"قطعة / كيلو / متر", inv_ph_supplier:"اسم المورد",
+    inv_ph_notes:"أي ملاحظات إضافية...", inv_ph_note:"سبب الصرف / اسم المشتري / رقم الفاتورة...",
+    inv_btn_cancel:"إلغاء", inv_btn_save:"💾 حفظ"
   },
   en: {
     dir:"ltr",lang:"en",
@@ -994,7 +1006,19 @@ var T = {
     btn_add_product:"+ Add Product", btn_stock_in:"↓ Stock In", btn_stock_out:"↑ Stock Out", btn_scan:"📷 Scan Receipt",
     inv_title:"📦 Inventory", inv_lbl_products:"Total Products",
     inv_lbl_value:"Stock Value (OMR)", inv_lbl_low:"Low Stock Items",
-    inv_lbl_out2:"Out of Stock", inv_movements_title:"📋 Movement Log"
+    inv_lbl_out2:"Out of Stock", inv_movements_title:"📋 Movement Log",
+    inv_f_name:"📦 Product Name *", inv_f_cat:"🏷️ Category", inv_f_icon:"Icon",
+    inv_f_sku:"🔑 Product Code (SKU)", inv_f_barcode:"🔲 Barcode",
+    inv_f_unit:"📐 Unit of Measure", inv_f_supplier:"🏭 Supplier",
+    inv_f_cost:"💸 Cost Price (OMR)", inv_f_price:"🏷️ Selling Price (OMR)",
+    inv_f_qty:"📊 Current Quantity", inv_f_minqty:"⚠️ Minimum Alert Level",
+    inv_f_notes:"📝 Notes", inv_f_note:"📝 Note",
+    inv_f_m_product:"📦 Product *", inv_f_m_qty:"🔢 Quantity *", inv_f_m_date:"📅 Date",
+    inv_f_m_supplier:"🏭 Supplier",
+    inv_ph_name:"Example: Brown Leather Bag", inv_ph_cat:"Example: Bags, Electronics...",
+    inv_ph_unit:"Unit / Kg / Meter", inv_ph_supplier:"Supplier name",
+    inv_ph_notes:"Any additional notes...", inv_ph_note:"Reason / Buyer name / Invoice number...",
+    inv_btn_cancel:"Cancel", inv_btn_save:"💾 Save"
   }
 };
 
@@ -1106,6 +1130,38 @@ function applyTr() {
   sx("inv-lbl-out",         t("inv_lbl_out2"));
   sx("inv-movements-title", t("inv_movements_title"));
   sx("btn-scan-receipt",    t("btn_scan"));
+
+  // ── ترجمة نافذة المخزون — حقول المنتج ──
+  sx("inv-lbl-name",       t("inv_f_name"));
+  sx("inv-lbl-cat",        t("inv_f_cat"));
+  sx("inv-lbl-icon",       t("inv_f_icon"));
+  sx("inv-lbl-sku",        t("inv_f_sku"));
+  sx("inv-lbl-barcode",    t("inv_f_barcode"));
+  sx("inv-lbl-unit",       t("inv_f_unit"));
+  sx("inv-lbl-p-supplier", t("inv_f_supplier"));
+  sx("inv-lbl-cost",       t("inv_f_cost"));
+  sx("inv-lbl-price",      t("inv_f_price"));
+  sx("inv-lbl-qty",        t("inv_f_qty"));
+  sx("inv-lbl-minqty",     t("inv_f_minqty"));
+  sx("inv-lbl-notes",      t("inv_f_notes"));
+  // حقول الحركة
+  sx("inv-lbl-m-product",  t("inv_f_m_product"));
+  sx("inv-lbl-m-qty",      t("inv_f_m_qty"));
+  sx("inv-lbl-m-date",     t("inv_f_m_date"));
+  sx("inv-lbl-m-supplier", t("inv_f_m_supplier"));
+  sx("inv-lbl-m-note",     t("inv_f_note"));
+  // أزرار النافذة
+  sx("inv-btn-cancel",     t("inv_btn_cancel"));
+  sx("inv-btn-save",       t("inv_btn_save"));
+  // Placeholders
+  var sp2 = function(id,v){var e=document.getElementById(id);if(e)e.placeholder=v;};
+  sp2("inv-p-name",     t("inv_ph_name"));
+  sp2("inv-p-cat",      t("inv_ph_cat"));
+  sp2("inv-p-unit",     t("inv_ph_unit"));
+  sp2("inv-p-supplier", t("inv_ph_supplier"));
+  sp2("inv-p-notes",    t("inv_ph_notes"));
+  sp2("inv-m-supplier", t("inv_ph_supplier"));
+  sp2("inv-m-note",     t("inv_ph_note"));
 }
 
 // ===== COUNTRIES =====
@@ -2464,7 +2520,7 @@ renderC();
             onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
         <div>
-          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">الأيقونة</label>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;" id="inv-lbl-icon">الأيقونة</label>
           <input type="text" id="inv-p-icon" value="📦"
             style="width:70px;padding:12px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:22px;outline:none;text-align:center;"
             onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
@@ -2474,13 +2530,13 @@ renderC();
       <!-- Row 3: SKU + Barcode -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
         <div>
-          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">🔑 رمز المنتج (SKU)</label>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;" id="inv-lbl-sku">🔑 رمز المنتج (SKU)</label>
           <input type="text" id="inv-p-sku" placeholder="SKU-001"
             style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
             onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
         <div>
-          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">🔲 الباركود</label>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;" id="inv-lbl-barcode">🔲 الباركود</label>
           <input type="text" id="inv-p-barcode" placeholder="1234567890"
             style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
             onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
@@ -2490,13 +2546,13 @@ renderC();
       <!-- Row 4: Unit + Supplier -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
         <div>
-          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">📐 وحدة القياس</label>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;" id="inv-lbl-unit">📐 وحدة القياس</label>
           <input type="text" id="inv-p-unit" placeholder="قطعة / كيلو / متر"
             style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
             onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
         <div>
-          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">🏭 المورد</label>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;" id="inv-lbl-p-supplier">🏭 المورد</label>
           <input type="text" id="inv-p-supplier" placeholder="اسم المورد"
             style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
             onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
@@ -2506,13 +2562,13 @@ renderC();
       <!-- Row 5: Cost + Price -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
         <div>
-          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">💸 سعر التكلفة (ر.ع)</label>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;" id="inv-lbl-cost">💸 سعر التكلفة (ر.ع)</label>
           <input type="number" id="inv-p-cost" placeholder="0.000" step="0.001" min="0"
             style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
             onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
         <div>
-          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">🏷️ سعر البيع (ر.ع)</label>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;" id="inv-lbl-price">🏷️ سعر البيع (ر.ع)</label>
           <input type="number" id="inv-p-price" placeholder="0.000" step="0.001" min="0"
             style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
             onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
@@ -2522,13 +2578,13 @@ renderC();
       <!-- Row 6: Qty + MinQty -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
         <div>
-          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">📊 الكمية الحالية</label>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;" id="inv-lbl-qty">📊 الكمية الحالية</label>
           <input type="number" id="inv-p-qty" placeholder="0" min="0"
             style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
             onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
         <div>
-          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">⚠️ الحد الأدنى للتنبيه</label>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;" id="inv-lbl-minqty">⚠️ الحد الأدنى للتنبيه</label>
           <input type="number" id="inv-p-minqty" placeholder="5" min="0"
             style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
             onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
@@ -2537,7 +2593,7 @@ renderC();
 
       <!-- Row 7: Notes -->
       <div style="margin-bottom:20px;">
-        <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">📝 ملاحظات</label>
+        <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;" id="inv-lbl-notes">📝 ملاحظات</label>
         <input type="text" id="inv-p-notes" placeholder="أي ملاحظات إضافية..."
           style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
           onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
@@ -2548,7 +2604,7 @@ renderC();
     <div id="inv-form-movement" style="display:none;">
 
       <div style="margin-bottom:16px;">
-        <label style="display:block;font-size:13px;font-weight:700;color:var(--rose);margin-bottom:8px;">📦 المنتج *</label>
+        <label style="display:block;font-size:13px;font-weight:700;color:var(--rose);margin-bottom:8px;" id="inv-lbl-m-product">📦 المنتج *</label>
         <select id="inv-m-product"
           style="width:100%;padding:13px 16px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;">
         </select>
@@ -2556,13 +2612,13 @@ renderC();
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
         <div>
-          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">🔢 الكمية *</label>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;" id="inv-lbl-m-qty">🔢 الكمية *</label>
           <input type="number" id="inv-m-qty" placeholder="0" min="0.001" step="0.001"
             style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
             onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
         </div>
         <div>
-          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">📅 التاريخ</label>
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;" id="inv-lbl-m-date">📅 التاريخ</label>
           <input type="date" id="inv-m-date"
             style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
             onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
@@ -2570,14 +2626,14 @@ renderC();
       </div>
 
       <div id="inv-supplier-row" style="margin-bottom:16px;">
-        <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">🏭 المورد</label>
+        <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;" id="inv-lbl-m-supplier">🏭 المورد</label>
         <input type="text" id="inv-m-supplier" placeholder="اسم المورد"
           style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
           onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
       </div>
 
       <div style="margin-bottom:20px;">
-        <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;">📝 ملاحظة</label>
+        <label style="display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px;" id="inv-lbl-m-note">📝 ملاحظة</label>
         <input type="text" id="inv-m-note" placeholder="سبب الصرف / اسم المشتري / رقم الفاتورة..."
           style="width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
           onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
@@ -2586,11 +2642,11 @@ renderC();
 
     <!-- FOOTER BUTTONS -->
     <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:16px;border-top:1px solid var(--bdr);">
-      <button onclick="closeMo('inventory')"
+      <button onclick="closeMo('inventory')" id="inv-btn-cancel"
         style="padding:12px 28px;border-radius:30px;border:1px solid var(--bdr);background:rgba(255,255,255,.05);color:var(--tx2);font-family:Tajawal,sans-serif;font-weight:600;font-size:14px;cursor:pointer;">
         إلغاء
       </button>
-      <button onclick="saveInvMo()"
+      <button onclick="saveInvMo()" id="inv-btn-save"
         style="padding:12px 32px;border-radius:30px;border:none;background:linear-gradient(135deg,var(--rose),var(--purple));color:#fff;font-family:Tajawal,sans-serif;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 4px 16px rgba(244,114,182,.35);">
         💾 حفظ
       </button>
