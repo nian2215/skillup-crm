@@ -755,6 +755,10 @@ body::before {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
     <span id="mob-lbl-inv">المخزون</span>
   </button>
+  <button class="mob-nav-item" id="mob-tab-send" onclick="goTab('send');setMobActive('send')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+    <span id="mob-lbl-send">إرسال</span>
+  </button>
   <button class="mob-nav-item" id="mob-tab-gallery" onclick="goTab('gallery');setMobActive('gallery')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
     <span id="mob-lbl-gal">المعرض</span>
@@ -875,40 +879,194 @@ body::before {
 <!-- SEND -->
 <div id="tab-send" class="section">
   <div class="topbar"><div class="page-title" id="title-send">إرسال <span>واتساب</span></div></div>
-  <div class="send-card">
-    <h3 id="msg-label-txt">✍️ نص الرسالة</h3>
-    <textarea class="msg-area" id="wmsg" rows="4">مرحباً 👋 لدينا وصول جديد من الحقائب في SkillUp! 👜✨ تفضل/ي بزيارتنا.</textarea>
+
+  <!-- TABS: A / B -->
+  <div style="display:flex;gap:0;margin-bottom:22px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:14px;padding:4px;">
+    <button id="send-tab-a" onclick="switchSendMode('a')"
+      style="flex:1;padding:11px;border-radius:10px;border:none;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .25s;background:linear-gradient(135deg,var(--rose),var(--purple));color:#fff;box-shadow:0 4px 14px rgba(244,114,182,.35);">
+      📢 إرسال جماعي — نفس الصور للجميع
+    </button>
+    <button id="send-tab-b" onclick="switchSendMode('b')"
+      style="flex:1;padding:11px;border-radius:10px;border:none;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .25s;background:transparent;color:var(--tx2);">
+      👤 إرسال مخصص — زبون واحد بصوره الخاصة
+    </button>
   </div>
-  <div class="send-card">
-    <h3>👥 <span id="choose-grp-txt">اختر المجموعة</span></h3>
-    <div class="grp-btns">
-      <button class="btn" style="background:rgba(52,211,153,.12);color:var(--green);border-color:rgba(52,211,153,.3);" onclick="sendGrp('green')" id="btn-grp-green">🟢 المنتظمون</button>
-      <button class="btn" style="background:rgba(251,191,36,.12);color:var(--yellow);border-color:rgba(251,191,36,.3);" onclick="sendGrp('yellow')" id="btn-grp-yellow">🟡 المتوسطون</button>
-      <button class="btn" style="background:rgba(248,113,113,.12);color:var(--red);border-color:rgba(248,113,113,.3);" onclick="sendGrp('red')" id="btn-grp-red">🔴 النادرون</button>
-      <button class="btn b-pink" onclick="sendGrp('all')" id="btn-grp-all">إرسال للجميع</button>
+
+  <!-- ══════════ MODE A: جماعي ══════════ -->
+  <div id="send-mode-a">
+
+    <!-- الرسالة -->
+    <div class="send-card">
+      <h3>✍️ نص الرسالة</h3>
+      <textarea class="msg-area" id="wmsg" rows="4">مرحباً 👋 لدينا وصول جديد! ✨ تفضل/ي بزيارتنا.</textarea>
     </div>
-    <!-- Selected images preview -->
-    <div id="send-imgs-wrap" style="margin-top:16px;display:none;">
-      <div style="font-size:13px;color:var(--tx2);margin-bottom:10px;">
-        <span id="pics-lbl">الصور المحددة:</span> <span id="spcount" style="color:var(--rose);font-weight:700;">0</span>
+
+    <!-- الصور المحددة -->
+    <div class="send-card">
+      <h3>🖼️ الصور المرفقة
+        <span style="font-size:12px;font-weight:400;color:var(--tx3);margin-right:8px;">— اذهب للمعرض وحدد الصور أولاً</span>
+      </h3>
+
+      <!-- لا توجد صور -->
+      <div id="send-imgs-empty" style="text-align:center;padding:24px;border:2px dashed rgba(192,132,252,.2);border-radius:12px;color:var(--tx3);">
+        <div style="font-size:32px;margin-bottom:8px;">🖼️</div>
+        <div style="font-size:13px;">لم تحدد أي صور من المعرض بعد</div>
+        <button onclick="goTab('gallery');setMobActive('gallery')"
+          style="margin-top:12px;padding:9px 20px;border-radius:20px;border:1px solid rgba(192,132,252,.3);background:rgba(192,132,252,.08);color:#c084fc;font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;">
+          📷 اذهب للمعرض
+        </button>
       </div>
-      <div id="send-imgs-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;"></div>
-      <div style="background:rgba(244,114,182,.08);border:1px solid rgba(244,114,182,.2);border-radius:12px;padding:12px 16px;font-size:13px;color:var(--tx2);">
-        <div style="color:#f9a8d4;font-weight:700;margin-bottom:6px;">📋 طريقة إرسال الصور:</div>
-        <div style="line-height:1.8;">
-          1️⃣ اضغط على مجموعة الإرسال أدناه<br>
-          2️⃣ سيفتح واتساب مع النص جاهز<br>
-          3️⃣ اضغط على أيقونة المرفق 📎 وأضف الصورة<br>
-          4️⃣ أرسل — ثم انتظر فتح المحادثة التالية تلقائياً
+
+      <!-- توجد صور -->
+      <div id="send-imgs-wrap" style="display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <span style="font-size:13px;color:var(--tx2);">الصور المحددة: <strong id="spcount" style="color:var(--rose);">0</strong></span>
+          <button onclick="goTab('gallery');setMobActive('gallery')"
+            style="padding:6px 14px;border-radius:20px;border:1px solid rgba(192,132,252,.3);background:rgba(192,132,252,.08);color:#c084fc;font-family:Tajawal,sans-serif;font-size:12px;cursor:pointer;">
+            + تغيير الصور
+          </button>
+        </div>
+        <!-- معاينة الصور -->
+        <div id="send-imgs-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;"></div>
+
+        <!-- زر تحميل الصور -->
+        <button onclick="downloadSelectedImgs()"
+          style="width:100%;padding:13px;border-radius:12px;border:2px solid rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34d399;font-family:Tajawal,sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all .25s;margin-bottom:10px;"
+          onmouseover="this.style.background='rgba(52,211,153,.2)'" onmouseout="this.style.background='rgba(52,211,153,.1)'">
+          ⬇️ تحميل كل الصور لهاتفك أولاً
+        </button>
+
+        <!-- تعليمات -->
+        <div style="background:rgba(244,114,182,.06);border:1px solid rgba(244,114,182,.2);border-radius:12px;padding:14px 16px;font-size:13px;line-height:2;">
+          <div style="color:#f9a8d4;font-weight:700;margin-bottom:6px;">📋 خطوات الإرسال:</div>
+          1️⃣ اضغط <strong style="color:#34d399;">تحميل الصور</strong> — ستنزل لجهازك<br>
+          2️⃣ اختر المجموعة أدناه — سيفتح واتساب مع الرسالة<br>
+          3️⃣ اضغط 📎 وارفق الصور المحملة<br>
+          4️⃣ أرسل — ثم ستنتقل للزبون التالي تلقائياً بعد ثانيتين
         </div>
       </div>
     </div>
-    <div id="send-imgs-empty" style="margin-top:12px;font-size:13px;color:var(--tx3);">
-      <span id="pics-note">لم تحدد أي صور من المعرض — اذهب للمعرض وحدد الصور أولاً</span>
+
+    <!-- اختيار المجموعة -->
+    <div class="send-card">
+      <h3>👥 اختر من ترسل لهم</h3>
+      <div class="grp-btns" style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn" style="background:rgba(52,211,153,.12);color:var(--green);border-color:rgba(52,211,153,.3);flex:1;" onclick="sendGrp('green')" id="btn-grp-green">🟢 المنتظمون</button>
+        <button class="btn" style="background:rgba(251,191,36,.12);color:var(--yellow);border-color:rgba(251,191,36,.3);flex:1;" onclick="sendGrp('yellow')" id="btn-grp-yellow">🟡 المتوسطون</button>
+        <button class="btn" style="background:rgba(248,113,113,.12);color:var(--red);border-color:rgba(248,113,113,.3);flex:1;" onclick="sendGrp('red')" id="btn-grp-red">🔴 النادرون</button>
+        <button class="btn b-pink" style="flex:1;" onclick="sendGrp('all')" id="btn-grp-all">📢 إرسال للجميع</button>
+      </div>
+      <div id="slog" style="margin-top:12px;"></div>
     </div>
-    <div id="slog" style="margin-top:10px;"></div>
+  </div>
+
+  <!-- ══════════ MODE B: مخصص ══════════ -->
+  <div id="send-mode-b" style="display:none;">
+
+    <!-- بحث عن زبون -->
+    <div class="send-card">
+      <h3>🔍 ابحث عن الزبون</h3>
+      <input type="text" id="send-b-search" placeholder="اكتب اسم الزبون أو رقم هاتفه..."
+        oninput="filterSendB()"
+        style="width:100%;padding:13px 16px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+        onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
+      <!-- نتائج البحث -->
+      <div id="send-b-results" style="margin-top:10px;max-height:220px;overflow-y:auto;"></div>
+      <!-- الزبون المحدد -->
+      <div id="send-b-selected" style="display:none;margin-top:12px;padding:14px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:12px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div id="send-b-avatar" style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--rose),var(--purple));display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;"></div>
+          <div style="flex:1;">
+            <div id="send-b-name" style="font-size:15px;font-weight:700;"></div>
+            <div id="send-b-phone" style="font-size:13px;color:var(--tx3);"></div>
+          </div>
+          <button onclick="clearSendB()"
+            style="padding:6px 12px;border-radius:20px;border:1px solid rgba(248,113,113,.3);background:rgba(248,113,113,.08);color:var(--red);font-family:Tajawal,sans-serif;font-size:12px;cursor:pointer;">
+            ✕ تغيير
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- الرسالة المخصصة -->
+    <div class="send-card">
+      <h3>✍️ الرسالة المخصصة</h3>
+      <textarea class="msg-area" id="wmsg-b" rows="4" placeholder="اكتب رسالة خاصة بهذا الزبون..."></textarea>
+      <!-- اقتراحات سريعة -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;">
+        <button onclick="appendMsgB('مرحباً 👋 كيف حالك؟ لدينا عروض خاصة لك!')"
+          style="padding:6px 12px;border-radius:20px;border:1px solid var(--bdr);background:rgba(255,255,255,.04);color:var(--tx2);font-family:Tajawal,sans-serif;font-size:12px;cursor:pointer;">
+          👋 تحية
+        </button>
+        <button onclick="appendMsgB('عزيزي/عزيزتي، لدينا وصول جديد يناسبك! ✨')"
+          style="padding:6px 12px;border-radius:20px;border:1px solid var(--bdr);background:rgba(255,255,255,.04);color:var(--tx2);font-family:Tajawal,sans-serif;font-size:12px;cursor:pointer;">
+          🆕 وصول جديد
+        </button>
+        <button onclick="appendMsgB('شكراً لتسوقك معنا! 🙏 نتمنى رضاك دائماً.')"
+          style="padding:6px 12px;border-radius:20px;border:1px solid var(--bdr);background:rgba(255,255,255,.04);color:var(--tx2);font-family:Tajawal,sans-serif;font-size:12px;cursor:pointer;">
+          🙏 شكر
+        </button>
+        <button onclick="appendMsgB('عرض خاص لك اليوم فقط! 🎁 لا تفوته.')"
+          style="padding:6px 12px;border-radius:20px;border:1px solid var(--bdr);background:rgba(255,255,255,.04);color:var(--tx2);font-family:Tajawal,sans-serif;font-size:12px;cursor:pointer;">
+          🎁 عرض خاص
+        </button>
+      </div>
+    </div>
+
+    <!-- الصور الخاصة -->
+    <div class="send-card">
+      <h3>🖼️ صور خاصة بهذا الزبون</h3>
+
+      <!-- اختيار الصور -->
+      <div style="margin-bottom:14px;">
+        <div style="font-size:13px;color:var(--tx3);margin-bottom:10px;">اختر صوراً من المعرض أو ارفع صوراً جديدة مخصصة:</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button onclick="openBGalPicker()"
+            style="padding:10px 18px;border-radius:12px;border:1px solid rgba(192,132,252,.3);background:rgba(192,132,252,.08);color:#c084fc;font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;">
+            📷 اختر من المعرض
+          </button>
+          <label style="padding:10px 18px;border-radius:12px;border:1px solid rgba(244,114,182,.3);background:rgba(244,114,182,.08);color:var(--rose);font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;">
+            ⬆️ ارفع صورة جديدة
+            <input type="file" accept="image/*" multiple style="display:none;" onchange="addBCustomImgs(event)">
+          </label>
+        </div>
+      </div>
+
+      <!-- معاينة الصور المختارة -->
+      <div id="send-b-imgs-preview" style="display:flex;gap:8px;flex-wrap:wrap;min-height:40px;"></div>
+      <div id="send-b-imgs-empty" style="font-size:13px;color:var(--tx3);text-align:center;padding:16px;">لم تختر صوراً بعد — اختيار الصور اختياري</div>
+
+      <!-- زر تحميل -->
+      <div id="send-b-dl-wrap" style="display:none;margin-top:12px;">
+        <button onclick="downloadBImgs()"
+          style="width:100%;padding:12px;border-radius:12px;border:2px solid rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34d399;font-family:Tajawal,sans-serif;font-size:14px;font-weight:800;cursor:pointer;"
+          onmouseover="this.style.background='rgba(52,211,153,.2)'" onmouseout="this.style.background='rgba(52,211,153,.1)'">
+          ⬇️ تحميل صور هذا الزبون لهاتفك
+        </button>
+      </div>
+    </div>
+
+    <!-- زر الإرسال -->
+    <button onclick="sendBCustom()"
+      style="width:100%;padding:16px;border-radius:30px;border:none;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;font-family:Tajawal,sans-serif;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 6px 24px rgba(37,211,102,.4);margin-bottom:20px;transition:all .3s;"
+      onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+      📤 فتح واتساب وإرسال الرسالة
+    </button>
+
+    <!-- نافذة اختيار الصور من المعرض -->
+    <div id="b-gal-picker" style="display:none;background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:16px;padding:16px;margin-top:10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <span style="font-size:14px;font-weight:700;color:var(--rose);">اختر الصور:</span>
+        <button onclick="closeBGalPicker()"
+          style="padding:5px 12px;border-radius:20px;border:1px solid var(--bdr);background:rgba(255,255,255,.05);color:var(--tx2);font-family:Tajawal,sans-serif;font-size:12px;cursor:pointer;">
+          ✓ تم
+        </button>
+      </div>
+      <div id="b-gal-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;max-height:260px;overflow-y:auto;"></div>
+    </div>
   </div>
 </div>
+
 
 <!-- SETTINGS -->
 
@@ -2287,77 +2445,268 @@ function updBulk() {
 }
 
 // ===== WHATSAPP =====
-function openWA(id) {
-  var c = CL.find(function(x){return x.id===id;});
-  if (!c || !c.phone) { toast(t("no_wa"),"err"); return; }
-  var msg = document.getElementById("wmsg") ? document.getElementById("wmsg").value : "";
-  openWhatsApp(c.phone, msg);
+// ════════════════════════════════════
+// SEND MODE — A (جماعي) و B (مخصص)
+// ════════════════════════════════════
+var _sendMode = 'a';
+var _sendBCustomer = null; // الزبون المحدد في الوضع B
+var _sendBImgs = [];       // صور الوضع B (base64 + name)
+var _sendBGalSelected = new Set(); // صور من المعرض للوضع B
+
+function switchSendMode(mode) {
+  _sendMode = mode;
+  var btnA = document.getElementById('send-tab-a');
+  var btnB = document.getElementById('send-tab-b');
+  var divA = document.getElementById('send-mode-a');
+  var divB = document.getElementById('send-mode-b');
+  if (mode === 'a') {
+    btnA.style.background = 'linear-gradient(135deg,var(--rose),var(--purple))';
+    btnA.style.color = '#fff';
+    btnA.style.boxShadow = '0 4px 14px rgba(244,114,182,.35)';
+    btnB.style.background = 'transparent';
+    btnB.style.color = 'var(--tx2)';
+    btnB.style.boxShadow = 'none';
+    divA.style.display = '';
+    divB.style.display = 'none';
+  } else {
+    btnB.style.background = 'linear-gradient(135deg,#25D366,#128C7E)';
+    btnB.style.color = '#fff';
+    btnB.style.boxShadow = '0 4px 14px rgba(37,211,102,.4)';
+    btnA.style.background = 'transparent';
+    btnA.style.color = 'var(--tx2)';
+    btnA.style.boxShadow = 'none';
+    divA.style.display = 'none';
+    divB.style.display = '';
+    renderBGalPicker();
+  }
 }
 
-function openWhatsApp(phone, msg) {
-  var encoded = encodeURIComponent(msg);
-  var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  var waLink;
-  if (isMobile) {
-    // Mobile: use wa.me which opens the app directly
-    waLink = "https://wa.me/" + phone + "?text=" + encoded;
-  } else {
-    // Desktop: use api.whatsapp.com which opens WhatsApp Desktop/Web
-    waLink = "https://api.whatsapp.com/send?phone=" + phone + "&text=" + encoded;
-  }
-  window.open(waLink, "_blank");
+// ── تحميل الصور (الوضع A) ──
+function downloadSelectedImgs() {
+  var imgs = GL.filter(function(img){ return sG.has(img.id); });
+  if (!imgs.length) { toast('لا توجد صور محددة','err'); return; }
+  imgs.forEach(function(img, i) {
+    setTimeout(function() {
+      var a = document.createElement('a');
+      a.href = img.src;
+      a.download = (img.name || 'صورة_' + (i+1)) + '.jpg';
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }, i * 400);
+  });
+  toast('✅ جاري تحميل ' + imgs.length + ' صورة...', 'ok');
 }
-function sendBulk() {
-  var list = CL.filter(function(c){return sC.has(c.id)&&c.phone;});
-  if (!list.length) { toast(t("no_wa"),"err"); return; }
-  var msg = document.getElementById("wmsg").value;
-  var selectedImgs = GL.filter(function(img){ return sG.has(img.id); });
-  if (selectedImgs.length > 0) {
-    msg += "\n\n🖼️ " + (LANG==="ar" ? "الصور:" : "Photos:");
-    selectedImgs.forEach(function(img, idx){ msg += "\n" + (idx+1) + ". " + img.src; });
-  }
-  var i = 0;
-  function nx() { if(i>=list.length) return; openWhatsApp(list[i].phone, msg); i++; if(i<list.length) setTimeout(nx,2000); }
-  nx();
-}
+
 function sendGrp(grp) {
   var msg  = document.getElementById("wmsg").value;
   var list = (grp==="all") ? CL : CL.filter(function(c){return c.color===grp;});
   list = list.filter(function(c){return c.phone;});
   var slog = document.getElementById("slog");
   if (!list.length) {
-    slog.innerHTML = "<div style=\"padding:10px;background:rgba(255,77,109,.1);border:1px solid rgba(255,77,109,.3);border-radius:10px;font-size:13px;color:var(--red)\">" + t("no_wa_group") + "</div>";
+    slog.innerHTML = "<div style='padding:12px;background:rgba(255,77,109,.1);border:1px solid rgba(255,77,109,.3);border-radius:10px;font-size:13px;color:var(--red)'>⚠️ " + t("no_wa_group") + "</div>";
     return;
   }
-
-  // Build message — append image URLs if images selected
-  var selectedImgs = GL.filter(function(img){ return sG.has(img.id); });
-  var fullMsg = msg;
-  if (selectedImgs.length > 0) {
-    fullMsg += "\n\n🖼️ " + (LANG==="ar" ? "الصور:" : "Photos:");
-    selectedImgs.forEach(function(img, idx){
-      fullMsg += "\n" + (idx+1) + ". " + img.src;
-    });
-  }
-
   var total = list.length;
-  slog.innerHTML = "<div style=\"padding:10px;background:rgba(34,201,122,.1);border:1px solid rgba(34,201,122,.3);border-radius:10px;font-size:13px;color:var(--green)\">" +
-    "⏳ " + (LANG==="ar" ? "جاري الإرسال لـ " : "Sending to ") + total + (LANG==="ar" ? " زبون..." : " customers...") +
-    (selectedImgs.length > 0 ? "<br>📎 " + (LANG==="ar" ? "مع " + selectedImgs.length + " صورة — أضفها يدوياً في واتساب" : "with " + selectedImgs.length + " photo(s) — attach manually in WhatsApp") : "") +
-    "</div>";
-
+  slog.innerHTML = "<div style='padding:12px;background:rgba(34,201,122,.1);border:1px solid rgba(34,201,122,.3);border-radius:10px;font-size:13px;color:var(--green)'>⏳ جاري الإرسال لـ " + total + " زبون...</div>";
   var i = 0;
   function nx() {
     if (i >= total) {
-      slog.innerHTML += "<div style=\"padding:10px;margin-top:6px;background:rgba(34,201,122,.1);border:1px solid rgba(34,201,122,.3);border-radius:10px;font-size:13px;color:var(--green)\">✅ " +
-        (LANG==="ar" ? "تم الإرسال لجميع الزبائن!" : "Sent to all customers!") + "</div>";
+      slog.innerHTML += "<div style='padding:12px;margin-top:6px;background:rgba(34,201,122,.1);border:1px solid rgba(34,201,122,.3);border-radius:10px;font-size:13px;color:var(--green)'>✅ تم الإرسال لجميع الزبائن!</div>";
       return;
     }
-    openWhatsApp(list[i].phone, fullMsg);
+    openWhatsApp(list[i].phone, msg);
     i++;
-    if (i < total) setTimeout(nx, 2000);
+    if (i < total) setTimeout(nx, 2200);
   }
   nx();
+}
+
+function sendBulk() {
+  var list = CL.filter(function(c){return sC.has(c.id)&&c.phone;});
+  if (!list.length) { toast(t("no_wa"),"err"); return; }
+  var msg = document.getElementById("wmsg") ? document.getElementById("wmsg").value : '';
+  switchSendMode('a');
+  goTab('send');
+  var i = 0;
+  function nx() { if(i>=list.length) return; openWhatsApp(list[i].phone, msg); i++; if(i<list.length) setTimeout(nx,2200); }
+  nx();
+}
+
+// ── الوضع B: بحث الزبائن ──
+function filterSendB() {
+  var q = document.getElementById('send-b-search').value.trim().toLowerCase();
+  var res = document.getElementById('send-b-results');
+  if (!q) { res.innerHTML = ''; return; }
+  var found = CL.filter(function(c){
+    return (c.name||'').toLowerCase().includes(q) || (c.phone||'').includes(q);
+  }).slice(0, 8);
+  if (!found.length) {
+    res.innerHTML = "<div style='padding:10px;font-size:13px;color:var(--tx3);text-align:center;'>لا يوجد نتائج</div>";
+    return;
+  }
+  res.innerHTML = found.map(function(c) {
+    var initials = (c.name||'?').charAt(0).toUpperCase();
+    return "<div onclick='selectSendBCustomer(\""+c.id+"\")' style='display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;cursor:pointer;transition:background .2s;border:1px solid rgba(192,132,252,.1);margin-bottom:6px;' onmouseover='this.style.background=\"rgba(244,114,182,.08)\"' onmouseout='this.style.background=\"\"'>" +
+      "<div style='width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--rose),var(--purple));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0'>" + initials + "</div>" +
+      "<div><div style='font-size:14px;font-weight:700;'>" + (c.name||'—') + "</div>" +
+      "<div style='font-size:12px;color:var(--tx3);'>" + (c.phone||'لا يوجد رقم') + " · " + (c.city||'') + "</div></div>" +
+      "</div>";
+  }).join('');
+}
+
+function selectSendBCustomer(id) {
+  var c = CL.find(function(x){return x.id===id;});
+  if (!c) return;
+  _sendBCustomer = c;
+  document.getElementById('send-b-results').innerHTML = '';
+  document.getElementById('send-b-search').value = '';
+  // إظهار بطاقة الزبون
+  var sel = document.getElementById('send-b-selected');
+  sel.style.display = 'block';
+  document.getElementById('send-b-avatar').textContent = (c.name||'?').charAt(0).toUpperCase();
+  document.getElementById('send-b-name').textContent = c.name || '—';
+  document.getElementById('send-b-phone').textContent = c.phone || 'لا يوجد رقم';
+  // رسالة مبدئية بالاسم
+  var ta = document.getElementById('wmsg-b');
+  if (!ta.value) ta.value = 'مرحباً ' + (c.name||'') + ' 👋 ';
+}
+
+function clearSendB() {
+  _sendBCustomer = null;
+  document.getElementById('send-b-selected').style.display = 'none';
+  document.getElementById('send-b-search').value = '';
+  document.getElementById('wmsg-b').value = '';
+}
+
+function appendMsgB(text) {
+  var ta = document.getElementById('wmsg-b');
+  ta.value = (ta.value ? ta.value + '\n' : '') + text;
+}
+
+// ── الوضع B: اختيار الصور من المعرض ──
+function openBGalPicker() {
+  document.getElementById('b-gal-picker').style.display = 'block';
+  renderBGalPicker();
+}
+function closeBGalPicker() {
+  document.getElementById('b-gal-picker').style.display = 'none';
+  renderBImgsPreview();
+}
+function renderBGalPicker() {
+  var grid = document.getElementById('b-gal-grid');
+  if (!grid) return;
+  if (!GL.length) {
+    grid.innerHTML = "<div style='font-size:13px;color:var(--tx3);text-align:center;padding:20px;'>المعرض فارغ</div>";
+    return;
+  }
+  grid.innerHTML = GL.map(function(img) {
+    var sel = _sendBGalSelected.has(img.id);
+    return "<div onclick='toggleBGalImg(\""+img.id+"\")' style='position:relative;border-radius:10px;overflow:hidden;cursor:pointer;border:3px solid "+(sel?'var(--rose)':'transparent')+";transition:border .2s;'>" +
+      "<img src='"+img.src+"' style='width:100%;height:70px;object-fit:cover;display:block;'>" +
+      (sel ? "<div style='position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:var(--rose);display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;font-weight:700;'>✓</div>" : '') +
+      "</div>";
+  }).join('');
+}
+function toggleBGalImg(id) {
+  _sendBGalSelected.has(id) ? _sendBGalSelected.delete(id) : _sendBGalSelected.add(id);
+  renderBGalPicker();
+}
+
+// ── الوضع B: إضافة صور جديدة ──
+function addBCustomImgs(event) {
+  var files = Array.from(event.target.files);
+  files.forEach(function(file) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      _sendBImgs.push({ name: file.name, src: e.target.result });
+      renderBImgsPreview();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderBImgsPreview() {
+  var preview = document.getElementById('send-b-imgs-preview');
+  var empty   = document.getElementById('send-b-imgs-empty');
+  var dlWrap  = document.getElementById('send-b-dl-wrap');
+  // دمج صور المعرض + الصور المرفوعة
+  var galImgs = GL.filter(function(img){ return _sendBGalSelected.has(img.id); });
+  var total   = galImgs.length + _sendBImgs.length;
+  if (total === 0) {
+    preview.innerHTML = '';
+    empty.style.display   = 'block';
+    dlWrap.style.display  = 'none';
+    return;
+  }
+  empty.style.display  = 'none';
+  dlWrap.style.display = 'block';
+  var html = '';
+  galImgs.forEach(function(img, i) {
+    html += "<div style='position:relative;width:70px;height:70px;border-radius:10px;overflow:hidden;border:2px solid rgba(244,114,182,.4);flex-shrink:0'>" +
+      "<img src='"+img.src+"' style='width:100%;height:100%;object-fit:cover'>" +
+      "<div style='position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,.5);border-radius:4px;font-size:9px;color:#fff;padding:1px 4px;'>معرض</div>" +
+      "<button onclick='removeBGalImg(\""+img.id+"\")' style='position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:rgba(255,77,109,.8);border:none;color:#fff;font-size:10px;cursor:pointer;'>✕</button>" +
+      "</div>";
+  });
+  _sendBImgs.forEach(function(img, i) {
+    html += "<div style='position:relative;width:70px;height:70px;border-radius:10px;overflow:hidden;border:2px solid rgba(52,211,153,.4);flex-shrink:0'>" +
+      "<img src='"+img.src+"' style='width:100%;height:100%;object-fit:cover'>" +
+      "<div style='position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,.5);border-radius:4px;font-size:9px;color:#fff;padding:1px 4px;'>جديدة</div>" +
+      "<button onclick='removeBCustomImg("+i+")' style='position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:rgba(255,77,109,.8);border:none;color:#fff;font-size:10px;cursor:pointer;'>✕</button>" +
+      "</div>";
+  });
+  preview.innerHTML = html;
+}
+function removeBGalImg(id) { _sendBGalSelected.delete(id); renderBImgsPreview(); renderBGalPicker(); }
+function removeBCustomImg(i) { _sendBImgs.splice(i, 1); renderBImgsPreview(); }
+
+// ── الوضع B: تحميل صور الزبون ──
+function downloadBImgs() {
+  var galImgs  = GL.filter(function(img){ return _sendBGalSelected.has(img.id); });
+  var allImgs  = galImgs.map(function(img){ return { src: img.src, name: img.name||'صورة' }; })
+                        .concat(_sendBImgs);
+  if (!allImgs.length) { toast('لا توجد صور لتحميلها','err'); return; }
+  allImgs.forEach(function(img, i) {
+    setTimeout(function() {
+      var a = document.createElement('a');
+      a.href = img.src;
+      a.download = img.name + '.jpg';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }, i * 400);
+  });
+  toast('✅ جاري تحميل ' + allImgs.length + ' صورة...', 'ok');
+}
+
+// ── الوضع B: إرسال واتساب ──
+function sendBCustom() {
+  if (!_sendBCustomer) { toast('اختر زبوناً أولاً','err'); return; }
+  if (!_sendBCustomer.phone) { toast('هذا الزبون ليس له رقم واتساب','err'); return; }
+  var msg = document.getElementById('wmsg-b').value.trim();
+  if (!msg) { toast('اكتب رسالة أولاً','err'); return; }
+  // تحميل الصور أولاً إذا وجدت
+  var galImgs = GL.filter(function(img){ return _sendBGalSelected.has(img.id); });
+  var total   = galImgs.length + _sendBImgs.length;
+  if (total > 0) {
+    downloadBImgs();
+    setTimeout(function(){ openWhatsApp(_sendBCustomer.phone, msg); }, 800);
+  } else {
+    openWhatsApp(_sendBCustomer.phone, msg);
+  }
+}
+
+// ── فتح واتساب للزبون من بطاقته (الزر الأخضر) ──
+function openWA(id) {
+  var c = CL.find(function(x){return x.id===id;});
+  if (!c || !c.phone) { toast(t("no_wa"),"err"); return; }
+  // نفتح الوضع B مباشرة مع هذا الزبون
+  goTab('send');
+  setMobActive('send');
+  switchSendMode('b');
+  selectSendBCustomer(id);
 }
 
 // ===== COLOR PICK =====
@@ -3082,8 +3431,8 @@ function updateMobNav() {
   var langBtn = document.getElementById('mob-lang-btn');
   if (langBtn) langBtn.textContent = isAr ? 'EN' : 'عربي';
   var lbls = { dash: isAr?'الرئيسية':'Home', cust: isAr?'الزبائن':'Customers',
-               inv: isAr?'المخزون':'Inventory', gal: isAr?'المعرض':'Gallery',
-               set: isAr?'الإعدادات':'Settings' };
+               inv: isAr?'المخزون':'Inventory', send: isAr?'إرسال':'Send',
+               gal: isAr?'المعرض':'Gallery', set: isAr?'الإعدادات':'Settings' };
   Object.keys(lbls).forEach(function(k) {
     var el = document.getElementById('mob-lbl-'+k); if (el) el.textContent = lbls[k];
   });
