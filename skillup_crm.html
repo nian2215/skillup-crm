@@ -1194,6 +1194,64 @@ body::before {
     </div>
     <div class="cust-list" id="loyalty-tx-log"></div>
   </div>
+
+  <!-- إعدادات النظام -->
+  <div style="margin-top:28px;">
+    <div style="font-size:16px;font-weight:700;color:var(--purple);margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+      ⚙️ <span>إعدادات نظام النقاط</span>
+    </div>
+    <div style="background:rgba(192,132,252,.06);border:1px solid rgba(192,132,252,.2);border-radius:16px;padding:20px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:16px;">
+
+        <div>
+          <label style="display:block;font-size:12px;color:var(--tx2);margin-bottom:6px;font-weight:600;">⭐ نقاط لكل ريال عُماني</label>
+          <input type="number" id="cfg-pts-per-omr" min="0.1" step="0.1" placeholder="1"
+            style="width:100%;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:10px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='var(--purple)'" onblur="this.style.borderColor='var(--bdr)'">
+          <div style="font-size:11px;color:var(--tx3);margin-top:4px;">مثال: 2 = نقطتان لكل ريال</div>
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;color:var(--tx2);margin-bottom:6px;font-weight:600;">💰 قيمة النقطة عند الاستبدال (ر.ع)</label>
+          <input type="number" id="cfg-omr-per-pt" min="0.001" step="0.001" placeholder="0.1"
+            style="width:100%;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:10px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='var(--purple)'" onblur="this.style.borderColor='var(--bdr)'">
+          <div style="font-size:11px;color:var(--tx3);margin-top:4px;">مثال: 0.1 = 100 نقطة = 10 ر.ع</div>
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;color:var(--tx2);margin-bottom:6px;font-weight:600;">🥈 حد مستوى الفضة (نقطة)</label>
+          <input type="number" id="cfg-silver-thr" min="1" placeholder="100"
+            style="width:100%;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:10px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='#c0c0c0'" onblur="this.style.borderColor='var(--bdr)'">
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;color:var(--tx2);margin-bottom:6px;font-weight:600;">🥇 حد مستوى الذهب (نقطة)</label>
+          <input type="number" id="cfg-gold-thr" min="1" placeholder="300"
+            style="width:100%;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:10px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--bdr)'">
+        </div>
+
+        <div>
+          <label style="display:block;font-size:12px;color:var(--tx2);margin-bottom:6px;font-weight:600;">💎 حد مستوى البلاتين (نقطة)</label>
+          <input type="number" id="cfg-platinum-thr" min="1" placeholder="600"
+            style="width:100%;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:10px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='#60a5fa'" onblur="this.style.borderColor='var(--bdr)'">
+        </div>
+
+      </div>
+      <!-- معاينة الحساب -->
+      <div id="cfg-preview" style="background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.15);border-radius:10px;padding:12px 16px;margin-bottom:14px;font-size:13px;color:var(--tx2);">
+        مثال: شراء بـ <strong style="color:var(--gold);" id="cfg-ex-amt">10</strong> ر.ع
+        = <strong style="color:var(--accent);" id="cfg-ex-pts">10</strong> نقطة
+        | قيمة الاستبدال = <strong style="color:var(--green);" id="cfg-ex-omr">1.000</strong> ر.ع
+      </div>
+      <button onclick="saveLoyaltyConfig()" style="padding:10px 24px;background:linear-gradient(135deg,var(--purple),var(--rose));border:none;border-radius:10px;color:#fff;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;">
+        💾 حفظ الإعدادات
+      </button>
+    </div>
+  </div>
 </div>
 
 <div id="tab-settings" class="section">
@@ -3870,12 +3928,20 @@ async function saveScanResults() {
       <div class="mg" style="margin-bottom:14px;">
         <div class="field">
           <label style="font-size:13px;color:var(--tx2);font-weight:600;">نوع الإضافة</label>
-          <select id="ladd-type" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;">
+          <select id="ladd-type" onchange="onLaddTypeChange()" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;">
             <option value="earn_purchase">🛍️ شراء</option>
             <option value="earn_welcome">👋 ترحيب</option>
             <option value="earn_referral">🤝 إحالة صديق</option>
             <option value="earn_manual">✏️ إضافة يدوية</option>
           </select>
+        </div>
+        <!-- حقل المبلغ — يظهر فقط عند اختيار "شراء" -->
+        <div class="field" id="ladd-amount-row">
+          <label style="font-size:13px;color:var(--tx2);font-weight:600;">💰 قيمة الشراء (ر.ع)</label>
+          <input type="number" id="ladd-amount" min="0" step="0.001" placeholder="0.000" oninput="onLaddAmountChange()"
+            style="width:100%;padding:11px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--bdr)'">
+          <div id="ladd-pts-calc" style="margin-top:5px;font-size:12px;color:var(--gold);font-weight:700;display:none;"></div>
         </div>
         <div class="field">
           <label style="font-size:13px;color:var(--tx2);font-weight:600;">⭐ عدد النقاط</label>
@@ -3996,15 +4062,72 @@ async function saveScanResults() {
 //  الإصدار: 1.0 | 6 مايو 2026
 // ════════════════════════════════════════════════════════════
 
-// ─── إعدادات المستويات (يمكن تعديلها) ───
+// ─── إعدادات المستويات (قابلة للتعديل من الإعدادات) ───
 var LOYALTY_SETTINGS = {
-  points_per_purchase: 10,   // نقاط لكل عملية شراء
-  omr_per_point:       0.1,  // قيمة النقطة بالريال العُماني
+  points_per_omr:      1,    // نقاط لكل ريال عُماني
+  omr_per_point:       0.1,  // قيمة النقطة عند الاستبدال (ر.ع)
   silver_threshold:    100,
   gold_threshold:      300,
   platinum_threshold:  600,
   welcome_bonus:       20
 };
+
+function loadLoyaltySettings() {
+  var raw = localStorage.getItem('sku6_loyalty_cfg');
+  if (raw) { try { Object.assign(LOYALTY_SETTINGS, JSON.parse(raw)); } catch(e){} }
+}
+function saveLoyaltySettings() {
+  localStorage.setItem('sku6_loyalty_cfg', JSON.stringify(LOYALTY_SETTINGS));
+}
+// حساب النقاط من المبلغ
+function calcPointsFromAmount(amount) {
+  var amt = parseFloat(amount) || 0;
+  if (amt <= 0) return 0;
+  return Math.max(1, Math.floor(amt * LOYALTY_SETTINGS.points_per_omr));
+}
+
+// ─── مودال الإضافة: تغيير النوع ───
+function onLaddTypeChange() {
+  var type    = document.getElementById('ladd-type').value;
+  var amtRow  = document.getElementById('ladd-amount-row');
+  var isPurch = type === 'earn_purchase';
+  amtRow.style.display = isPurch ? 'block' : 'none';
+  if (!isPurch) {
+    document.getElementById('ladd-pts-calc').style.display = 'none';
+    document.getElementById('ladd-amount').value = '';
+  }
+}
+
+// ─── مودال الإضافة: تغيير المبلغ → حساب النقاط تلقائياً ───
+function onLaddAmountChange() {
+  var amt  = parseFloat(document.getElementById('ladd-amount').value) || 0;
+  var pts  = calcPointsFromAmount(amt);
+  var calc = document.getElementById('ladd-pts-calc');
+  if (amt > 0) {
+    document.getElementById('ladd-points').value = pts;
+    calc.style.display = 'block';
+    calc.textContent   = amt.toFixed(3) + ' ر.ع × ' + LOYALTY_SETTINGS.points_per_omr + ' = ' + pts + ' نقطة';
+  } else {
+    calc.style.display = 'none';
+  }
+}
+
+// ─── حفظ إعدادات الولاء ───
+function saveLoyaltyConfig() {
+  var ppo  = parseFloat(document.getElementById('cfg-pts-per-omr').value)   || 1;
+  var opp  = parseFloat(document.getElementById('cfg-omr-per-pt').value)    || 0.1;
+  var silv = parseInt(document.getElementById('cfg-silver-thr').value)       || 100;
+  var gold = parseInt(document.getElementById('cfg-gold-thr').value)         || 300;
+  var plat = parseInt(document.getElementById('cfg-platinum-thr').value)     || 600;
+  LOYALTY_SETTINGS.points_per_omr     = ppo;
+  LOYALTY_SETTINGS.omr_per_point      = opp;
+  LOYALTY_SETTINGS.silver_threshold   = silv;
+  LOYALTY_SETTINGS.gold_threshold     = gold;
+  LOYALTY_SETTINGS.platinum_threshold = plat;
+  saveLoyaltySettings();
+  toast('✅ تم حفظ إعدادات الولاء');
+  renderLoyaltyList();
+}
 
 // ─── بيانات النقاط (localStorage + Supabase) ───
 var LOYALTY_DATA = {}; // { customerId: { points, tier, transactions:[] } }
@@ -4347,6 +4470,10 @@ function openLoyaltyAdd() {
   document.getElementById('ladd-customer-card').style.display = 'none';
   document.getElementById('ladd-form').style.display = 'none';
   document.getElementById('ladd-points').value = '10';
+  document.getElementById('ladd-amount').value = '';
+  document.getElementById('ladd-pts-calc').style.display = 'none';
+  document.getElementById('ladd-amount-row').style.display = 'block';
+  document.getElementById('ladd-type').value = 'earn_purchase';
   document.getElementById('ladd-ref').value = '';
   document.getElementById('ladd-note').value = '';
   openMo('loyalty-add');
@@ -4538,6 +4665,34 @@ function openLoyaltyHistory(custId) {
   openMo('loyalty-history');
 }
 
+// ─── تعبئة حقول الإعدادات من LOYALTY_SETTINGS ───
+function fillLoyaltySettingsFields() {
+  var set = function(id, v) { var e = document.getElementById(id); if(e) e.value = v; };
+  set('cfg-pts-per-omr',  LOYALTY_SETTINGS.points_per_omr);
+  set('cfg-omr-per-pt',   LOYALTY_SETTINGS.omr_per_point);
+  set('cfg-silver-thr',   LOYALTY_SETTINGS.silver_threshold);
+  set('cfg-gold-thr',     LOYALTY_SETTINGS.gold_threshold);
+  set('cfg-platinum-thr', LOYALTY_SETTINGS.platinum_threshold);
+  updateCfgPreview();
+  // ربط الحقول بالمعاينة الحية
+  ['cfg-pts-per-omr','cfg-omr-per-pt','cfg-silver-thr','cfg-gold-thr','cfg-platinum-thr'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.oninput = updateCfgPreview;
+  });
+}
+
+function updateCfgPreview() {
+  var ppo = parseFloat((document.getElementById('cfg-pts-per-omr')||{}).value) || LOYALTY_SETTINGS.points_per_omr;
+  var opp = parseFloat((document.getElementById('cfg-omr-per-pt')||{}).value)  || LOYALTY_SETTINGS.omr_per_point;
+  var exAmt = 10;
+  var exPts = Math.max(1, Math.floor(exAmt * ppo));
+  var exOmr = (exPts * opp).toFixed(3);
+  var set = function(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; };
+  set('cfg-ex-amt', exAmt);
+  set('cfg-ex-pts', exPts);
+  set('cfg-ex-omr', exOmr);
+}
+
 // ════════════════════════════════════
 //  تعديل TABS لتشمل loyalty
 // ════════════════════════════════════
@@ -4545,6 +4700,7 @@ var _origGoTab = goTab;
 goTab = function(tab) {
   _origGoTab(tab);
   if (tab === 'loyalty') {
+    fillLoyaltySettingsFields();
     renderLoyaltyList();
   }
 };
@@ -4555,6 +4711,7 @@ TABS = ["dashboard","customers","gallery","send","inventory","loyalty","settings
 // ─── تحميل النقاط عند بدء التطبيق ───
 (function() {
   loadLoyalty();
+  loadLoyaltySettings();
   // بعد تحميل Supabase نحدّث النقاط
   var origLoad = loadFromSupabase;
   if (typeof origLoad === 'function') {
@@ -4571,16 +4728,13 @@ addP = async function() {
   var date   = document.getElementById("hd").value;
   var amount = document.getElementById("ha").value;
   if (!date) { toast(t("date_req"),"err"); return; }
-  // استدعاء الدالة الأصلية
   await _origAddP();
-  // إضافة نقاط تلقائياً
   if (id) {
-    var pts = LOYALTY_SETTINGS.points_per_purchase;
-    var amtNum = parseFloat(amount) || 0;
-    // إذا كان المبلغ محدداً: 1 نقطة لكل ريال عُماني
-    if (amtNum > 0) pts = Math.max(1, Math.floor(amtNum));
-    addPoints(id, pts, 'earn_purchase', 'شراء بتاريخ ' + date, '');
-    toast('⭐ +' + pts + ' نقطة أضيفت تلقائياً');
+    var pts = calcPointsFromAmount(amount);
+    if (pts > 0) {
+      addPoints(id, pts, 'earn_purchase', 'شراء بتاريخ ' + date + (amount ? ' — ' + amount + ' ر.ع' : ''), '');
+      toast('⭐ +' + pts + ' نقطة من قيمة الشراء (' + (parseFloat(amount)||0) + ' ر.ع × ' + LOYALTY_SETTINGS.points_per_omr + ')');
+    }
   }
 };
 
