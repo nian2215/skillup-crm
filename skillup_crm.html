@@ -2627,7 +2627,15 @@ async function uploadImgs(e) {
     try {
       var res = await fetch("https://api.cloudinary.com/v1_1/" + CFG.cloud + "/image/upload", {method:"POST", body:fd});
       var d   = await res.json();
-      if (d.secure_url) { GL.push({id:d.public_id, src:d.secure_url, name:file.name}); sv(); renderGal(); done++; }
+      if (d.secure_url) {
+        var uid = _sb._getUser() ? _sb._getUser().id : null;
+        var galRes = await _sb.from('gallery')._insert({
+          user_id: uid, src: d.secure_url, name: file.name, public_id: d.public_id
+        });
+        var galId = (galRes.data && galRes.data.id) ? galRes.data.id : d.public_id;
+        GL.push({id: galId, src: d.secure_url, name: file.name, publicId: d.public_id});
+        sv(); renderGal(); done++;
+      }
       else toast(t("upload_fail") + " " + file.name, "err");
     } catch(err) { toast(t("toast_conn_err"),"err"); }
   }
@@ -2660,7 +2668,7 @@ function renderGal() {
 }
 function tgG(id)   { if(!id) return; sG.has(id)?sG.delete(id):sG.add(id); renderGal(); }
 function clrGSel() { sG.clear(); renderGal(); }
-function delImg(id){ if(!confirm(t("del_img_confirm"))) return; GL=GL.filter(function(x){return x.id!==id;}); sG.delete(id); sv(); renderGal(); toast(t("toast_img_deleted")); }
+async function delImg(id){ if(!confirm(t("del_img_confirm"))) return; try { var d=_sb.from('gallery'); d.eq('id',id); await d._delete(); } catch(e){} GL=GL.filter(function(x){return x.id!==id;}); sG.delete(id); sv(); renderGal(); toast(t("toast_img_deleted")); }
 function updGalBar() {
   var b = document.getElementById("gselbar");
   if (b) b.style.display = sG.size > 0 ? "flex" : "none";
