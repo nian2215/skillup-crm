@@ -220,8 +220,7 @@ function selPlan(val, el) {
 
 // ── GOOGLE OAUTH ──
 function loginWithGoogle() {
-  var base = window.location.href.replace(/[^/]*$/, '');
-  var redirectTo = base + 'skillup_auth.html';
+  var redirectTo = 'https://nian2215.github.io/skillup-crm/skillup_auth.html';
   window.location.href = URL_ + '/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(redirectTo);
 }
 
