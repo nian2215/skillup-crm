@@ -1,7 +1,7 @@
 # PROJECT_CONTEXT.md — SkillUp CRM
 
 > هذا الملف مرجع شامل للمشروع. يُقرأ من GitHub مباشرة عند بداية كل جلسة AI.
-> آخر تحديث: مايو 2026
+> آخر تحديث: مايو 2026 (جلسة 08/05/2026)
 
 ---
 
@@ -26,7 +26,7 @@ SkillUp CRM نظام إدارة علاقات زبائن (CRM) موجّه للم�
 | Backend / DB | Supabase (PostgreSQL + REST API + Auth + Edge Functions) |
 | تخزين الصور | Cloudinary (unsigned upload preset) |
 | بوابة الدفع | Thawani (عُمانية) — sandbox حالياً |
-| الذكاء الاصطناعي | Google Gemini 1.5 Flash (مسح الوصولات) |
+| الذكاء الاصطناعي | Google Gemini 2.0 Flash (مسح الوصولات) — عبر Supabase Edge Function |
 | إرسال الرسائل | WhatsApp Web deep links (wa.me/) — يدوي |
 | Excel | مكتبة XLSX.js (استيراد/تصدير) |
 | الخطوط | Tajawal (عربي) + Playfair Display (إنجليزي) |
@@ -250,10 +250,15 @@ Prod:    https://checkout.thawani.om/api/v1  ← لم يُفعَّل بعد
 POST /checkout/session        → إنشاء جلسة دفع
 GET  /checkout/session/{id}   → التحقق من حالة الجلسة
 Checkout URL: {base}/pay/{session_id}?key={api_key}
-Gemini AI (مسح الوصولات)
-POST https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={KEY}
-  Body: { contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type, data: base64 } }] }] }
-  → يستخرج قائمة المنتجات من صورة الوصل
+Gemini AI (مسح الوصولات) ✅ محمي عبر Edge Function
+// الاستدعاء من Frontend (skillup_crm.html):
+POST /functions/v1/gemini-proxy
+  Headers: { Authorization: Bearer {access_token} }
+  Body: { imageBase64: string, imageMime: string }
+
+// Edge Function تتصل بـ Gemini داخلياً:
+POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_KEY}
+  // GEMINI_KEY مخزن في Supabase Secrets — غير مكشوف في الكود
 WhatsApp
 https://wa.me/{phone}?text={encoded_message}
 // يفتح في نافذة جديدة
@@ -264,6 +269,12 @@ edge_create_charge.ts
 ينشئ جلسة Thawani checkout
 يحفظ في payments بحالة pending
 يُعيد { payment_url, session_id }
+gemini-proxy ✅ مُنشأة مايو 2026
+يستقبل: { imageBase64, imageMime }
+يتحقق من Authorization header (مستخدم مسجل فقط)
+يتصل بـ Gemini 2.0 Flash باستخدام GEMINI_KEY من Supabase Secrets
+يُعيد: استجابة Gemini الكاملة (JSON بالمنتجات المستخرجة)
+
 edge_payment_webhook.ts
 يستقبل Webhook من Thawani: { session_id, payment_status }
 يتحقق من الجلسة مباشرة مع Thawani API
@@ -281,18 +292,18 @@ edge_payment_webhook.ts
 بحث وتصفية
 15. المشاكل الحالية (Known Issues)
 Thawani على Sandbox: edge_create_charge.ts يستخدم uatcheckout.thawani.om — يجب التبديل لـ production قبل الإطلاق.
-Gemini API Key مكشوف: GEMINI_KEY مكتوب مباشرة في skillup_crm.html — يجب نقله لـ Edge Function أو environment variable.
+~~Gemini API Key مكشوف~~ ✅ تم الحل (08/05/2026): نُقل الـ key إلى Supabase Secret (GEMINI_KEY) وأُنشئت Edge Function gemini-proxy — الـ key لم يعد مكشوفاً في الكود.
 نقاط الولاء غير مزامنة: بيانات sku6_loyalty مخزنة في localStorage فقط — تضيع عند تغيير الجهاز أو المتصفح.
 جداول Supabase غير موثقة بـ SQL: فقط payments_table.sql موجود — باقي الجداول (customers, purchases, gallery, products, inventory_movements, profiles) غير موثقة بملفات SQL.
 index.html = skillup_landing.html: نفس الملف بالضبط (SHA متطابق) — ازدواجية غير ضرورية.
-Google OAuth: زر موجود في الواجهة لكن غير مربوط بأي كود.
+~~Google OAuth غير مربوط~~ ✅ تم الحل (08/05/2026): أُضيفت دالة loginWithGoogle() في skillup_auth.html مع معالجة OAuth callback. Redirect URL: https://nian2215.github.io/skillup-crm/skillup_auth.html
 لا يوجد حماية من انتهاء الاشتراك في CRM: skillup_crm.html لا يتحقق من profiles.is_active — أي مستخدم دخل يصل للنظام.
 حذف صور Cloudinary: يحتاج Edge Function — الحذف المباشر من المتصفح غير مدعوم.
 16. TODO List
 أولوية عالية
 not done
 تبديل Thawani للـ production في edge_create_charge.ts
-not done
+done ✅
 نقل Gemini API Key من HTML إلى Supabase Edge Function
 not done
 إضافة فحص profiles.is_active عند تحميل skillup_crm.html
@@ -301,7 +312,7 @@ not done
 أولوية متوسطة
 not done
 مزامنة نقاط الولاء مع Supabase (جدول loyalty_points + loyalty_transactions)
-not done
+done ✅
 إعداد Google OAuth في Supabase Dashboard
 not done
 Edge Function لحذف صور Cloudinary بشكل آمن
@@ -330,3 +341,4 @@ _sb هو كائن Supabase المبسط في skillup_crm.html — يستخدم R
 عند قراءة ملفات HTML بـ WebFetch: الملفات تحتوي على صور base64 ضخمة — استخدم Bash + Python لاستخراج JS
 ---
 انسخ كل النص أعلاه وافتح محرر نصوص (Notepad أو VS Code) واحفظه باسم `PROJECT_CONTEXT.md`.
+
