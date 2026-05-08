@@ -2063,11 +2063,56 @@ function checkSession() {
   _sb.auth.getSession().then(function(r) {
     if (r.data && r.data.session) {
       _user = _sb._getUser() || r.data.session.user || {};
-      loadFromSupabase();
+      checkSubscription(_user.id);
     } else {
       window.location.replace('./skillup_auth.html');
     }
   });
+}
+
+async function checkSubscription(userId) {
+  try {
+    var token = _sb._getToken();
+    var res = await fetch(URL_ + '/rest/v1/profiles?id=eq.' + userId + '&select=is_active,trial_end,plan', {
+      headers: { 'apikey': KEY_, 'Authorization': 'Bearer ' + token }
+    });
+    var data = await res.json();
+    var profile = data && data[0];
+
+    if (!profile) {
+      // لا يوجد profile — يُنشأ تلقائياً عند التسجيل، نسمح بالدخول مؤقتاً
+      loadFromSupabase();
+      return;
+    }
+
+    var now = new Date();
+    var trialEnd = profile.trial_end ? new Date(profile.trial_end) : null;
+    var inTrial = trialEnd && now < trialEnd;
+    var isActive = profile.is_active === true;
+
+    if (isActive || inTrial) {
+      loadFromSupabase();
+    } else {
+      // انتهى الاشتراك والتجربة — إظهار شاشة انتهاء الاشتراك
+      document.body.innerHTML = `
+        <div style="min-height:100vh;background:#0d0812;display:flex;align-items:center;justify-content:center;font-family:Tajawal,sans-serif;color:#fdf0f8;direction:rtl;">
+          <div style="text-align:center;padding:40px;background:#1a1124;border-radius:20px;border:1px solid rgba(244,114,182,.3);max-width:420px;width:90%;">
+            <div style="font-size:60px;margin-bottom:16px;">⏰</div>
+            <h2 style="font-size:24px;font-weight:800;margin-bottom:12px;background:linear-gradient(135deg,#f472b6,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">انتهت فترة الاشتراك</h2>
+            <p style="color:#c4a8d4;margin-bottom:28px;line-height:1.7;">لمواصلة استخدام SkillUp CRM يرجى تجديد اشتراكك أو التواصل مع الإدارة.</p>
+            <button onclick="window.location.replace('./skillup_payment.html')" style="background:linear-gradient(135deg,#f472b6,#a855f7);color:#fff;border:none;padding:14px 32px;border-radius:30px;font-size:16px;font-weight:700;cursor:pointer;font-family:Tajawal,sans-serif;width:100%;margin-bottom:12px;">
+              🚀 تجديد الاشتراك
+            </button>
+            <button onclick="logout()" style="background:transparent;color:#7a5a8a;border:1px solid rgba(122,90,138,.3);padding:10px 32px;border-radius:30px;font-size:14px;cursor:pointer;font-family:Tajawal,sans-serif;width:100%;">
+              تسجيل الخروج
+            </button>
+          </div>
+        </div>`;
+    }
+  } catch(e) {
+    // في حال خطأ في الشبكة نسمح بالدخول
+    loadFromSupabase();
+  }
 }
 
 // Small delay to ensure localStorage is ready
@@ -4997,3 +5042,4 @@ addP = async function() {
 
 </script>
 </html>
+
