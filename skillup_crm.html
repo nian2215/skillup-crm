@@ -3872,9 +3872,6 @@ function closeWebcam() {
   document.getElementById('webcam-video').srcObject = null;
 }
 
-var GEMINI_KEY = 'AIzaSyC1vBNyMI2HCXQ5j7H4L_mbWX5fZiJGqN8';
-var GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + GEMINI_KEY;
-
 var _scanImageB64 = null;
 var _scanImageMime = 'image/jpeg';
 
@@ -3964,17 +3961,16 @@ async function startScan() {
 - الوصل قد يكون بالعربي أو الإنجليزي أو مختلط`;
 
   try {
-    var res = await fetch(GEMINI_URL, {
+    var sess = JSON.parse(localStorage.getItem('sku_sess') || '{}');
+    var res = await fetch('https://kgqmbegbmefftgstkizp.supabase.co/functions/v1/gemini-proxy', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + (sess.access_token || '')
+      },
       body: JSON.stringify({
-        contents: [{
-          parts: [
-            { text: prompt },
-            { inline_data: { mime_type: _scanImageMime, data: _scanImageB64 } }
-          ]
-        }],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 2048 }
+        imageBase64: _scanImageB64,
+        imageMime: _scanImageMime
       })
     });
 
