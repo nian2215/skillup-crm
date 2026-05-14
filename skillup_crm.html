@@ -2133,10 +2133,12 @@ setTimeout(checkSession, 100);
 
 async function loadFromSupabase() {
   try {
+    var localCL = loadLocalCustomers();
     // Load customers
     var cRes = await new Promise(function(res){ _sb.from('customers').select('*').order('created_at',{ascending:false}).then(res); });
+    var cloudCL = [];
     if (cRes.data) {
-      CL = cRes.data.map(function(r) {
+      cloudCL = cRes.data.map(function(r) {
         return {
           id: r.id,
           name: r.name,
@@ -2150,6 +2152,7 @@ async function loadFromSupabase() {
         };
       });
     }
+    CL = shouldPreferLocalCustomers(localCL, cloudCL) ? localCL : cloudCL;
     // Load purchases for each customer
     var pRes = await new Promise(function(res){ _sb.from('purchases').select('*').order('date',{ascending:false}).then(res); });
     if (pRes.data) {
@@ -2173,7 +2176,7 @@ async function loadFromSupabase() {
   } catch(e) {
     console.error('Load error:', e);
     // Fallback to localStorage
-    CL = JSON.parse(localStorage.getItem("sku6_c") || "[]");
+    CL = loadLocalCustomers();
     GL = JSON.parse(localStorage.getItem("sku6_g") || "[]");
     INV_PRODUCTS  = JSON.parse(localStorage.getItem('sku6_inv_p') || '[]');
     INV_MOVEMENTS = JSON.parse(localStorage.getItem('sku6_inv_m') || '[]');
@@ -2186,6 +2189,29 @@ var GL  = [];
 var CFG = JSON.parse(localStorage.getItem("sku6_cfg") || "{}");
 var sC  = new Set();
 var sG  = new Set();
+
+function loadLocalCustomers() {
+  try {
+    var rows = JSON.parse(localStorage.getItem("sku6_c") || "[]");
+    return Array.isArray(rows) ? rows : [];
+  } catch(e) {
+    return [];
+  }
+}
+
+function shouldPreferLocalCustomers(localRows, cloudRows) {
+  var localCount = localRows && localRows.length ? localRows.length : 0;
+  var cloudCount = cloudRows && cloudRows.length ? cloudRows.length : 0;
+  var importedCount = parseInt(localStorage.getItem("sku6_c_imported_count") || "0", 10) || 0;
+  if (!localCount) return false;
+  if (importedCount && localCount >= importedCount && localCount >= cloudCount) return true;
+  return localCount > cloudCount;
+}
+
+function saveLocalCustomersMeta(count) {
+  localStorage.setItem("sku6_c_imported_count", String(count || CL.length || 0));
+  localStorage.setItem("sku6_c_saved_at", new Date().toISOString());
+}
 
 // Save to Supabase + localStorage backup
 async function sv() {
@@ -3505,7 +3531,7 @@ function importD(e) {
       }
 
       CL = []; // Clear old data first
-      CL = imported; sv();
+      CL = imported; sv(); saveLocalCustomersMeta(imported.length);
       // Force refresh all views
       renderD(); renderC(); renderGal();
       // Switch to customers tab so user sees the result
@@ -3524,6 +3550,8 @@ function importD(e) {
 // ===== BACKUP =====
 function clearAll() {
   if (!confirm(t("del_all_confirm"))) return;
+  localStorage.removeItem("sku6_c_imported_count");
+  localStorage.removeItem("sku6_c_saved_at");
   CL = []; GL = []; sv(); renderD(); renderC(); renderGal(); toast(t("toast_cleared"));
 }
 
