@@ -1183,9 +1183,9 @@ body::before {
 
   <!-- بحث + فلتر -->
   <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
-    <input type="text" id="loyalty-search" placeholder="ابحث عن زبون..." oninput="renderLoyaltyList()"
+    <input type="text" id="loyalty-search" placeholder="ابحث عن زبون..." oninput="renderLoyaltyDelayed(true)"
       style="flex:1;min-width:200px;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;">
-    <select id="loyalty-tier-filter" onchange="renderLoyaltyList()"
+    <select id="loyalty-tier-filter" onchange="renderLoyaltyList(true)"
       style="padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:13px;outline:none;">
       <option value="">🏅 كل المستويات</option>
       <option value="bronze">🥉 برونز</option>
@@ -1193,7 +1193,7 @@ body::before {
       <option value="gold">🥇 ذهب</option>
       <option value="platinum">💎 بلاتين</option>
     </select>
-    <select id="loyalty-sort" onchange="renderLoyaltyList()"
+    <select id="loyalty-sort" onchange="renderLoyaltyList(true)"
       style="padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:13px;outline:none;">
       <option value="points_desc">⬇ أعلى نقاط</option>
       <option value="points_asc">⬆ أقل نقاط</option>
@@ -1203,6 +1203,7 @@ body::before {
 
   <!-- قائمة الزبائن مع نقاطهم -->
   <div class="cust-list" id="loyalty-list"></div>
+  <div class="cust-pager" id="loyalty-pager"></div>
 
   <!-- سجل آخر الحركات -->
   <div style="margin-top:28px;">
@@ -4549,6 +4550,10 @@ function getCustLoyalty(id) {
   return LOYALTY_DATA[id];
 }
 
+function peekCustLoyalty(id) {
+  return LOYALTY_DATA[id] || { points: 0, tier: 'bronze', transactions: [], totalEarned: 0, totalRedeemed: 0 };
+}
+
 // ─── حساب المستوى ───
 function calcTier(pts) {
   var s = LOYALTY_SETTINGS;
@@ -4707,39 +4712,62 @@ async function loadLoyaltyFromSupabase() {
 // ════════════════════════════════════
 //  رندر قائمة الزبائن بنقاطهم
 // ════════════════════════════════════
-function renderLoyaltyList() {
-  var q     = (document.getElementById('loyalty-search').value||'').toLowerCase();
+var L_PAGE = 1;
+var L_PAGE_SIZE = 80;
+var L_FILTER_KEY = "";
+var L_RENDER_TIMER = null;
+
+function renderLoyaltyDelayed(resetPage) {
+  clearTimeout(L_RENDER_TIMER);
+  L_RENDER_TIMER = setTimeout(function(){ renderLoyaltyList(resetPage); }, 140);
+}
+
+function getLoyaltyFiltered() {
+  var q     = (document.getElementById('loyalty-search').value||'').trim().toLowerCase();
   var tFilt = document.getElementById('loyalty-tier-filter').value;
   var srt   = document.getElementById('loyalty-sort').value;
   var list  = CL.slice();
+  L_FILTER_KEY = [q, tFilt, srt].join('|');
 
-  // فلتر البحث
   if (q) list = list.filter(function(c){
     return (c.name||'').toLowerCase().includes(q) || (c.phone||'').includes(q);
   });
 
-  // فلتر المستوى
   if (tFilt) list = list.filter(function(c){
-    return calcTier(getCustLoyalty(c.id).points) === tFilt;
+    return calcTier(peekCustLoyalty(c.id).points) === tFilt;
   });
 
-  // ترتيب
   list.sort(function(a,b){
-    var pa = getCustLoyalty(a.id).points;
-    var pb = getCustLoyalty(b.id).points;
+    var pa = peekCustLoyalty(a.id).points;
+    var pb = peekCustLoyalty(b.id).points;
     if (srt==='points_desc') return pb - pa;
     if (srt==='points_asc')  return pa - pb;
     return (a.name||'').localeCompare(b.name||'', 'ar');
   });
+  return list;
+}
+
+function renderLoyaltyList(resetPage) {
+  var oldKey = L_FILTER_KEY;
+  var list = getLoyaltyFiltered();
+  if (resetPage || oldKey !== L_FILTER_KEY) L_PAGE = 1;
 
   var el = document.getElementById('loyalty-list');
+  var pager = document.getElementById('loyalty-pager');
   if (!list.length) {
     el.innerHTML = '<div class="no-cust"><div style="font-size:48px">🏅</div><div>لا يوجد نتائج</div></div>';
+    if (pager) pager.innerHTML = '';
+    renderLoyaltyTxLog();
+    renderLoyaltyStats();
     return;
   }
 
+  var totalPages = Math.max(1, Math.ceil(list.length / L_PAGE_SIZE));
+  if (L_PAGE > totalPages) L_PAGE = totalPages;
+  var start = (L_PAGE - 1) * L_PAGE_SIZE;
+  var pageItems = list.slice(start, start + L_PAGE_SIZE);
   var html = '';
-  list.forEach(function(c) {
+  pageItems.forEach(function(c) {
     var ld   = getCustLoyalty(c.id);
     var tier = calcTier(ld.points);
     var col  = tierColor(tier);
@@ -4753,8 +4781,8 @@ function renderLoyaltyList() {
     html += '<div style="display:flex;align-items:center;gap:12px;">';
     html += '<div style="width:44px;height:44px;border-radius:12px;background:' + bg + ';border:2px solid ' + col + ';display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:' + col + ';flex-shrink:0;">' + av + '</div>';
     html += '<div style="flex:1;min-width:0;">';
-    html += '<div style="font-weight:700;font-size:15px;">' + (c.name||'—') + '</div>';
-    html += '<div style="font-size:12px;color:var(--tx3);">' + (c.phone||'') + '</div>';
+    html += '<div style="font-weight:700;font-size:15px;">' + escH(c.name||'—') + '</div>';
+    html += '<div style="font-size:12px;color:var(--tx3);">' + escH(c.phone||'') + '</div>';
     html += '</div>';
     // النقاط والمستوى
     html += '<div style="text-align:center;margin-left:auto;">';
@@ -4767,9 +4795,9 @@ function renderLoyaltyList() {
     html += '</div>';
     // أزرار
     html += '<div style="display:flex;gap:6px;flex-direction:column;">';
-    html += '<button onclick="openLoyaltyAddFor(\'' + c.id + '\')" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(240,192,64,.3);background:rgba(240,192,64,.1);color:var(--gold);font-size:11px;cursor:pointer;font-family:Tajawal,sans-serif;">⭐ إضافة</button>';
-    html += '<button onclick="openLoyaltyRedeemFor(\'' + c.id + '\')" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(52,211,153,.3);background:rgba(52,211,153,.1);color:#34d399;font-size:11px;cursor:pointer;font-family:Tajawal,sans-serif;">🎁 استبدال</button>';
-    html += '<button onclick="openLoyaltyHistory(\'' + c.id + '\')" style="padding:5px 10px;border-radius:8px;border:1px solid var(--bdr);background:rgba(255,255,255,.05);color:var(--tx2);font-size:11px;cursor:pointer;font-family:Tajawal,sans-serif;">📋 سجل</button>';
+    html += '<button onclick="openLoyaltyAddFor(\'' + escH(c.id) + '\')" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(240,192,64,.3);background:rgba(240,192,64,.1);color:var(--gold);font-size:11px;cursor:pointer;font-family:Tajawal,sans-serif;">⭐ إضافة</button>';
+    html += '<button onclick="openLoyaltyRedeemFor(\'' + escH(c.id) + '\')" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(52,211,153,.3);background:rgba(52,211,153,.1);color:#34d399;font-size:11px;cursor:pointer;font-family:Tajawal,sans-serif;">🎁 استبدال</button>';
+    html += '<button onclick="openLoyaltyHistory(\'' + escH(c.id) + '\')" style="padding:5px 10px;border-radius:8px;border:1px solid var(--bdr);background:rgba(255,255,255,.05);color:var(--tx2);font-size:11px;cursor:pointer;font-family:Tajawal,sans-serif;">📋 سجل</button>';
     html += '</div>';
     html += '</div>';
     // شريط التقدم
@@ -4796,15 +4824,49 @@ function renderLoyaltyList() {
   });
 
   el.innerHTML = html;
+  renderLoyaltyPager(list.length, start, pageItems.length, totalPages);
   renderLoyaltyTxLog();
   renderLoyaltyStats();
+}
+
+function renderLoyaltyPager(total, start, count, totalPages) {
+  var pager = document.getElementById('loyalty-pager');
+  if (!pager) return;
+  var first = total ? start + 1 : 0;
+  var last = start + count;
+  var showing = LANG==="ar" ? ("عرض " + first + "-" + last + " من " + total) : ("Showing " + first + "-" + last + " of " + total);
+  var pageLbl = LANG==="ar" ? "صفحة" : "Page";
+  var sizeLbl = LANG==="ar" ? "في الصفحة" : "per page";
+  pager.innerHTML =
+    '<div>' + showing + ' · ' + pageLbl + ' ' + L_PAGE + ' / ' + totalPages + '</div>' +
+    '<div class="cust-pager-actions">' +
+    '<button class="btn sm" onclick="setLoyaltyPage(1)"' + (L_PAGE===1?' disabled':'') + '>⏮</button>' +
+    '<button class="btn sm" onclick="setLoyaltyPage(L_PAGE-1)"' + (L_PAGE===1?' disabled':'') + '>‹</button>' +
+    '<button class="btn sm" onclick="setLoyaltyPage(L_PAGE+1)"' + (L_PAGE===totalPages?' disabled':'') + '>›</button>' +
+    '<button class="btn sm" onclick="setLoyaltyPage(' + totalPages + ')"' + (L_PAGE===totalPages?' disabled':'') + '>⏭</button>' +
+    '<label>' + sizeLbl + ' <select class="cust-page-select" onchange="setLoyaltyPageSize(this.value)">' +
+    '<option value="50"' + (L_PAGE_SIZE===50?' selected':'') + '>50</option>' +
+    '<option value="80"' + (L_PAGE_SIZE===80?' selected':'') + '>80</option>' +
+    '<option value="150"' + (L_PAGE_SIZE===150?' selected':'') + '>150</option>' +
+    '</select></label></div>';
+}
+
+function setLoyaltyPage(page) {
+  L_PAGE = Math.max(1, page);
+  renderLoyaltyList(false);
+}
+
+function setLoyaltyPageSize(size) {
+  L_PAGE_SIZE = parseInt(size, 10) || 80;
+  L_PAGE = 1;
+  renderLoyaltyList(false);
 }
 
 // ─── إحصائيات المستويات ───
 function renderLoyaltyStats() {
   var counts = { bronze:0, silver:0, gold:0, platinum:0 };
   CL.forEach(function(c) {
-    var t = calcTier(getCustLoyalty(c.id).points);
+    var t = calcTier(peekCustLoyalty(c.id).points);
     counts[t] = (counts[t]||0) + 1;
   });
   var set = function(id, v) { var e=document.getElementById(id); if(e) e.textContent=v; };
@@ -4825,9 +4887,13 @@ function renderLoyaltyTxLog() {
   var el = document.getElementById('loyalty-tx-log');
   if (!el) return;
   // اجمع كل الحركات وافرزها بالتاريخ
+  var byId = {};
+  CL.forEach(function(c){ byId[c.id] = c; });
   var allTx = [];
-  CL.forEach(function(c) {
-    var ld = getCustLoyalty(c.id);
+  Object.keys(LOYALTY_DATA).forEach(function(cid) {
+    var c = byId[cid];
+    if (!c) return;
+    var ld = LOYALTY_DATA[cid] || {};
     (ld.transactions||[]).forEach(function(tx) {
       allTx.push({ cust:c, tx:tx });
     });
