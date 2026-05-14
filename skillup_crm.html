@@ -309,6 +309,18 @@ body::before {
 
 /* === CUSTOMER CARDS === */
 .cust-list { display: flex; flex-direction: column; gap: 10px; }
+.cust-pager {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  margin: 12px 0; padding: 10px 14px;
+  background: rgba(30,20,40,.55); border: 1px solid rgba(192,132,252,.14);
+  border-radius: var(--rs); color: var(--tx2); font-size: 13px;
+}
+.cust-pager-actions { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.cust-pager .btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
+.cust-page-select {
+  background: rgba(30,20,40,.8); border: 1px solid rgba(192,132,252,.2);
+  border-radius: 10px; color: var(--tx); padding: 6px 10px; font-family: 'Tajawal', sans-serif;
+}
 .cust-card {
   background: linear-gradient(135deg, #1e1128, #160d20);
   border: 1px solid rgba(192,132,252,.12);
@@ -844,10 +856,10 @@ body::before {
     <button class="add-btn" onclick="openAdd()"><span class="add-btn-txt">+ إضافة زبون</span></button>
   </div>
   <div class="search-wrap">
-    <div class="field"><label id="lbl-sn">بحث بالاسم أو الهاتف</label><input type="text" id="sn" placeholder="ابحث..." oninput="renderC()"></div>
-    <div class="field"><label id="lbl-sc">البلد</label><select id="sc" onchange="onCC('s');renderC()"><option value="">كل البلدان</option></select></div>
-    <div class="field"><label id="lbl-sp">المحافظة</label><select id="sp" onchange="renderC()"><option value="">كل المحافظات</option></select></div>
-    <div class="field"><label id="lbl-sf">التصنيف</label><select id="sf" onchange="renderC()"><option value="">الكل</option><option value="green">🟢 منتظم</option><option value="yellow">🟡 متوسط</option><option value="red">🔴 نادر</option></select></div>
+    <div class="field"><label id="lbl-sn">بحث بالاسم أو الهاتف</label><input type="text" id="sn" placeholder="ابحث..." oninput="renderCDelayed(true)"></div>
+    <div class="field"><label id="lbl-sc">البلد</label><select id="sc" onchange="onCC('s');renderC(true)"><option value="">كل البلدان</option></select></div>
+    <div class="field"><label id="lbl-sp">المحافظة</label><select id="sp" onchange="renderC(true)"><option value="">كل المحافظات</option></select></div>
+    <div class="field"><label id="lbl-sf">التصنيف</label><select id="sf" onchange="renderC(true)"><option value="">الكل</option><option value="green">🟢 منتظم</option><option value="yellow">🟡 متوسط</option><option value="red">🔴 نادر</option></select></div>
   </div>
   <div id="bulk" style="display:none" class="bulk-bar">
     <span class="bulk-label" id="blbl">0 زبون محدد</span>
@@ -858,6 +870,7 @@ body::before {
     </div>
   </div>
   <div class="cust-list" id="clist"></div>
+  <div class="cust-pager" id="cpager"></div>
 </div>
 
 <!-- GALLERY -->
@@ -2140,8 +2153,10 @@ async function loadFromSupabase() {
     // Load purchases for each customer
     var pRes = await new Promise(function(res){ _sb.from('purchases').select('*').order('date',{ascending:false}).then(res); });
     if (pRes.data) {
+      var byId = {};
+      CL.forEach(function(c) { byId[c.id] = c; });
       pRes.data.forEach(function(p) {
-        var cust = CL.find(function(c) { return c.id === p.customer_id; });
+        var cust = byId[p.customer_id];
         if (cust) cust.purchases.push({date: p.date, amount: p.amount||'', id: p.id});
       });
     }
@@ -2821,28 +2836,53 @@ function renderD() {
 }
 
 // ===== CUSTOMERS =====
-function renderC() {
-  var sname = document.getElementById("sn").value.toLowerCase();
+var C_PAGE = 1;
+var C_PAGE_SIZE = 100;
+var C_FILTER_KEY = "";
+var C_RENDER_TIMER = null;
+
+function renderCDelayed(resetPage) {
+  clearTimeout(C_RENDER_TIMER);
+  C_RENDER_TIMER = setTimeout(function(){ renderC(resetPage); }, 140);
+}
+
+function getCFiltered() {
+  var sname = (document.getElementById("sn").value || "").trim().toLowerCase();
   var scou  = document.getElementById("sc").value;
   var sprov = document.getElementById("sp").value;
   var scol  = document.getElementById("sf").value;
-  var list  = CL.filter(function(c) {
-    return (!sname || c.name.toLowerCase().indexOf(sname)>=0 || (c.phone||"").indexOf(sname)>=0)
+  C_FILTER_KEY = [sname, scou, sprov, scol].join("|");
+  return CL.filter(function(c) {
+    var name = (c.name || "").toLowerCase();
+    var phone = c.phone || "";
+    return (!sname || name.indexOf(sname)>=0 || phone.indexOf(sname)>=0)
         && (!scou  || c.country  === scou)
         && (!sprov || c.province === sprov)
         && (!scol  || c.color    === scol);
   });
+}
+
+function renderC(resetPage) {
+  var oldKey = C_FILTER_KEY;
+  var list = getCFiltered();
+  if (resetPage || oldKey !== C_FILTER_KEY) C_PAGE = 1;
   var el = document.getElementById("clist");
+  var pager = document.getElementById("cpager");
   if (!list.length) {
     el.innerHTML = "<div class=\"empty\"><div class=\"ei\">🔍</div><p>" + t("no_results") + "</p></div>";
+    if (pager) pager.innerHTML = "";
     sC.clear();
     updBulk();
     return;
   }
+  var totalPages = Math.max(1, Math.ceil(list.length / C_PAGE_SIZE));
+  if (C_PAGE > totalPages) C_PAGE = totalPages;
+  var start = (C_PAGE - 1) * C_PAGE_SIZE;
+  var pageItems = list.slice(start, start + C_PAGE_SIZE);
   var lbl = function(col) { return col==="green"?t("c_regular"):col==="yellow"?t("c_medium"):t("c_rare"); };
   var h = "";
-  for (var i = 0; i < list.length; i++) {
-    var c   = list[i];
+  for (var i = 0; i < pageItems.length; i++) {
+    var c   = pageItems[i];
     var cn  = couName(c.country);
     var sel = sC.has(c.id);
     var av  = c.name ? c.name[0] : "?";
@@ -2851,10 +2891,10 @@ function renderC() {
     h += "<div class=\"cust-card" + (sel?" sel":"") + "\" id=\"cc-" + c.id + "\">";
     h += "<input class=\"cust-chk\" type=\"checkbox\"" + (sel?" checked":"") + " onchange=\"tgC(this.closest('.cust-card').id.slice(3))\">";
     h += "<div class=\"cdot " + c.color + "\"></div>";
-    h += "<div class=\"cust-av\">" + av + "</div>";
-    h += "<div class=\"cust-inf\"><div class=\"cust-name\">" + c.name + "</div>";
-    h += "<div class=\"cust-meta\">" + meta + "</div>";
-    h += "<div class=\"cust-sub\">"  + sub  + "</div></div>";
+    h += "<div class=\"cust-av\">" + escH(av) + "</div>";
+    h += "<div class=\"cust-inf\"><div class=\"cust-name\">" + escH(c.name || "") + "</div>";
+    h += "<div class=\"cust-meta\">" + escH(meta) + "</div>";
+    h += "<div class=\"cust-sub\">"  + escH(sub)  + "</div></div>";
     h += "<span class=\"cbadge " + c.color + "\">" + lbl(c.color) + "</span>";
     h += "<div class=\"cact\">";
     h += "<button class=\"ibtn i-hist\" onclick=\"openH('" + c.id + "')\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/><line x1=\"16\" y1=\"13\" x2=\"8\" y2=\"13\"/><line x1=\"16\" y1=\"17\" x2=\"8\" y2=\"17\"/></svg><span>" + t("history_title") + "</span></button>";
@@ -2864,10 +2904,41 @@ function renderC() {
     h += "</div></div>";
   }
   el.innerHTML = h;
+  renderCPager(list.length, start, pageItems.length, totalPages);
   updBulk();
 }
+function renderCPager(total, start, count, totalPages) {
+  var pager = document.getElementById("cpager");
+  if (!pager) return;
+  var first = total ? start + 1 : 0;
+  var last = start + count;
+  var showing = LANG==="ar" ? ("عرض " + first + "-" + last + " من " + total) : ("Showing " + first + "-" + last + " of " + total);
+  var pageLbl = LANG==="ar" ? "صفحة" : "Page";
+  var sizeLbl = LANG==="ar" ? "في الصفحة" : "per page";
+  pager.innerHTML =
+    "<div>" + showing + " · " + pageLbl + " " + C_PAGE + " / " + totalPages + "</div>" +
+    "<div class=\"cust-pager-actions\">" +
+    "<button class=\"btn sm\" onclick=\"setCPage(1)\"" + (C_PAGE===1?" disabled":"") + ">⏮</button>" +
+    "<button class=\"btn sm\" onclick=\"setCPage(C_PAGE-1)\"" + (C_PAGE===1?" disabled":"") + ">‹</button>" +
+    "<button class=\"btn sm\" onclick=\"setCPage(C_PAGE+1)\"" + (C_PAGE===totalPages?" disabled":"") + ">›</button>" +
+    "<button class=\"btn sm\" onclick=\"setCPage(" + totalPages + ")\"" + (C_PAGE===totalPages?" disabled":"") + ">⏭</button>" +
+    "<label>" + sizeLbl + " <select class=\"cust-page-select\" onchange=\"setCPageSize(this.value)\">" +
+    "<option value=\"50\"" + (C_PAGE_SIZE===50?" selected":"") + ">50</option>" +
+    "<option value=\"100\"" + (C_PAGE_SIZE===100?" selected":"") + ">100</option>" +
+    "<option value=\"200\"" + (C_PAGE_SIZE===200?" selected":"") + ">200</option>" +
+    "</select></label></div>";
+}
+function setCPage(page) {
+  C_PAGE = Math.max(1, page);
+  renderC(false);
+}
+function setCPageSize(size) {
+  C_PAGE_SIZE = parseInt(size, 10) || 100;
+  C_PAGE = 1;
+  renderC(false);
+}
 function tgC(id)   { if(!id) return; sC.has(id)?sC.delete(id):sC.add(id); renderC(); }
-function selAll()  { CL.forEach(function(c){sC.add(c.id);}); renderC(); }
+function selAll()  { getCFiltered().forEach(function(c){sC.add(c.id);}); renderC(); }
 function clrSel()  { sC.clear(); renderC(); }
 function updBulk() {
   var b = document.getElementById("bulk");
