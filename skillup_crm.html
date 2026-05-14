@@ -1936,6 +1936,29 @@ var COU = {
 function couName(k) { return LANG==="ar" ? (COU[k]?COU[k].name_ar:"") : (COU[k]?COU[k].name_en:""); }
 function couProvs(k) { return LANG==="ar" ? (COU[k]?COU[k].p_ar:[]) : (COU[k]?COU[k].p_en:[]); }
 
+function normText(v) {
+  return String(v || "")
+    .normalize("NFKD")
+    .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, "")
+    .replace(/[إأآٱ]/g, "ا")
+    .replace(/[ؤ]/g, "و")
+    .replace(/[ئ]/g, "ي")
+    .replace(/[يىی]/g, "ي")
+    .replace(/[كک]/g, "ك")
+    .replace(/[ةۀ]/g, "ه")
+    .replace(/[ھہ]/g, "ه")
+    .replace(/[گ]/g, "ك")
+    .replace(/[پ]/g, "ب")
+    .replace(/[چ]/g, "ج")
+    .replace(/[ژ]/g, "ز")
+    .replace(/[۰٠]/g, "0").replace(/[۱١]/g, "1").replace(/[۲٢]/g, "2")
+    .replace(/[۳٣]/g, "3").replace(/[۴٤]/g, "4").replace(/[۵٥]/g, "5")
+    .replace(/[۶٦]/g, "6").replace(/[۷٧]/g, "7").replace(/[۸٨]/g, "8")
+    .replace(/[۹٩]/g, "9")
+    .toLowerCase()
+    .trim();
+}
+
 // ===== DATA =====
 // ══════════════════════════════════════════════
 // SUPABASE — Direct REST API (no CDN needed)
@@ -2364,11 +2387,12 @@ function renderInvStats() {
 // Render products list
 function renderInv() {
   var search = (document.getElementById('inv-search') || {}).value || '';
+  var nSearch = normText(search);
   var catF   = (document.getElementById('inv-cat-filter') || {}).value || '';
   var statF  = (document.getElementById('inv-status-filter') || {}).value || '';
 
   var filtered = INV_PRODUCTS.filter(function(p){
-    var matchS = !search || p.name.toLowerCase().includes(search.toLowerCase()) || (p.barcode||'').includes(search) || (p.sku||'').includes(search);
+    var matchS = !nSearch || normText(p.name).includes(nSearch) || normText(p.barcode).includes(nSearch) || normText(p.sku).includes(nSearch);
     var matchC = !catF   || p.category === catF;
     var matchT = !statF  || getStockStatus(p) === statF;
     return matchS && matchC && matchT;
@@ -2874,14 +2898,14 @@ function renderCDelayed(resetPage) {
 }
 
 function getCFiltered() {
-  var sname = (document.getElementById("sn").value || "").trim().toLowerCase();
+  var sname = normText(document.getElementById("sn").value);
   var scou  = document.getElementById("sc").value;
   var sprov = document.getElementById("sp").value;
   var scol  = document.getElementById("sf").value;
   C_FILTER_KEY = [sname, scou, sprov, scol].join("|");
   return CL.filter(function(c) {
-    var name = (c.name || "").toLowerCase();
-    var phone = c.phone || "";
+    var name = normText(c.name);
+    var phone = normText(c.phone);
     return (!sname || name.indexOf(sname)>=0 || phone.indexOf(sname)>=0)
         && (!scou  || c.country  === scou)
         && (!sprov || c.province === sprov)
@@ -3066,11 +3090,11 @@ function sendBulk() {
 
 // ── الوضع B: بحث الزبائن ──
 function filterSendB() {
-  var q = document.getElementById('send-b-search').value.trim().toLowerCase();
+  var q = normText(document.getElementById('send-b-search').value);
   var res = document.getElementById('send-b-results');
   if (!q) { res.innerHTML = ''; return; }
   var found = CL.filter(function(c){
-    return (c.name||'').toLowerCase().includes(q) || (c.phone||'').includes(q);
+    return normText(c.name).includes(q) || normText(c.phone).includes(q);
   }).slice(0, 8);
   if (!found.length) {
     res.innerHTML = "<div style='padding:10px;font-size:13px;color:var(--tx3);text-align:center;'>لا يوجد نتائج</div>";
@@ -3418,7 +3442,7 @@ function importD(e) {
       // Find customers sheet
       var sheetName = wb.SheetNames[0];
       for (var i = 0; i < wb.SheetNames.length; i++) {
-        var sn = wb.SheetNames[i].toLowerCase();
+        var sn = normText(wb.SheetNames[i]);
         if (sn.indexOf("زبائن") >= 0 || sn.indexOf("customer") >= 0) {
           sheetName = wb.SheetNames[i]; break;
         }
@@ -3435,7 +3459,7 @@ function importD(e) {
       var headerRow = -1;
       var headers   = [];
       for (var r = 0; r < Math.min(rawRows.length, 8); r++) {
-        var joined = rawRows[r].join("|").toLowerCase();
+        var joined = normText(rawRows[r].join("|"));
         if (joined.indexOf("اسم") >= 0 || joined.indexOf("name") >= 0) {
           headerRow = r; headers = rawRows[r]; break;
         }
@@ -3449,9 +3473,9 @@ function importD(e) {
       // Find column by keyword match
       function findCol(keywords) {
         for (var k = 0; k < keywords.length; k++) {
-          var kw = keywords[k].toLowerCase();
+          var kw = normText(keywords[k]);
           for (var h = 0; h < headers.length; h++) {
-            var hv = String(headers[h]).toLowerCase();
+            var hv = normText(headers[h]);
             // Remove newlines manually
             hv = hv.split("\n").join(" ").split("\r").join(" ").split("\t").join(" ").trim();
             if (hv.indexOf(kw) >= 0) return h;
@@ -3480,7 +3504,7 @@ function importD(e) {
         if (!nm || nm === "undefined") continue;
 
         // Skip summary/legend/note rows — detect by known keywords
-        var nmLow = nm.toLowerCase();
+        var nmLow = normText(nm);
         if (nmLow.indexOf("total") >= 0) continue;
         if (nmLow.indexOf("إجمالي") >= 0) continue;
         if (nmLow.indexOf("منتظم =") >= 0) continue;
@@ -3494,7 +3518,7 @@ function importD(e) {
         if (nmLow.indexOf("🌸") >= 0) continue;
         if (nmLow.indexOf("📋") >= 0) continue;
 
-        var colorRaw = (cClass >= 0) ? String(row[cClass] || "").toLowerCase() : "";
+        var colorRaw = (cClass >= 0) ? normText(row[cClass]) : "";
         var color    = "green";
         if (colorRaw.indexOf("yellow") >= 0 || colorRaw.indexOf("متوسط") >= 0 || colorRaw.indexOf("occasional") >= 0) color = "yellow";
         else if (colorRaw.indexOf("red") >= 0 || colorRaw.indexOf("نادر") >= 0 || colorRaw.indexOf("rare") >= 0) color = "red";
@@ -4723,14 +4747,14 @@ function renderLoyaltyDelayed(resetPage) {
 }
 
 function getLoyaltyFiltered() {
-  var q     = (document.getElementById('loyalty-search').value||'').trim().toLowerCase();
+  var q     = normText(document.getElementById('loyalty-search').value);
   var tFilt = document.getElementById('loyalty-tier-filter').value;
   var srt   = document.getElementById('loyalty-sort').value;
   var list  = CL.slice();
   L_FILTER_KEY = [q, tFilt, srt].join('|');
 
   if (q) list = list.filter(function(c){
-    return (c.name||'').toLowerCase().includes(q) || (c.phone||'').includes(q);
+    return normText(c.name).includes(q) || normText(c.phone).includes(q);
   });
 
   if (tFilt) list = list.filter(function(c){
@@ -4742,7 +4766,7 @@ function getLoyaltyFiltered() {
     var pb = peekCustLoyalty(b.id).points;
     if (srt==='points_desc') return pb - pa;
     if (srt==='points_asc')  return pa - pb;
-    return (a.name||'').localeCompare(b.name||'', 'ar');
+    return (a.name||'').localeCompare(b.name||'', ['ar','fa']);
   });
   return list;
 }
@@ -5010,11 +5034,11 @@ function showLredCustomer(id) {
 
 // ─── بحث داخل المودالات ───
 function loyaltySearchCustomer(prefix) {
-  var q   = document.getElementById(prefix+'-search').value.trim().toLowerCase();
+  var q   = normText(document.getElementById(prefix+'-search').value);
   var res = document.getElementById(prefix+'-results');
   if (!q) { res.innerHTML=''; return; }
   var found = CL.filter(function(c){
-    return (c.name||'').toLowerCase().includes(q) || (c.phone||'').includes(q);
+    return normText(c.name).includes(q) || normText(c.phone).includes(q);
   }).slice(0,6);
   if (!found.length) {
     res.innerHTML = '<div style="font-size:13px;color:var(--tx3);padding:8px;">لا يوجد نتائج</div>';
