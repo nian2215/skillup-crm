@@ -253,7 +253,7 @@ async function loadShop() {
       var waNum = p.whatsapp.replace(/[^0-9]/g,'');
       if (waNum) {
         var waBtn = document.getElementById('wa-btn');
-        waBtn.href = 'https://wa.me/' + waNum;
+        waBtn.href = 'https://api.whatsapp.com/send?phone=' + waNum;
         waBtn.style.display = 'inline-flex';
       }
     }
