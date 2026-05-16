@@ -883,7 +883,7 @@ body::before {
   <div id="gupload" class="gal-upload">
     <svg style="width:40px;height:40px;margin-bottom:10px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     <div id="ulabel">اسحب الصور هنا أو اضغط للاختيار</div>
-    <div id="upload-sub-txt" style="font-size:12px;margin-top:5px;">JPG · PNG · WEBP — يرفع مباشرة إلى Cloudinary</div>
+    <div id="upload-sub-txt" style="font-size:12px;margin-top:5px;">JPG · PNG · WEBP</div>
     <div class="prog-wrap" id="prog-wrap">
       <div id="prog-status" style="font-size:12px;color:var(--tx2);"></div>
       <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
@@ -1274,25 +1274,9 @@ body::before {
 
 <div id="tab-settings" class="section">
   <div class="topbar"><div class="page-title" id="title-settings">⚙️ <span>الإعدادات</span></div></div>
-  <div class="set-card blue-card">
-    <div class="set-title purple" id="cfg-title">🖼️ إعداد Cloudinary لرفع الصور — 25GB مجاناً</div>
-    <div class="step"><div class="step-n purple">1</div><div id="step1-txt">سجّل حساباً مجانياً على <a href="https://cloudinary.com" target="_blank" style="color:#c084fc;">cloudinary.com</a></div></div>
-    <div class="step"><div class="step-n purple">2</div><div id="step2-txt">من لوحة التحكم انسخ <strong>Cloud Name</strong></div></div>
-    <div class="step"><div class="step-n purple">3</div><div id="step3-txt">اذهب إلى Settings → Upload → Add upload preset ← اختر Unsigned ← احفظ وانسخ الاسم</div></div>
-    <div class="step"><div class="step-n purple">4</div><div id="step4-txt">الصق القيمتين أدناه واضغط حفظ</div></div>
-    <div class="cfg-grid">
-      <div class="field"><label id="lbl-cloud">Cloud Name</label><input type="text" id="cfg-cloud" placeholder="مثال: my-cloud-xyz"></div>
-      <div class="field"><label id="lbl-preset">Upload Preset (Unsigned)</label><input type="text" id="cfg-preset" placeholder="مثال: skillup_unsigned"></div>
-    </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn b-pink" onclick="saveCfg()" id="btn-save-cfg">💾 حفظ الإعدادات</button>
-      <button class="btn" onclick="testCfg()" id="btn-test-cfg">🔍 اختبار الاتصال</button>
-    </div>
-    <div id="cfgstat"></div>
-  </div>
   <div class="set-card dark-card">
     <div class="set-title pink" id="backup-title">🗄️ النسخ الاحتياطي للبيانات</div>
-    <div class="step"><div class="step-n pink">i</div><div id="backup-note" style="color:var(--tx2);">البيانات محفوظة محلياً في متصفحك بشكل دائم وغير محدود. الصور على Cloudinary.</div></div>
+    <div class="step"><div class="step-n pink">i</div><div id="backup-note" style="color:var(--tx2);">البيانات والصور محفوظة في السحابة تلقائياً.</div></div>
     <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:12px;">
       <button class="btn b-pink" onclick="exportD()" id="btn-export">📥 تصدير Excel</button>
       <label class="btn" style="cursor:pointer;" for="import-file-input"><span id="btn-import">📤 استيراد Excel</span></label><input type="file" id="import-file-input" accept=".xlsx,.xls" style="display:none" onchange="importD(event)">
@@ -2688,44 +2672,24 @@ function toast(msg, type) {
   tel._t = setTimeout(function() { tel.style.opacity = "0"; }, 2600);
 }
 
-// ===== CLOUDINARY =====
-function saveCfg() {
-  var cl = document.getElementById("cfg-cloud").value.trim();
-  var pr = document.getElementById("cfg-preset").value.trim();
-  if (!cl || !pr) { toast(LANG==="ar"?"أدخل Cloud Name و Upload Preset":"Enter Cloud Name and Upload Preset","err"); return; }
-  CFG.cloud = cl; CFG.preset = pr; svCfg(); updGalState();
-  document.getElementById("cfgstat").innerHTML = "<div class=\"cfg-status-ok\">" + t("cfg_saved") + "</div>";
-  toast(t("toast_saved"));
-}
-function testCfg() {
-  var cl = (document.getElementById("cfg-cloud").value.trim()) || CFG.cloud;
-  if (!cl) { toast(LANG==="ar"?"أدخل Cloud Name":"Enter Cloud Name","err"); return; }
-  document.getElementById("cfgstat").innerHTML = "<div class=\"cfg-status-ok\" style=\"color:var(--tx2)\">" + t("cfg_checking") + "</div>";
-  fetch("https://res.cloudinary.com/" + cl + "/image/upload/sample")
-    .then(function(r) {
-      document.getElementById("cfgstat").innerHTML = (r.ok || r.status===404)
-        ? "<div class=\"cfg-status-ok\">" + t("cfg_ok") + "</div>"
-        : "<div class=\"cfg-status-err\">" + t("cfg_err") + "</div>";
-    })
-    .catch(function() {
-      document.getElementById("cfgstat").innerHTML = "<div class=\"cfg-status-err\">" + t("cfg_net") + "</div>";
-    });
-}
+// ===== STORAGE =====
 function updGalState() {
-  var ok   = CFG.cloud && CFG.preset;
   var warn = document.getElementById("gwarn");
   var up   = document.getElementById("gupload");
   var fi   = document.getElementById("gfile");
-  if (warn) warn.style.display = ok ? "none" : "block";
-  if (up)   up.classList.toggle("off", !ok);
-  if (fi)   fi.style.display = ok ? "" : "none";
+  if (warn) warn.style.display = "none";
+  if (up)   up.classList.remove("off");
+  if (fi)   fi.style.display = "";
 }
 
 // ===== UPLOAD =====
 async function uploadImgs(e) {
   var files = Array.from(e.target.files);
   if (!files.length) return;
-  if (!CFG.cloud || !CFG.preset) { toast(t("cfg_warn"),"err"); goTab("settings"); return; }
+  var sess = JSON.parse(localStorage.getItem('sku_sess') || '{}');
+  var tok  = sess.access_token;
+  var uid  = sess.user && sess.user.id;
+  if (!tok || !uid) { toast(LANG==="ar"?"يجب تسجيل الدخول أولاً":"Please log in first","err"); return; }
   var pw = document.getElementById("prog-wrap");
   var pf = document.getElementById("prog-fill");
   var ps = document.getElementById("prog-status");
@@ -2735,23 +2699,23 @@ async function uploadImgs(e) {
     var file = files[i];
     if (ps) ps.textContent = t("uploading") + " " + file.name + " (" + (done+1) + " " + t("of") + " " + files.length + ")";
     if (pf) pf.style.width = (done / files.length * 100) + "%";
-    var fd = new FormData();
-    fd.append("file", file);
-    fd.append("upload_preset", CFG.preset);
-    fd.append("folder", "skillup");
+    var ext  = file.name.split('.').pop();
+    var path = uid + '/' + Date.now() + '_' + Math.random().toString(36).slice(2,7) + '.' + ext;
     try {
-      var res = await fetch("https://api.cloudinary.com/v1_1/" + CFG.cloud + "/image/upload", {method:"POST", body:fd});
-      var d   = await res.json();
-      if (d.secure_url) {
-        var uid = _sb._getUser() ? _sb._getUser().id : null;
-        var galRes = await _sb.from('gallery')._insert({
-          user_id: uid, src: d.secure_url, name: file.name, public_id: d.public_id
-        });
-        var galId = (galRes.data && galRes.data.id) ? galRes.data.id : d.public_id;
-        GL.push({id: galId, src: d.secure_url, name: file.name, publicId: d.public_id});
+      var res = await fetch(SUPA_URL + '/storage/v1/object/gallery/' + path, {
+        method: 'POST',
+        headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + tok, 'Content-Type': file.type }
+        , body: file
+      });
+      if (res.ok) {
+        var src = SUPA_URL + '/storage/v1/object/public/gallery/' + path;
+        var galRes = await _sb.from('gallery')._insert({ user_id: uid, src: src, name: file.name, public_id: path });
+        var galId  = (galRes.data && galRes.data.id) ? galRes.data.id : path;
+        GL.push({ id: galId, src: src, name: file.name, publicId: path });
         sv(); renderGal(); done++;
+      } else {
+        toast(t("upload_fail") + " " + file.name, "err");
       }
-      else toast(t("upload_fail") + " " + file.name, "err");
     } catch(err) { toast(t("toast_conn_err"),"err"); }
   }
   if (pf) pf.style.width = "100%";
