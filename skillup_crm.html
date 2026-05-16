@@ -3134,22 +3134,44 @@ function renderCSelected() {
 
 function sendC() {
   if (!_cCustomers.length) { toast('اختر زبوناً واحداً على الأقل','err'); return; }
-  var msg = (document.getElementById('wmsg-c').value||'').trim();
+  var msg    = (document.getElementById('wmsg-c').value||'').trim();
   var imgUrl = _cImage ? _cImage.src : '';
   var fullMsg = msg + (imgUrl ? '\n\n🖼️ ' + imgUrl : '');
   var log = document.getElementById('c-log');
-  if (log) log.textContent = 'جاري الفتح...';
-  var i = 0;
-  function nx() {
-    if (i >= _cCustomers.length) { if(log) log.textContent = '✅ تم الفتح لـ ' + _cCustomers.length + ' زبائن'; return; }
-    var c = _cCustomers[i];
-    if(log) log.textContent = 'فتح واتساب لـ ' + (c.name||c.phone) + ' (' + (i+1) + '/' + _cCustomers.length + ')';
-    openWhatsApp(c.phone, fullMsg);
-    i++;
-    if (i < _cCustomers.length) setTimeout(nx, 2200);
-    else if(log) setTimeout(function(){ log.textContent = '✅ تم الفتح لـ ' + _cCustomers.length + ' زبائن'; }, 2200);
-  }
-  nx();
+
+  // بناء قائمة أزرار — كل زبون زر مستقل يضغطه المستخدم
+  var html = '<div style="background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:14px;padding:16px;margin-top:4px;">' +
+    '<div style="font-size:13px;color:var(--tx2);margin-bottom:12px;text-align:center;">اضغط على كل زبون لفتح واتساب 👇</div>';
+
+  _cCustomers.forEach(function(c, idx) {
+    var num = (c.phone||'').replace(/[^0-9]/g,'');
+    var url = 'https://api.whatsapp.com/send?phone=' + num + '&text=' + encodeURIComponent(fullMsg);
+    html += '<a href="' + url + '" target="_blank" id="c-wa-btn-'+idx+'" ' +
+      'onclick="markCSent('+idx+')" ' +
+      'style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.3);border-radius:12px;margin-bottom:8px;text-decoration:none;transition:all .2s;" ' +
+      'onmouseover="this.style.background=\'rgba(37,211,102,.2)\'" onmouseout="this.style.background=\'rgba(37,211,102,.1)\'">' +
+      '<div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#25D366,#128C7E);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;flex-shrink:0">' +
+        (c.name||'?').charAt(0).toUpperCase() +
+      '</div>' +
+      '<div style="flex:1;">' +
+        '<div style="font-size:14px;font-weight:700;color:#fff;">' + (c.name||'—') + '</div>' +
+        '<div style="font-size:12px;color:rgba(37,211,102,.8);">' + (c.phone||'') + '</div>' +
+      '</div>' +
+      '<div id="c-check-'+idx+'" style="font-size:20px;">📲</div>' +
+      '</a>';
+  });
+
+  html += '</div>';
+  if (log) log.innerHTML = html;
+}
+
+function markCSent(idx) {
+  setTimeout(function() {
+    var el = document.getElementById('c-check-'+idx);
+    if (el) el.textContent = '✅';
+    var btn = document.getElementById('c-wa-btn-'+idx);
+    if (btn) { btn.style.background = 'rgba(52,211,153,.08)'; btn.style.borderColor = 'rgba(52,211,153,.2)'; }
+  }, 800);
 }
 
 // ── تحميل الصور (الوضع A) ──
