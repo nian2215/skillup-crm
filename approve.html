@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مراجعة الطلب — SkillUp CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --rose:#f472b6; --pink:#ec4899; --purple:#a855f7; --lilac:#c084fc;
+  --dark:#0a0612; --dark2:#120a1e; --card:#160e24;
+  --bdr:rgba(192,132,252,.15); --tx:#fdf0f8; --tx2:#c4a8d4; --tx3:#7a5a8a;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+body{ font-family:'Tajawal',sans-serif; background:var(--dark); color:var(--tx); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+
+.blob{ position:fixed; border-radius:50%; filter:blur(80px); pointer-events:none; z-index:0; }
+.blob-1{ width:500px; height:500px; top:-150px; right:-100px; background:radial-gradient(circle,rgba(168,85,247,.15) 0%,transparent 70%); }
+.blob-2{ width:400px; height:400px; bottom:-100px; left:-100px; background:radial-gradient(circle,rgba(244,114,182,.12) 0%,transparent 70%); }
+
+.card{
+  position:relative; z-index:1;
+  background:var(--card);
+  border:1px solid var(--bdr);
+  border-radius:24px;
+  padding:40px;
+  max-width:520px;
+  width:100%;
+  box-shadow:0 24px 80px rgba(0,0,0,.4);
+}
+
+.logo{ display:flex; align-items:center; gap:10px; margin-bottom:32px; }
+.logo-icon{
+  width:40px; height:40px; border-radius:12px;
+  background:linear-gradient(135deg,var(--rose),var(--purple));
+  display:flex; align-items:center; justify-content:center;
+  font-weight:900; font-size:18px; color:#fff;
+}
+.logo-name{ font-size:18px; font-weight:800; background:linear-gradient(135deg,var(--rose),var(--lilac)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+
+/* States */
+#state-loading, #state-done, #state-error, #state-rejected{ display:none; text-align:center; padding:20px 0; }
+#state-details{ display:none; }
+
+.spin{
+  width:40px; height:40px; border:3px solid rgba(244,114,182,.2);
+  border-top-color:var(--rose); border-radius:50%;
+  animation:spin .8s linear infinite; margin:0 auto 16px;
+}
+@keyframes spin{ to{ transform:rotate(360deg); } }
+
+.section-title{
+  font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--tx3); margin-bottom:20px;
+}
+
+.info-grid{ display:grid; gap:12px; margin-bottom:28px; }
+.info-row{
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:12px;
+  padding:14px 18px;
+  display:flex; align-items:center; gap:12px;
+}
+.info-label{ font-size:12px; color:var(--tx3); width:70px; shrink:0; }
+.info-value{ font-size:15px; color:var(--tx); font-weight:600; }
+
+.badge-pending{
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+  color:#fbbf24; background:rgba(251,191,36,.1); border:1px solid rgba(251,191,36,.2);
+  padding:4px 12px; border-radius:20px; margin-bottom:28px;
+}
+.badge-dot{ width:6px; height:6px; border-radius:50%; background:#fbbf24; animation:pulse 1.5s infinite; }
+@keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:.4} }
+
+.btn-row{ display:flex; gap:12px; }
+.btn{
+  flex:1; padding:14px; border-radius:14px; border:none; cursor:pointer;
+  font-family:'Tajawal',sans-serif; font-size:15px; font-weight:700;
+  transition:all .2s; display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.btn-approve{
+  background:linear-gradient(135deg,#10b981,#059669);
+  color:#fff; box-shadow:0 4px 20px rgba(16,185,129,.3);
+}
+.btn-approve:hover{ transform:translateY(-2px); box-shadow:0 8px 28px rgba(16,185,129,.45); }
+.btn-approve:disabled{ opacity:.6; cursor:not-allowed; transform:none; }
+.btn-reject{
+  background:rgba(255,255,255,.05);
+  color:var(--tx2); border:1px solid rgba(255,255,255,.1);
+}
+.btn-reject:hover{ background:rgba(239,68,68,.1); color:#f87171; border-color:rgba(239,68,68,.2); }
+.btn-reject:disabled{ opacity:.5; cursor:not-allowed; }
+
+.icon-big{ font-size:52px; margin-bottom:16px; }
+.state-title{ font-size:22px; font-weight:800; color:var(--tx); margin-bottom:10px; }
+.state-sub{ font-size:14px; color:var(--tx2); line-height:1.7; }
+.highlight{ color:var(--rose); font-weight:700; }
+
+.reg-link-box{
+  margin-top:20px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;
+  padding:14px 16px;
+  font-size:12px;
+  color:var(--tx3);
+  word-break:break-all;
+  text-align:right;
+}
+.reg-link-box a{ color:var(--rose); text-decoration:none; }
+</style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<div class="card">
+
+  <!-- Logo -->
+  <div class="logo">
+    <div class="logo-icon">S</div>
+    <span class="logo-name">SkillUp CRM</span>
+  </div>
+
+  <!-- Loading -->
+  <div id="state-loading" style="display:block; text-align:center; padding:20px 0;">
+    <div class="spin"></div>
+    <p style="color:var(--tx3); font-size:14px;">جاري تحميل الطلب...</p>
+  </div>
+
+  <!-- Request Details -->
+  <div id="state-details">
+    <p class="section-title">طلب وصول جديد</p>
+    <div class="badge-pending">
+      <span class="badge-dot"></span>
+      في انتظار المراجعة
+    </div>
+    <div class="info-grid">
+      <div class="info-row">
+        <span class="info-label">الاسم</span>
+        <span class="info-value" id="d-name">—</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">الإيميل</span>
+        <span class="info-value" id="d-email">—</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">المحل</span>
+        <span class="info-value" id="d-shop">—</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">المدينة</span>
+        <span class="info-value" id="d-city">—</span>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-approve" id="btn-approve" onclick="approve()">
+        ✓ موافقة وإرسال رابط التسجيل
+      </button>
+      <button class="btn btn-reject" id="btn-reject" onclick="reject()">
+        ✗ رفض
+      </button>
+    </div>
+  </div>
+
+  <!-- Approved -->
+  <div id="state-done">
+    <div class="icon-big">✅</div>
+    <p class="state-title">تمت الموافقة!</p>
+    <p class="state-sub">تم إرسال رابط التسجيل إلى<br><span class="highlight" id="done-email"></span></p>
+    <div class="reg-link-box">رابط التسجيل: <a id="done-link" href="#" target="_blank"></a></div>
+  </div>
+
+  <!-- Rejected -->
+  <div id="state-rejected">
+    <div class="icon-big">🚫</div>
+    <p class="state-title">تم رفض الطلب</p>
+    <p class="state-sub" style="color:var(--tx3);">تم تحديث حالة الطلب إلى مرفوض.</p>
+  </div>
+
+  <!-- Already Processed -->
+  <div id="state-done-already">
+    <div class="icon-big" style="display:none"></div>
+  </div>
+
+  <!-- Error -->
+  <div id="state-error">
+    <div class="icon-big">⚠️</div>
+    <p class="state-title">طلب غير موجود</p>
+    <p class="state-sub" style="color:var(--tx3);">تعذّر العثور على هذا الطلب. تأكد من صحة الرابط.</p>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+emailjs.init('Ng1ePDq9WXT16lbIb');
+
+var SUPA_URL = 'https://kgqmbegbmefftgstkizp.supabase.co';
+var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtncW1iZWdibWVmZnRnc3RraXpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3NjA0MzEsImV4cCI6MjA5MzMzNjQzMX0.bKZMer5IaLzjtGYS5i_9VWoqn-tUAuCSCY_Ba7sH5h4';
+var HEADERS  = { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json' };
+
+var reqId   = new URLSearchParams(location.search).get('id');
+var reqData = null;
+
+function show(id) {
+  ['state-loading','state-details','state-done','state-rejected','state-error']
+    .forEach(function(s){ document.getElementById(s).style.display = 'none'; });
+  document.getElementById(id).style.display = 'block';
+}
+
+async function loadRequest() {
+  if (!reqId) { show('state-error'); return; }
+  try {
+    var res  = await fetch(SUPA_URL + '/rest/v1/access_requests?id=eq.' + reqId + '&select=*', { headers: HEADERS });
+    var data = await res.json();
+    if (!data || !data.length) { show('state-error'); return; }
+
+    reqData = data[0];
+
+    if (reqData.status === 'approved') {
+      var link = 'https://crm.skilluptech.app/register.html?token=' + reqId;
+      document.getElementById('done-email').textContent = reqData.email;
+      document.getElementById('done-link').textContent  = link;
+      document.getElementById('done-link').href         = link;
+      show('state-done');
+      return;
+    }
+    if (reqData.status === 'rejected') { show('state-rejected'); return; }
+
+    document.getElementById('d-name').textContent  = reqData.name;
+    document.getElementById('d-email').textContent = reqData.email;
+    document.getElementById('d-shop').textContent  = reqData.shop_name;
+    document.getElementById('d-city').textContent  = reqData.city;
+    show('state-details');
+
+  } catch(err) { console.error(err); show('state-error'); }
+}
+
+async function approve() {
+  document.getElementById('btn-approve').disabled = true;
+  document.getElementById('btn-reject').disabled  = true;
+  document.getElementById('btn-approve').textContent = 'جاري الإرسال...';
+
+  try {
+    // 1. Update status in Supabase
+    await fetch(SUPA_URL + '/rest/v1/access_requests?id=eq.' + reqId, {
+      method: 'PATCH',
+      headers: Object.assign({}, HEADERS, { 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ status: 'approved' })
+    });
+
+    // 2. Send registration email to user
+    var registerLink = 'https://crm.skilluptech.app/register.html?token=' + reqId;
+    await emailjs.send('service_sze12ta', 'template_og2u0b8', {
+      to_email:      reqData.email,
+      to_name:       reqData.name,
+      register_link: registerLink
+    });
+
+    // 3. Show success
+    document.getElementById('done-email').textContent = reqData.email;
+    document.getElementById('done-link').textContent  = registerLink;
+    document.getElementById('done-link').href         = registerLink;
+    show('state-done');
+
+  } catch(err) {
+    console.error(err);
+    document.getElementById('btn-approve').disabled    = false;
+    document.getElementById('btn-reject').disabled     = false;
+    document.getElementById('btn-approve').textContent = '✓ موافقة وإرسال رابط التسجيل';
+    alert('حدث خطأ، حاول مرة أخرى');
+  }
+}
+
+async function reject() {
+  document.getElementById('btn-approve').disabled = true;
+  document.getElementById('btn-reject').disabled  = true;
+  try {
+    await fetch(SUPA_URL + '/rest/v1/access_requests?id=eq.' + reqId, {
+      method: 'PATCH',
+      headers: Object.assign({}, HEADERS, { 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ status: 'rejected' })
+    });
+    show('state-rejected');
+  } catch(err) {
+    console.error(err);
+    document.getElementById('btn-approve').disabled = false;
+    document.getElementById('btn-reject').disabled  = false;
+    alert('حدث خطأ، حاول مرة أخرى');
+  }
+}
+
+// Also need UPDATE policy in Supabase for status changes
+loadRequest();
+</script>
+
+</body>
+</html>
