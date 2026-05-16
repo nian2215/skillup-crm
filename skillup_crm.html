@@ -3052,8 +3052,9 @@ function switchSendMode(mode) {
 }
 
 // ══════ MODE C ══════
-var _cCustomers = [];
-var _cImage     = null;
+var _cCustomers  = [];
+var _cImage      = null;
+var _cImageFile  = null; // pre-cached File object
 
 function renderCGalGrid() {
   var grid = document.getElementById('c-gal-grid');
@@ -3126,24 +3127,29 @@ function downloadCImg() {
   document.body.removeChild(a);
 }
 
-function selectCImg(id) {
+async function selectCImg(id) {
   var img = GL.find(function(x){return x.id===id;});
   if (!img) return;
-  _cImage = img;
+  _cImage     = img;
+  _cImageFile = null;
   document.getElementById('c-img-empty').style.display = 'none';
   document.getElementById('c-img-preview').style.display = 'block';
   document.getElementById('c-img-thumb').src = img.src;
-  var dlWrap = document.getElementById('c-dl-wrap');
-  if (dlWrap) dlWrap.style.display = 'block';
   renderCGalGrid();
+  // تحميل الصورة مسبقاً في الخلفية
+  try {
+    var resp = await fetch(img.src);
+    var blob = await resp.blob();
+    var ext  = (blob.type||'image/jpeg').split('/').pop().replace('jpeg','jpg');
+    _cImageFile = new File([blob], 'photo.'+ext, { type: blob.type||'image/jpeg' });
+  } catch(e) { console.warn('pre-fetch failed', e); }
 }
 
 function clearCImg() {
-  _cImage = null;
+  _cImage     = null;
+  _cImageFile = null;
   document.getElementById('c-img-empty').style.display = '';
   document.getElementById('c-img-preview').style.display = 'none';
-  var dlWrap = document.getElementById('c-dl-wrap');
-  if (dlWrap) dlWrap.style.display = 'none';
   renderCGalGrid();
 }
 
@@ -3177,33 +3183,31 @@ function sendC() {
   if (log) log.innerHTML = html;
 }
 
-async function shareToCustomer(idx) {
+function shareToCustomer(idx) {
   var c   = _cCustomers[idx];
   var msg = (document.getElementById('wmsg-c').value||'').trim();
   var btn = document.getElementById('c-wa-btn-'+idx);
   var chk = document.getElementById('c-check-'+idx);
+  var num = (c.phone||'').replace(/[^0-9]/g,'');
 
-  if (_cImage && navigator.share) {
-    if (chk) chk.textContent = '⏳';
-    try {
-      var resp = await fetch(_cImage.src);
-      var blob = await resp.blob();
-      var ext  = (blob.type || 'image/jpeg').split('/').pop().replace('jpeg','jpg');
-      var file = new File([blob], 'photo.' + ext, { type: blob.type || 'image/jpeg' });
-      await navigator.share({ files: [file], text: msg });
-      if (chk) chk.textContent = '✅';
-      if (btn) { btn.style.background='rgba(52,211,153,.08)'; btn.style.borderColor='rgba(52,211,153,.2)'; }
-      return;
-    } catch(e) {
-      if (e.name === 'AbortError') { if (chk) chk.textContent = '📲'; return; }
-      console.warn('Web Share failed:', e.name, e.message);
-      if (chk) chk.textContent = '📲';
-    }
+  // share() يجب أن يُستدعى مباشرة من إيماءة المستخدم بدون await قبله
+  if (_cImageFile && navigator.share) {
+    navigator.share({ files: [_cImageFile], text: msg })
+      .then(function() {
+        if (chk) chk.textContent = '✅';
+        if (btn) { btn.style.background='rgba(52,211,153,.08)'; btn.style.borderColor='rgba(52,211,153,.2)'; }
+      })
+      .catch(function(e) {
+        if (e.name === 'AbortError') { if(chk) chk.textContent='📲'; return; }
+        // share فشل — fallback لواتساب
+        window.open('https://api.whatsapp.com/send?phone='+num+'&text='+encodeURIComponent(msg),'_blank');
+        if (chk) chk.textContent = '✅';
+      });
+    return;
   }
 
-  // fallback: واتساب بالرقم والرسالة
-  var num = (c.phone||'').replace(/[^0-9]/g,'');
-  window.open('https://api.whatsapp.com/send?phone=' + num + '&text=' + encodeURIComponent(msg), '_blank');
+  // لا توجد صورة أو لا يدعم الجهاز المشاركة
+  window.open('https://api.whatsapp.com/send?phone='+num+'&text='+encodeURIComponent(msg),'_blank');
   if (chk) chk.textContent = '✅';
   if (btn) { btn.style.background='rgba(52,211,153,.08)'; btn.style.borderColor='rgba(52,211,153,.2)'; }
 }
