@@ -3053,6 +3053,13 @@ function downloadSelectedImgs() {
   toast('✅ جاري تحميل ' + imgs.length + ' صورة...', 'ok');
 }
 
+function openWhatsApp(phone, msg) {
+  var num = (phone || '').replace(/[^0-9]/g, '');
+  if (!num) { toast(t('no_wa'), 'err'); return; }
+  var url = 'https://wa.me/' + num + (msg ? '?text=' + encodeURIComponent(msg) : '');
+  window.open(url, '_blank');
+}
+
 function sendGrp(grp) {
   var msg  = document.getElementById("wmsg").value;
   var list = (grp==="all") ? CL : CL.filter(function(c){return c.color===grp;});

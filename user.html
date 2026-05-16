@@ -250,9 +250,12 @@ async function loadShop() {
       document.getElementById('meta-location').style.display = 'flex';
     }
     if (p.whatsapp) {
-      var waBtn = document.getElementById('wa-btn');
-      waBtn.href = 'https://wa.me/' + p.whatsapp.replace(/[^0-9]/g,'');
-      waBtn.style.display = 'inline-flex';
+      var waNum = p.whatsapp.replace(/[^0-9]/g,'');
+      if (waNum) {
+        var waBtn = document.getElementById('wa-btn');
+        waBtn.href = 'https://wa.me/' + waNum;
+        waBtn.style.display = 'inline-flex';
+      }
     }
 
     // About tab
