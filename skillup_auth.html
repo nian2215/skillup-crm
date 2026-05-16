@@ -388,7 +388,7 @@ async function doForgot() {
     var r = await fetch(URL_+'/auth/v1/recover', {
       method:'POST',
       headers:{'apikey':KEY_,'Content-Type':'application/json'},
-      body:JSON.stringify({email:email})
+      body:JSON.stringify({email:email, redirect_to:'https://crm.skilluptech.app/skillup_auth'})
     });
     if (r.ok) showAlert(LANG==='ar'?'✅ تم الإرسال — تحقق من بريدك':'✅ Sent — check your email','ok');
     else throw new Error(LANG==='ar'?'فشل الإرسال':'Failed to send');
