@@ -1106,6 +1106,7 @@ body::before {
       <div id="c-img-empty" style="text-align:center;padding:20px;border:2px dashed rgba(192,132,252,.2);border-radius:12px;color:var(--tx3);font-size:13px;">
         لم تختر صورة بعد
       </div>
+      <div id="c-share-status" style="margin-top:8px;font-size:12px;text-align:center;display:none;padding:6px 12px;border-radius:8px;"></div>
       <div id="c-img-preview" style="display:none;margin-bottom:12px;position:relative;text-align:center;">
         <img id="c-img-thumb" src="" style="max-height:140px;border-radius:12px;border:2px solid rgba(192,132,252,.3);">
         <button onclick="clearCImg()" style="position:absolute;top:4px;right:4px;background:rgba(248,113,113,.8);border:none;border-radius:50%;width:24px;height:24px;color:#fff;font-size:14px;cursor:pointer;line-height:1;">×</button>
@@ -3136,13 +3137,33 @@ async function selectCImg(id) {
   document.getElementById('c-img-preview').style.display = 'block';
   document.getElementById('c-img-thumb').src = img.src;
   renderCGalGrid();
-  // تحميل الصورة مسبقاً في الخلفية
+
+  var statusEl = document.getElementById('c-share-status');
+  statusEl.style.display = 'block';
+  statusEl.textContent = '⏳ جاري تحضير الصورة...';
+  statusEl.style.background = 'rgba(255,255,255,.05)';
+  statusEl.style.color = 'var(--tx2)';
+
   try {
     var resp = await fetch(img.src);
     var blob = await resp.blob();
     var ext  = (blob.type||'image/jpeg').split('/').pop().replace('jpeg','jpg');
     _cImageFile = new File([blob], 'photo.'+ext, { type: blob.type||'image/jpeg' });
-  } catch(e) { console.warn('pre-fetch failed', e); }
+
+    if (navigator.share) {
+      statusEl.textContent = '✅ الصورة جاهزة — اضغط على الزبون ستظهر نافذة المشاركة';
+      statusEl.style.background = 'rgba(52,211,153,.1)';
+      statusEl.style.color = '#34d399';
+    } else {
+      statusEl.textContent = '⚠️ متصفحك لا يدعم المشاركة المباشرة — جرّب Chrome';
+      statusEl.style.background = 'rgba(248,113,113,.1)';
+      statusEl.style.color = '#f87171';
+    }
+  } catch(e) {
+    statusEl.textContent = '❌ فشل تحميل الصورة: ' + e.message;
+    statusEl.style.background = 'rgba(248,113,113,.1)';
+    statusEl.style.color = '#f87171';
+  }
 }
 
 function clearCImg() {
