@@ -80,7 +80,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--dark);color:var(--tx);min
     <button class="tab" id="t-signup" onclick="show('signup')">حساب جديد</button>
   </div>
 
-  <div id="alert" class="alert"><span id="alert-msg"></span></div>
+  <div id="alert" class="alert"><span id="alert-msg"></span><button id="alert-action" onclick="show('forgot')" style="display:none;margin-right:8px;margin-left:8px;background:none;border:none;color:var(--rose);font-size:13px;cursor:pointer;text-decoration:underline;padding:0;"></button></div>
 
   <!-- LOGIN -->
   <div class="panel show" id="p-login">
@@ -190,13 +190,21 @@ function show(tab) {
 }
 
 // ── ALERT ──
-function showAlert(msg, type) {
+function showAlert(msg, type, showForgot) {
   var el = document.getElementById('alert');
   document.getElementById('alert-msg').textContent = msg;
   el.className = 'alert ' + (type === 'ok' ? 'ok' : 'err');
+  var btn = document.getElementById('alert-action');
+  if (showForgot) {
+    btn.textContent = LANG === 'ar' ? 'نسيت كلمة المرور؟' : 'Forgot password?';
+    btn.style.display = 'inline';
+  } else {
+    btn.style.display = 'none';
+  }
 }
 function clearAlert() {
   document.getElementById('alert').className = 'alert';
+  document.getElementById('alert-action').style.display = 'none';
 }
 
 // ── LOADING ──
@@ -300,7 +308,9 @@ async function doSignup() {
     if (!r.ok) {
       var em = d.msg || d.message || d.error_description || '';
       if (em.toLowerCase().includes('already') || em.toLowerCase().includes('registered') || em.toLowerCase().includes('taken')) {
-        throw new Error(LANG==='ar'?'⚠️ هذا البريد مسجل مسبقاً — سجّل دخولك':'⚠️ Email already registered — please sign in');
+        showAlert(LANG==='ar'?'⚠️ هذا البريد مسجل مسبقاً':'⚠️ Email already registered', 'err', true);
+        setLoad('sb-signup','sp-signup',false);
+        return;
       }
       throw new Error(em || (LANG==='ar'?'فشل إنشاء الحساب':'Registration failed'));
     }
@@ -308,7 +318,9 @@ async function doSignup() {
     // Check identities: empty array = duplicate email
     var identities = d.identities || (d.user && d.user.identities) || null;
     if (Array.isArray(identities) && identities.length === 0) {
-      throw new Error(LANG==='ar'?'⚠️ هذا البريد مسجل مسبقاً — اضغط على تسجيل الدخول':'⚠️ Email already registered — click Sign In');
+      showAlert(LANG==='ar'?'⚠️ هذا البريد مسجل مسبقاً':'⚠️ Email already registered', 'err', true);
+      setLoad('sb-signup','sp-signup',false);
+      return;
     }
     show('success');
   } catch(e) {
