@@ -166,8 +166,10 @@ window.addEventListener('popstate', function() {
 });
 
 // ── فحص الجلسة ──
-// نتحقق أن الجلسة موجودة وليست منتهية الصلاحية
-var sess = localStorage.getItem('sku_sess');
+// نتخطى الفحص إذا كان الرابط يحتوي على رابط استعادة كلمة المرور
+var _hashParams = {};
+window.location.hash.slice(1).split('&').forEach(function(p){ var kv=p.split('='); if(kv[0]) _hashParams[decodeURIComponent(kv[0])]=decodeURIComponent(kv[1]||''); });
+var sess = _hashParams.type === 'recovery' ? null : localStorage.getItem('sku_sess');
 if (sess) {
   try {
     var sd = JSON.parse(sess);
@@ -247,12 +249,7 @@ function loginWithGoogle() {
 var _recoveryToken = null;
 
 (async function handleOAuthCallback() {
-  var hash = window.location.hash;
-  if (!hash || hash.indexOf('access_token') === -1) return;
-  var params = {};
-  hash.slice(1).split('&').forEach(function(p) {
-    var kv = p.split('='); params[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1] || '');
-  });
+  var params = _hashParams;
   if (!params.access_token) return;
   window.history.replaceState(null, '', window.location.pathname);
 
