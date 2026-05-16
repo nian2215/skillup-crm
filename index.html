@@ -1,2 +1,9 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="0;url=/skillup_landing"></head><body></body></html>
+<html><head><meta charset="UTF-8"><script>
+  var h = window.location.hash;
+  if (h && h.indexOf('type=recovery') !== -1) {
+    window.location.replace('/skillup_auth' + h);
+  } else {
+    window.location.replace('/skillup_landing');
+  }
+</script></head><body></body></html>
