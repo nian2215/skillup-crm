@@ -1,5 +1,9 @@
 {
+  "cleanUrls": true,
   "rewrites": [
-    { "source": "/:slug", "destination": "/user.html" }
+    {
+      "source": "/:slug((?!skillup_landing|skillup_auth|skillup_crm|skillup_admin|skillup_payment|approve|register|onboarding|index|user|payments_table|edge_create_charge|edge_payment_webhook).*)",
+      "destination": "/user.html"
+    }
   ]
 }
