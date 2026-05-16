@@ -129,6 +129,18 @@ body{font-family:'Tajawal',sans-serif;background:var(--dark);color:var(--tx);min
     <div class="forgot" onclick="show('login')"><span id="fback">← العودة لتسجيل الدخول</span></div>
   </div>
 
+  <!-- RESET PASSWORD -->
+  <div class="panel" id="p-reset">
+    <p style="font-size:14px;color:var(--tx2);margin-bottom:18px;line-height:1.7;">أدخل كلمة المرور الجديدة</p>
+    <div class="fg"><label>كلمة المرور الجديدة</label>
+      <div class="pw-wrap"><input type="password" id="r-pw" placeholder="8 أحرف على الأقل" minlength="8"><button type="button" class="eye-btn" onclick="togglePw('r-pw',this)">👁</button></div>
+    </div>
+    <div class="fg"><label>تأكيد كلمة المرور</label>
+      <div class="pw-wrap"><input type="password" id="r-pw2" placeholder="أعد الكتابة" minlength="8"><button type="button" class="eye-btn" onclick="togglePw('r-pw2',this)">👁</button></div>
+    </div>
+    <button class="btn-main" onclick="doReset()"><div class="spin" id="sp-reset"></div><span id="rb-reset">حفظ كلمة المرور</span></button>
+  </div>
+
   <!-- SUCCESS -->
   <div class="panel" id="p-success">
     <div class="success-box">
@@ -178,7 +190,7 @@ if (sess) {
 
 // ── TABS ──
 function show(tab) {
-  ['login','signup','forgot','success'].forEach(function(t) {
+  ['login','signup','forgot','reset','success'].forEach(function(t) {
     document.getElementById('p-'+t).classList.remove('show');
     var btn = document.getElementById('t-'+t);
     if (btn) btn.classList.remove('active');
@@ -232,6 +244,8 @@ function loginWithGoogle() {
   window.location.href = URL_ + '/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(redirectTo);
 }
 
+var _recoveryToken = null;
+
 (async function handleOAuthCallback() {
   var hash = window.location.hash;
   if (!hash || hash.indexOf('access_token') === -1) return;
@@ -240,6 +254,15 @@ function loginWithGoogle() {
     var kv = p.split('='); params[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1] || '');
   });
   if (!params.access_token) return;
+  window.history.replaceState(null, '', window.location.pathname);
+
+  // رابط استعادة كلمة المرور — أظهر نموذج التغيير
+  if (params.type === 'recovery') {
+    _recoveryToken = params.access_token;
+    show('reset');
+    return;
+  }
+
   try {
     var r = await fetch(URL_ + '/auth/v1/user', {
       headers: { 'apikey': KEY_, 'Authorization': 'Bearer ' + params.access_token }
@@ -251,11 +274,36 @@ function loginWithGoogle() {
         refresh_token: params.refresh_token || '',
         user: user
       }));
-      window.history.replaceState(null, '', window.location.pathname);
       window.location.replace('skillup_crm.html');
     }
   } catch(e) { console.error('OAuth error:', e); }
 })();
+
+// ── RESET PASSWORD ──
+async function doReset() {
+  clearAlert();
+  var pw  = document.getElementById('r-pw').value;
+  var pw2 = document.getElementById('r-pw2').value;
+  if (pw.length < 8) { showAlert('كلمة المرور 8 أحرف على الأقل'); return; }
+  if (pw !== pw2)    { showAlert('كلمتا المرور غير متطابقتين'); return; }
+  if (!_recoveryToken) { showAlert('انتهت صلاحية الرابط — اطلب رابطاً جديداً'); return; }
+  setLoad('rb-reset','sp-reset',true);
+  try {
+    var r = await fetch(URL_ + '/auth/v1/user', {
+      method: 'PUT',
+      headers: { 'apikey': KEY_, 'Authorization': 'Bearer ' + _recoveryToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    });
+    if (!r.ok) throw new Error('فشل تغيير كلمة المرور');
+    _recoveryToken = null;
+    showAlert('✅ تم تغيير كلمة المرور — سجّل دخولك الآن', 'ok');
+    setTimeout(function(){ show('login'); }, 2000);
+  } catch(e) {
+    showAlert(e.message);
+  } finally {
+    setLoad('rb-reset','sp-reset',false);
+  }
+}
 
 // ── LOGIN ──
 async function doLogin() {
