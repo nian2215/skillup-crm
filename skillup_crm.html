@@ -3140,7 +3140,7 @@ async function selectCImg(id) {
 
   var statusEl = document.getElementById('c-share-status');
   statusEl.style.display = 'block';
-  statusEl.textContent = '⏳ جاري تحضير الصورة...';
+  statusEl.textContent = '⏳ جاري تحميل الصورة...';
   statusEl.style.background = 'rgba(255,255,255,.05)';
   statusEl.style.color = 'var(--tx2)';
 
@@ -3150,17 +3150,21 @@ async function selectCImg(id) {
     var ext  = (blob.type||'image/jpeg').split('/').pop().replace('jpeg','jpg');
     _cImageFile = new File([blob], 'photo.'+ext, { type: blob.type||'image/jpeg' });
 
-    if (navigator.share) {
-      statusEl.textContent = '✅ الصورة جاهزة — اضغط على الزبون ستظهر نافذة المشاركة';
-      statusEl.style.background = 'rgba(52,211,153,.1)';
-      statusEl.style.color = '#34d399';
-    } else {
-      statusEl.textContent = '⚠️ متصفحك لا يدعم المشاركة المباشرة — جرّب Chrome';
-      statusEl.style.background = 'rgba(248,113,113,.1)';
-      statusEl.style.color = '#f87171';
-    }
+    // تحميل الصورة تلقائياً للجهاز
+    var blobUrl = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = 'photo.' + ext;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(blobUrl); }, 3000);
+
+    statusEl.textContent = '✅ الصورة نزلت لجهازك — اضغط على الزبون يفتح واتساب ثم 📎 → الصور → أول صورة → أرسل';
+    statusEl.style.background = 'rgba(52,211,153,.1)';
+    statusEl.style.color = '#34d399';
   } catch(e) {
-    statusEl.textContent = '❌ فشل تحميل الصورة: ' + e.message;
+    statusEl.textContent = '❌ فشل التحميل — ' + e.message;
     statusEl.style.background = 'rgba(248,113,113,.1)';
     statusEl.style.color = '#f87171';
   }
@@ -3211,23 +3215,6 @@ function shareToCustomer(idx) {
   var chk = document.getElementById('c-check-'+idx);
   var num = (c.phone||'').replace(/[^0-9]/g,'');
 
-  // share() يجب أن يُستدعى مباشرة من إيماءة المستخدم بدون await قبله
-  if (_cImageFile && navigator.share) {
-    navigator.share({ files: [_cImageFile], text: msg })
-      .then(function() {
-        if (chk) chk.textContent = '✅';
-        if (btn) { btn.style.background='rgba(52,211,153,.08)'; btn.style.borderColor='rgba(52,211,153,.2)'; }
-      })
-      .catch(function(e) {
-        if (e.name === 'AbortError') { if(chk) chk.textContent='📲'; return; }
-        // share فشل — fallback لواتساب
-        window.open('https://api.whatsapp.com/send?phone='+num+'&text='+encodeURIComponent(msg),'_blank');
-        if (chk) chk.textContent = '✅';
-      });
-    return;
-  }
-
-  // لا توجد صورة أو لا يدعم الجهاز المشاركة
   window.open('https://api.whatsapp.com/send?phone='+num+'&text='+encodeURIComponent(msg),'_blank');
   if (chk) chk.textContent = '✅';
   if (btn) { btn.style.background='rgba(52,211,153,.08)'; btn.style.borderColor='rgba(52,211,153,.2)'; }
