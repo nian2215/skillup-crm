@@ -901,15 +901,19 @@ body::before {
 <div id="tab-send" class="section">
   <div class="topbar"><div class="page-title" id="title-send">إرسال <span>واتساب</span></div></div>
 
-  <!-- TABS: A / B -->
-  <div style="display:flex;gap:0;margin-bottom:22px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:14px;padding:4px;">
+  <!-- TABS: A / B / C -->
+  <div style="display:flex;gap:0;margin-bottom:22px;background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:14px;padding:4px;flex-wrap:wrap;">
     <button id="send-tab-a" onclick="switchSendMode('a')"
-      style="flex:1;padding:11px;border-radius:10px;border:none;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .25s;background:linear-gradient(135deg,var(--rose),var(--purple));color:#fff;box-shadow:0 4px 14px rgba(244,114,182,.35);">
-      📢 إرسال جماعي — نفس الصور للجميع
+      style="flex:1;padding:11px;border-radius:10px;border:none;font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .25s;background:linear-gradient(135deg,var(--rose),var(--purple));color:#fff;box-shadow:0 4px 14px rgba(244,114,182,.35);">
+      📢 جماعي
     </button>
     <button id="send-tab-b" onclick="switchSendMode('b')"
-      style="flex:1;padding:11px;border-radius:10px;border:none;font-family:Tajawal,sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .25s;background:transparent;color:var(--tx2);">
-      👤 إرسال مخصص — زبون واحد بصوره الخاصة
+      style="flex:1;padding:11px;border-radius:10px;border:none;font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .25s;background:transparent;color:var(--tx2);">
+      👤 مخصص
+    </button>
+    <button id="send-tab-c" onclick="switchSendMode('c')"
+      style="flex:1;padding:11px;border-radius:10px;border:none;font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .25s;background:transparent;color:var(--tx2);">
+      👥 حتى 5 زبائن
     </button>
   </div>
 
@@ -1086,6 +1090,55 @@ body::before {
       <div id="b-gal-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;max-height:260px;overflow-y:auto;"></div>
     </div>
   </div>
+
+  <!-- ══════════ MODE C: حتى 5 زبائن ══════════ -->
+  <div id="send-mode-c" style="display:none;">
+
+    <!-- الرسالة -->
+    <div class="send-card">
+      <h3>✍️ نص الرسالة</h3>
+      <textarea class="msg-area" id="wmsg-c" rows="3">مرحباً 👋 لدينا وصول جديد! ✨ تفضل/ي بزيارتنا.</textarea>
+    </div>
+
+    <!-- اختيار الصورة -->
+    <div class="send-card">
+      <h3>🖼️ اختر صورة واحدة</h3>
+      <div id="c-img-empty" style="text-align:center;padding:20px;border:2px dashed rgba(192,132,252,.2);border-radius:12px;color:var(--tx3);font-size:13px;">
+        لم تختر صورة بعد
+      </div>
+      <div id="c-img-preview" style="display:none;margin-bottom:12px;position:relative;text-align:center;">
+        <img id="c-img-thumb" src="" style="max-height:140px;border-radius:12px;border:2px solid rgba(192,132,252,.3);">
+        <button onclick="clearCImg()" style="position:absolute;top:4px;right:4px;background:rgba(248,113,113,.8);border:none;border-radius:50%;width:24px;height:24px;color:#fff;font-size:14px;cursor:pointer;line-height:1;">×</button>
+      </div>
+      <div id="c-gal-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;max-height:220px;overflow-y:auto;margin-top:8px;"></div>
+    </div>
+
+    <!-- اختيار الزبائن -->
+    <div class="send-card">
+      <h3>👥 اختر الزبائن <span id="c-count-lbl" style="font-size:13px;font-weight:400;color:var(--tx3);">(0 / 5)</span></h3>
+
+      <!-- بحث -->
+      <input type="text" id="c-search" placeholder="ابحث بالاسم أو الرقم..."
+        oninput="filterCSearch()"
+        style="width:100%;padding:12px 16px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:12px;color:var(--tx);font-family:Tajawal,sans-serif;font-size:14px;outline:none;margin-bottom:10px;"
+        onfocus="this.style.borderColor='var(--rose)'" onblur="this.style.borderColor='var(--bdr)'">
+
+      <!-- نتائج البحث -->
+      <div id="c-search-results" style="max-height:200px;overflow-y:auto;margin-bottom:10px;"></div>
+
+      <!-- الزبائن المختارون -->
+      <div id="c-selected-list" style="display:flex;flex-wrap:wrap;gap:8px;min-height:36px;"></div>
+    </div>
+
+    <!-- زر الإرسال -->
+    <button onclick="sendC()"
+      style="width:100%;padding:16px;border-radius:30px;border:none;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;font-family:Tajawal,sans-serif;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 6px 24px rgba(37,211,102,.4);margin-bottom:20px;transition:all .3s;"
+      onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+      📤 إرسال واتساب للمختارين
+    </button>
+    <div id="c-log" style="margin-top:8px;text-align:center;font-size:13px;color:var(--tx3);"></div>
+  </div>
+
 </div>
 
 
@@ -2975,28 +3028,128 @@ function switchSendMode(mode) {
   _sendMode = mode;
   var btnA = document.getElementById('send-tab-a');
   var btnB = document.getElementById('send-tab-b');
+  var btnC = document.getElementById('send-tab-c');
   var divA = document.getElementById('send-mode-a');
   var divB = document.getElementById('send-mode-b');
+  var divC = document.getElementById('send-mode-c');
+  [btnA,btnB,btnC].forEach(function(b){ if(b){b.style.background='transparent';b.style.color='var(--tx2)';b.style.boxShadow='none';} });
+  [divA,divB,divC].forEach(function(d){ if(d) d.style.display='none'; });
   if (mode === 'a') {
     btnA.style.background = 'linear-gradient(135deg,var(--rose),var(--purple))';
-    btnA.style.color = '#fff';
-    btnA.style.boxShadow = '0 4px 14px rgba(244,114,182,.35)';
-    btnB.style.background = 'transparent';
-    btnB.style.color = 'var(--tx2)';
-    btnB.style.boxShadow = 'none';
+    btnA.style.color = '#fff'; btnA.style.boxShadow = '0 4px 14px rgba(244,114,182,.35)';
     divA.style.display = '';
-    divB.style.display = 'none';
-  } else {
+  } else if (mode === 'b') {
     btnB.style.background = 'linear-gradient(135deg,#25D366,#128C7E)';
-    btnB.style.color = '#fff';
-    btnB.style.boxShadow = '0 4px 14px rgba(37,211,102,.4)';
-    btnA.style.background = 'transparent';
-    btnA.style.color = 'var(--tx2)';
-    btnA.style.boxShadow = 'none';
-    divA.style.display = 'none';
+    btnB.style.color = '#fff'; btnB.style.boxShadow = '0 4px 14px rgba(37,211,102,.4)';
     divB.style.display = '';
     renderBGalPicker();
+  } else {
+    btnC.style.background = 'linear-gradient(135deg,#f59e0b,#d97706)';
+    btnC.style.color = '#fff'; btnC.style.boxShadow = '0 4px 14px rgba(245,158,11,.4)';
+    divC.style.display = '';
+    renderCGalGrid();
   }
+}
+
+// ══════ MODE C ══════
+var _cCustomers = [];
+var _cImage     = null;
+
+function renderCGalGrid() {
+  var grid = document.getElementById('c-gal-grid');
+  if (!grid) return;
+  if (!GL.length) { grid.innerHTML = '<div style="font-size:13px;color:var(--tx3);text-align:center;padding:16px;">لا توجد صور في المعرض — ارفع صورة أولاً</div>'; return; }
+  grid.innerHTML = GL.map(function(img) {
+    var sel = _cImage && _cImage.id === img.id;
+    return '<div onclick="selectCImg(\''+img.id+'\')" style="position:relative;cursor:pointer;border-radius:10px;overflow:hidden;border:2px solid '+(sel?'var(--rose)':'transparent')+';transition:border .2s;">' +
+      '<img src="'+img.src+'" style="width:100%;height:72px;object-fit:cover;display:block;">' +
+      (sel?'<div style="position:absolute;inset:0;background:rgba(244,114,182,.3);display:flex;align-items:center;justify-content:center;font-size:22px;">✓</div>':'') +
+      '</div>';
+  }).join('');
+}
+
+function selectCImg(id) {
+  var img = GL.find(function(x){return x.id===id;});
+  if (!img) return;
+  _cImage = img;
+  document.getElementById('c-img-empty').style.display = 'none';
+  document.getElementById('c-img-preview').style.display = 'block';
+  document.getElementById('c-img-thumb').src = img.src;
+  renderCGalGrid();
+}
+
+function clearCImg() {
+  _cImage = null;
+  document.getElementById('c-img-empty').style.display = '';
+  document.getElementById('c-img-preview').style.display = 'none';
+  renderCGalGrid();
+}
+
+function filterCSearch() {
+  var q   = normText(document.getElementById('c-search').value);
+  var res = document.getElementById('c-search-results');
+  if (!q) { res.innerHTML = ''; return; }
+  var found = CL.filter(function(c) {
+    return c.phone && (normText(c.name).includes(q) || normText(c.phone).includes(q));
+  }).filter(function(c){
+    return !_cCustomers.find(function(x){return x.id===c.id;});
+  }).slice(0, 6);
+  if (!found.length) { res.innerHTML = '<div style="padding:10px;font-size:13px;color:var(--tx3);text-align:center;">لا يوجد نتائج</div>'; return; }
+  res.innerHTML = found.map(function(c) {
+    return '<div onclick="addCCustomer(\''+c.id+'\')" style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer;border:1px solid rgba(192,132,252,.1);margin-bottom:5px;" onmouseover="this.style.background=\'rgba(245,158,11,.08)\'" onmouseout="this.style.background=\'\'">'+
+      '<div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0">'+(c.name||'?').charAt(0).toUpperCase()+'</div>'+
+      '<div><div style="font-size:13px;font-weight:700;">'+(c.name||'—')+'</div><div style="font-size:12px;color:var(--tx3);">'+(c.phone||'')+'</div></div>'+
+      '</div>';
+  }).join('');
+}
+
+function addCCustomer(id) {
+  if (_cCustomers.length >= 5) { toast('الحد الأقصى 5 زبائن','err'); return; }
+  var c = CL.find(function(x){return x.id===id;});
+  if (!c || _cCustomers.find(function(x){return x.id===id;})) return;
+  _cCustomers.push(c);
+  document.getElementById('c-search').value = '';
+  document.getElementById('c-search-results').innerHTML = '';
+  renderCSelected();
+}
+
+function removeCCustomer(id) {
+  _cCustomers = _cCustomers.filter(function(x){return x.id!==id;});
+  renderCSelected();
+}
+
+function renderCSelected() {
+  var lbl  = document.getElementById('c-count-lbl');
+  var list = document.getElementById('c-selected-list');
+  if (lbl) lbl.textContent = '(' + _cCustomers.length + ' / 5)';
+  if (!list) return;
+  if (!_cCustomers.length) { list.innerHTML = '<div style="font-size:13px;color:var(--tx3);">ابحث عن زبون واضغط اسمه لإضافته</div>'; return; }
+  list.innerHTML = _cCustomers.map(function(c) {
+    return '<div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:20px;font-size:13px;font-weight:700;">'+
+      (c.name||c.phone)+
+      '<span onclick="removeCCustomer(\''+c.id+'\')" style="cursor:pointer;color:var(--red);font-size:16px;line-height:1;">×</span>'+
+      '</div>';
+  }).join('');
+}
+
+function sendC() {
+  if (!_cCustomers.length) { toast('اختر زبوناً واحداً على الأقل','err'); return; }
+  var msg = (document.getElementById('wmsg-c').value||'').trim();
+  var imgUrl = _cImage ? _cImage.src : '';
+  var fullMsg = msg + (imgUrl ? '\n\n🖼️ ' + imgUrl : '');
+  var log = document.getElementById('c-log');
+  if (log) log.textContent = 'جاري الفتح...';
+  var i = 0;
+  function nx() {
+    if (i >= _cCustomers.length) { if(log) log.textContent = '✅ تم الفتح لـ ' + _cCustomers.length + ' زبائن'; return; }
+    var c = _cCustomers[i];
+    if(log) log.textContent = 'فتح واتساب لـ ' + (c.name||c.phone) + ' (' + (i+1) + '/' + _cCustomers.length + ')';
+    openWhatsApp(c.phone, fullMsg);
+    i++;
+    if (i < _cCustomers.length) setTimeout(nx, 2200);
+    else if(log) setTimeout(function(){ log.textContent = '✅ تم الفتح لـ ' + _cCustomers.length + ' زبائن'; }, 2200);
+  }
+  nx();
 }
 
 // ── تحميل الصور (الوضع A) ──
