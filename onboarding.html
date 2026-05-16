@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إعداد متجرك — SkillUp CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --rose:#f472b6; --purple:#a855f7; --lilac:#c084fc;
+  --dark:#0a0612; --card:#160e24; --bdr:rgba(192,132,252,.15);
+  --tx:#fdf0f8; --tx2:#c4a8d4; --tx3:#7a5a8a;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+body{ font-family:'Tajawal',sans-serif; background:var(--dark); color:var(--tx); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+.blob{ position:fixed; border-radius:50%; filter:blur(80px); pointer-events:none; z-index:0; }
+.blob-1{ width:500px; height:500px; top:-150px; right:-100px; background:radial-gradient(circle,rgba(168,85,247,.15) 0%,transparent 70%); }
+.blob-2{ width:400px; height:400px; bottom:-100px; left:-100px; background:radial-gradient(circle,rgba(244,114,182,.12) 0%,transparent 70%); }
+
+.card{ position:relative; z-index:1; background:var(--card); border:1px solid var(--bdr); border-radius:24px; padding:40px; max-width:520px; width:100%; box-shadow:0 24px 80px rgba(0,0,0,.4); }
+
+/* Steps */
+.steps{ display:flex; align-items:center; gap:0; margin-bottom:32px; }
+.step{ display:flex; align-items:center; flex:1; }
+.step-dot{
+  width:32px; height:32px; border-radius:50%; border:2px solid rgba(255,255,255,.1);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:800; color:var(--tx3); flex-shrink:0;
+  transition:all .3s;
+}
+.step-dot.active{ border-color:var(--rose); color:var(--rose); background:rgba(244,114,182,.1); }
+.step-dot.done{ border-color:#10b981; color:#10b981; background:rgba(16,185,129,.1); }
+.step-line{ flex:1; height:1px; background:rgba(255,255,255,.08); margin:0 6px; }
+
+/* Logo */
+.logo{ display:flex; align-items:center; gap:10px; margin-bottom:24px; }
+.logo-icon{ width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,var(--rose),var(--purple)); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:16px; color:#fff; }
+.logo-name{ font-size:16px; font-weight:800; background:linear-gradient(135deg,var(--rose),var(--lilac)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+
+.section-title{ font-size:20px; font-weight:800; color:var(--tx); margin-bottom:6px; }
+.section-sub{ font-size:13px; color:var(--tx3); margin-bottom:28px; }
+
+/* Upload */
+.upload-zone{
+  border:2px dashed rgba(192,132,252,.25); border-radius:16px;
+  padding:32px; text-align:center; cursor:pointer;
+  transition:all .2s; background:rgba(255,255,255,.02); margin-bottom:16px;
+  position:relative; overflow:hidden;
+}
+.upload-zone:hover{ border-color:rgba(244,114,182,.4); background:rgba(244,114,182,.04); }
+.upload-zone input{ position:absolute; inset:0; opacity:0; cursor:pointer; }
+.upload-icon{ font-size:36px; margin-bottom:10px; }
+.upload-txt{ font-size:14px; color:var(--tx3); }
+.upload-txt span{ color:var(--rose); font-weight:700; }
+.logo-preview{
+  width:100px; height:100px; border-radius:16px; object-fit:cover;
+  border:2px solid rgba(244,114,182,.3); display:none; margin:0 auto 10px;
+}
+
+/* Color picker */
+.color-grid{ display:grid; grid-template-columns:repeat(6,1fr); gap:10px; margin-bottom:16px; }
+.color-swatch{
+  width:100%; aspect-ratio:1; border-radius:10px; cursor:pointer;
+  border:3px solid transparent; transition:all .2s;
+}
+.color-swatch.selected{ border-color:white; transform:scale(1.1); }
+.color-custom{ display:flex; align-items:center; gap:10px; margin-bottom:20px; }
+.color-custom input[type=color]{ width:44px; height:44px; border:none; border-radius:10px; cursor:pointer; background:none; padding:0; }
+.color-custom span{ font-size:13px; color:var(--tx3); }
+
+/* Preview card */
+.preview-card{
+  border-radius:16px; padding:20px; margin-bottom:24px;
+  border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.03);
+  display:flex; align-items:center; gap:14px;
+}
+.preview-logo{
+  width:52px; height:52px; border-radius:12px; object-fit:cover;
+  background:linear-gradient(135deg,var(--rose),var(--purple));
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; font-weight:900; color:#fff; flex-shrink:0;
+  overflow:hidden;
+}
+.preview-logo img{ width:100%; height:100%; object-fit:cover; display:none; }
+.preview-info p:first-child{ font-size:15px; font-weight:800; color:var(--tx); }
+.preview-info p:last-child{ font-size:12px; color:var(--tx3); margin-top:3px; }
+
+/* Field */
+.field{ margin-bottom:16px; }
+.field label{ display:block; font-size:12px; font-weight:700; color:var(--tx3); text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
+.field input{
+  width:100%; background:rgba(255,255,255,.05); border:1px solid rgba(192,132,252,.2);
+  border-radius:12px; padding:13px 16px; color:var(--tx);
+  font-family:'Tajawal',sans-serif; font-size:15px; outline:none;
+  transition:border-color .2s; text-align:right;
+}
+.field input:focus{ border-color:rgba(244,114,182,.5); }
+.field input::placeholder{ color:var(--tx3); }
+
+.btn-next{
+  width:100%; padding:15px; border-radius:14px; border:none;
+  background:linear-gradient(135deg,var(--rose),var(--purple));
+  color:#fff; font-family:'Tajawal',sans-serif; font-size:16px; font-weight:800;
+  cursor:pointer; transition:all .2s; box-shadow:0 4px 24px rgba(244,114,182,.3);
+}
+.btn-next:hover{ transform:translateY(-2px); box-shadow:0 8px 32px rgba(244,114,182,.45); }
+.btn-next:disabled{ opacity:.5; cursor:not-allowed; transform:none; }
+
+/* Step panels */
+.panel{ display:none; }
+.panel.active{ display:block; }
+
+/* Success */
+.success-state{ text-align:center; padding:20px 0; }
+.icon-big{ font-size:56px; margin-bottom:16px; }
+.success-title{ font-size:22px; font-weight:800; color:var(--tx); margin-bottom:8px; }
+.success-sub{ font-size:14px; color:var(--tx2); line-height:1.7; margin-bottom:20px; }
+.link-box{
+  background:rgba(244,114,182,.08); border:1px solid rgba(244,114,182,.2);
+  border-radius:12px; padding:14px 18px;
+  font-size:14px; color:var(--rose); font-weight:700; word-break:break-all;
+}
+</style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<div class="card">
+
+  <div class="logo">
+    <div class="logo-icon">S</div>
+    <span class="logo-name">SkillUp CRM</span>
+  </div>
+
+  <!-- Steps indicator -->
+  <div class="steps" id="steps-bar">
+    <div class="step">
+      <div class="step-dot active" id="dot-1">1</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step">
+      <div class="step-dot" id="dot-2">2</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step" style="flex:0">
+      <div class="step-dot" id="dot-3">3</div>
+    </div>
+  </div>
+
+  <!-- ── STEP 1: Logo ── -->
+  <div class="panel active" id="panel-1">
+    <p class="section-title">رفع شعار متجرك</p>
+    <p class="section-sub">سيظهر في صفحتك العامة وعلى واتساب</p>
+
+    <img class="logo-preview" id="logo-prev" src="" alt="logo">
+    <div class="upload-zone" onclick="document.getElementById('logo-inp').click()">
+      <input type="file" id="logo-inp" accept="image/*" onchange="previewLogo(event)">
+      <div class="upload-icon">🖼️</div>
+      <p class="upload-txt">اسحب الصورة هنا أو <span>اضغط للاختيار</span></p>
+      <p style="font-size:12px;color:var(--tx3);margin-top:6px;">PNG أو JPG — بحد أقصى 2MB</p>
+    </div>
+
+    <button class="btn-next" onclick="goStep(2)">التالي ← اختيار اللون</button>
+    <p style="text-align:center;margin-top:12px;font-size:12px;color:var(--tx3);">يمكنك تخطي هذه الخطوة وإضافة الشعار لاحقاً</p>
+  </div>
+
+  <!-- ── STEP 2: Brand Color ── -->
+  <div class="panel" id="panel-2">
+    <p class="section-title">اختر لون متجرك</p>
+    <p class="section-sub">سيُستخدم في صفحتك العامة وبطاقة المحل</p>
+
+    <div class="color-grid" id="color-grid"></div>
+    <div class="color-custom">
+      <input type="color" id="custom-color" value="#f472b6" oninput="selectColor(this.value)">
+      <span>لون مخصص</span>
+      <span id="color-hex" style="font-family:monospace;color:var(--rose);">#f472b6</span>
+    </div>
+
+    <!-- Preview -->
+    <div class="preview-card" id="preview-card">
+      <div class="preview-logo" id="prev-logo-box">
+        <img id="prev-logo-img" src="" alt="">
+        <span id="prev-logo-letter"></span>
+      </div>
+      <div class="preview-info">
+        <p id="prev-shop-name">اسم متجرك</p>
+        <p id="prev-slug-url">crm.skilluptech.app/—</p>
+      </div>
+    </div>
+
+    <button class="btn-next" onclick="goStep(3)">التالي ← معلومات التواصل</button>
+  </div>
+
+  <!-- ── STEP 3: Contact Info ── -->
+  <div class="panel" id="panel-3">
+    <p class="section-title">معلومات التواصل</p>
+    <p class="section-sub">تظهر لزبائنك في صفحتك العامة</p>
+
+    <div class="field">
+      <label>رقم الواتساب</label>
+      <input id="f-whatsapp" type="tel" placeholder="مثال: 96890000000+" dir="ltr">
+    </div>
+    <div class="field">
+      <label>المدينة / الموقع</label>
+      <input id="f-location" type="text" placeholder="مثال: مسقط، عُمان">
+    </div>
+    <div class="field">
+      <label>وصف قصير للمتجر</label>
+      <input id="f-bio" type="text" placeholder="مثال: متخصصون في الأزياء والملابس النسائية">
+    </div>
+
+    <button class="btn-next" id="btn-finish" onclick="finish()">🚀 انتهيت — اذهب للوحة التحكم</button>
+  </div>
+
+  <!-- ── Success ── -->
+  <div class="panel" id="panel-done">
+    <div class="success-state">
+      <div class="icon-big">🎉</div>
+      <p class="success-title">متجرك جاهز!</p>
+      <p class="success-sub">رابطك الخاص أصبح نشطاً الآن</p>
+      <div class="link-box" id="final-link"></div>
+      <p style="font-size:12px;color:var(--tx3);margin-top:12px;">جاري تحويلك للوحة التحكم...</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+var SUPA_URL = 'https://kgqmbegbmefftgstkizp.supabase.co';
+var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtncW1iZWdibWVmZnRnc3RraXpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3NjA0MzEsImV4cCI6MjA5MzMzNjQzMX0.bKZMer5IaLzjtGYS5i_9VWoqn-tUAuCSCY_Ba7sH5h4';
+
+var params    = new URLSearchParams(location.search);
+var SLUG      = params.get('slug') || '';
+var AUTH_TOK  = params.get('token') || '';
+var selColor  = '#f472b6';
+var logoFile  = null;
+var logoDataUrl = null;
+var currentStep = 1;
+
+var COLORS = ['#f472b6','#a855f7','#3b82f6','#10b981','#f59e0b','#ef4444',
+              '#06b6d4','#8b5cf6','#ec4899','#14b8a6','#f97316','#6366f1'];
+
+// Build color grid
+(function(){
+  var grid = document.getElementById('color-grid');
+  COLORS.forEach(function(c){
+    var d = document.createElement('div');
+    d.className = 'color-swatch' + (c === selColor ? ' selected' : '');
+    d.style.background = c;
+    d.onclick = function(){ selectColor(c); document.getElementById('custom-color').value = c; };
+    grid.appendChild(d);
+  });
+})();
+
+// Init preview
+document.getElementById('prev-slug-url').textContent  = 'crm.skilluptech.app/' + SLUG;
+document.getElementById('prev-logo-letter').textContent = SLUG.charAt(0).toUpperCase() || 'S';
+document.getElementById('prev-logo-box').style.background = 'linear-gradient(135deg,#f472b6,#a855f7)';
+
+function selectColor(c) {
+  selColor = c;
+  document.getElementById('color-hex').textContent = c;
+  document.getElementById('color-hex').style.color = c;
+  document.getElementById('prev-logo-box').style.background = 'linear-gradient(135deg,' + c + ',#a855f7)';
+  document.querySelectorAll('.color-swatch').forEach(function(s){
+    s.classList.toggle('selected', s.style.background === c);
+  });
+}
+
+function previewLogo(e) {
+  var file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { alert('حجم الصورة كبير — الحد 2MB'); return; }
+  logoFile = file;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    logoDataUrl = ev.target.result;
+    var prev = document.getElementById('logo-prev');
+    prev.src = logoDataUrl;
+    prev.style.display = 'block';
+    // Update preview card
+    var img = document.getElementById('prev-logo-img');
+    img.src = logoDataUrl;
+    img.style.display = 'block';
+    document.getElementById('prev-logo-letter').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function goStep(n) {
+  document.getElementById('panel-' + currentStep).classList.remove('active');
+  document.getElementById('dot-' + currentStep).classList.remove('active');
+  document.getElementById('dot-' + currentStep).classList.add('done');
+  document.getElementById('dot-' + currentStep).textContent = '✓';
+  currentStep = n;
+  document.getElementById('panel-' + n).classList.add('active');
+  document.getElementById('dot-' + n).classList.add('active');
+
+  // Update shop name in preview
+  document.getElementById('prev-shop-name').textContent =
+    document.getElementById('f-shop') ? (document.getElementById('f-shop').value || 'اسم متجرك') : 'اسم متجرك';
+}
+
+async function uploadLogo() {
+  if (!logoFile || !AUTH_TOK) return null;
+  try {
+    var ext  = logoFile.name.split('.').pop();
+    var path = SLUG + '/logo.' + ext;
+    var res  = await fetch(SUPA_URL + '/storage/v1/object/logos/' + path, {
+      method: 'POST',
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + AUTH_TOK, 'Content-Type': logoFile.type },
+      body: logoFile
+    });
+    if (res.ok) return SUPA_URL + '/storage/v1/object/public/logos/' + path;
+  } catch(e) { console.error('Logo upload failed', e); }
+  return null;
+}
+
+async function finish() {
+  var btn = document.getElementById('btn-finish');
+  btn.disabled = true;
+  btn.textContent = 'جاري الحفظ...';
+
+  try {
+    var logoUrl = await uploadLogo();
+    var whatsapp = document.getElementById('f-whatsapp').value.trim();
+    var location = document.getElementById('f-location').value.trim();
+    var bio      = document.getElementById('f-bio').value.trim();
+
+    var hdrs = { 'apikey': SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' };
+    if (AUTH_TOK) hdrs['Authorization'] = 'Bearer ' + AUTH_TOK;
+
+    await fetch(SUPA_URL + '/rest/v1/profiles?slug=eq.' + SLUG, {
+      method: 'PATCH',
+      headers: hdrs,
+      body: JSON.stringify({
+        brand_color: selColor,
+        logo_url:    logoUrl,
+        whatsapp:    whatsapp,
+        location:    location,
+        bio:         bio
+      })
+    });
+
+    // Show success
+    document.getElementById('panel-3').classList.remove('active');
+    document.getElementById('panel-done').classList.add('active');
+    var link = 'https://crm.skilluptech.app/' + SLUG;
+    document.getElementById('final-link').textContent = link;
+
+    setTimeout(function(){
+      location.href = './skillup_crm.html';
+    }, 2500);
+
+  } catch(err) {
+    console.error(err);
+    btn.disabled = false;
+    btn.textContent = '🚀 انتهيت — اذهب للوحة التحكم';
+    alert('حدث خطأ، حاول مرة أخرى');
+  }
+}
+</script>
+
+</body>
+</html>
