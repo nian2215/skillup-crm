@@ -1130,27 +1130,11 @@ body::before {
       <div id="c-selected-list" style="display:flex;flex-wrap:wrap;gap:8px;min-height:36px;"></div>
     </div>
 
-    <!-- تحميل الصورة أولاً -->
-    <div id="c-dl-wrap" style="display:none;margin-bottom:12px;">
-      <button onclick="downloadCImg()"
-        style="width:100%;padding:13px;border-radius:12px;border:2px solid rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34d399;font-family:Tajawal,sans-serif;font-size:14px;font-weight:800;cursor:pointer;"
-        onmouseover="this.style.background='rgba(52,211,153,.2)'" onmouseout="this.style.background='rgba(52,211,153,.1)'">
-        ⬇️ الخطوة 1 — تحميل الصورة لهاتفك
-      </button>
-      <div style="margin-top:10px;background:rgba(244,114,182,.06);border:1px solid rgba(244,114,182,.2);border-radius:12px;padding:12px 16px;font-size:13px;line-height:2.2;color:var(--tx2);">
-        <div style="color:#f9a8d4;font-weight:700;margin-bottom:4px;">📋 خطوات الإرسال:</div>
-        <div>1️⃣ اضغط <strong style="color:#34d399;">تحميل الصورة</strong> — ستنزل لجهازك</div>
-        <div>2️⃣ اضغط على اسم الزبون أدناه — يفتح واتساب</div>
-        <div>3️⃣ اضغط <strong>📎</strong> وارفق الصورة المحملة</div>
-        <div>4️⃣ أرسل — ثم انتقل للزبون التالي</div>
-      </div>
-    </div>
-
     <!-- زر الإرسال -->
     <button onclick="sendC()"
       style="width:100%;padding:16px;border-radius:30px;border:none;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;font-family:Tajawal,sans-serif;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 6px 24px rgba(37,211,102,.4);margin-bottom:20px;transition:all .3s;"
       onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
-      📤 الخطوة 2 — فتح واتساب للمختارين
+      📤 إرسال للمختارين
     </button>
     <div id="c-log" style="margin-top:8px;"></div>
   </div>
@@ -3165,43 +3149,66 @@ function clearCImg() {
 
 function sendC() {
   if (!_cCustomers.length) { toast('اختر زبوناً واحداً على الأقل','err'); return; }
-  var msg     = (document.getElementById('wmsg-c').value||'').trim();
-  var fullMsg = msg;
   var log = document.getElementById('c-log');
+  var msg = (document.getElementById('wmsg-c').value||'').trim();
 
-  // بناء قائمة أزرار — كل زبون زر مستقل يضغطه المستخدم
+  var supportsShare = !!(navigator.share && navigator.canShare);
+  var modeLabel = supportsShare ? 'اضغط على كل زبون — ستفتح نافذة المشاركة والصورة جاهزة 📲' : 'اضغط على كل زبون لفتح واتساب 👇';
+
   var html = '<div style="background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:14px;padding:16px;margin-top:4px;">' +
-    '<div style="font-size:13px;color:var(--tx2);margin-bottom:12px;text-align:center;">اضغط على كل زبون لفتح واتساب 👇</div>';
+    '<div style="font-size:13px;color:var(--tx2);margin-bottom:12px;text-align:center;">' + modeLabel + '</div>';
 
   _cCustomers.forEach(function(c, idx) {
-    var num = (c.phone||'').replace(/[^0-9]/g,'');
-    var url = 'https://api.whatsapp.com/send?phone=' + num + '&text=' + encodeURIComponent(fullMsg);
-    html += '<a href="' + url + '" target="_blank" id="c-wa-btn-'+idx+'" ' +
-      'onclick="markCSent('+idx+')" ' +
-      'style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.3);border-radius:12px;margin-bottom:8px;text-decoration:none;transition:all .2s;" ' +
+    html += '<button onclick="shareToCustomer('+idx+')" id="c-wa-btn-'+idx+'" ' +
+      'style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.3);border-radius:12px;margin-bottom:8px;width:100%;cursor:pointer;transition:all .2s;font-family:Tajawal,sans-serif;" ' +
       'onmouseover="this.style.background=\'rgba(37,211,102,.2)\'" onmouseout="this.style.background=\'rgba(37,211,102,.1)\'">' +
       '<div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#25D366,#128C7E);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;flex-shrink:0">' +
         (c.name||'?').charAt(0).toUpperCase() +
       '</div>' +
-      '<div style="flex:1;">' +
+      '<div style="flex:1;text-align:right;">' +
         '<div style="font-size:14px;font-weight:700;color:#fff;">' + (c.name||'—') + '</div>' +
         '<div style="font-size:12px;color:rgba(37,211,102,.8);">' + (c.phone||'') + '</div>' +
       '</div>' +
       '<div id="c-check-'+idx+'" style="font-size:20px;">📲</div>' +
-      '</a>';
+      '</button>';
   });
 
   html += '</div>';
   if (log) log.innerHTML = html;
 }
 
-function markCSent(idx) {
-  setTimeout(function() {
-    var el = document.getElementById('c-check-'+idx);
-    if (el) el.textContent = '✅';
-    var btn = document.getElementById('c-wa-btn-'+idx);
-    if (btn) { btn.style.background = 'rgba(52,211,153,.08)'; btn.style.borderColor = 'rgba(52,211,153,.2)'; }
-  }, 800);
+async function shareToCustomer(idx) {
+  var c   = _cCustomers[idx];
+  var msg = (document.getElementById('wmsg-c').value||'').trim();
+  var btn = document.getElementById('c-wa-btn-'+idx);
+  var chk = document.getElementById('c-check-'+idx);
+
+  // محاولة Web Share API مع الصورة
+  if (_cImage && navigator.share) {
+    try {
+      if (chk) chk.textContent = '⏳';
+      var resp = await fetch(_cImage.src);
+      var blob = await resp.blob();
+      var ext  = (_cImage.name||'image.jpg').split('.').pop();
+      var file = new File([blob], 'image.' + ext, { type: blob.type });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], text: msg });
+        if (chk) chk.textContent = '✅';
+        if (btn) { btn.style.background='rgba(52,211,153,.08)'; btn.style.borderColor='rgba(52,211,153,.2)'; }
+        return;
+      }
+    } catch(e) {
+      if (e.name !== 'AbortError') console.warn('share failed', e);
+      if (chk) chk.textContent = '📲';
+    }
+  }
+
+  // fallback: فتح واتساب بالرقم مع الرسالة فقط
+  var num = (c.phone||'').replace(/[^0-9]/g,'');
+  window.open('https://api.whatsapp.com/send?phone=' + num + '&text=' + encodeURIComponent(msg), '_blank');
+  if (chk) chk.textContent = '✅';
+  if (btn) { btn.style.background='rgba(52,211,153,.08)'; btn.style.borderColor='rgba(52,211,153,.2)'; }
 }
 
 // ── تحميل الصور (الوضع A) ──
