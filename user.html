@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillUp CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{ --brand:#f472b6; --dark:#0a0612; --card:#160e24; --bdr:rgba(255,255,255,.08); --tx:#fdf0f8; --tx2:#c4a8d4; --tx3:#7a5a8a; }
+*{ box-sizing:border-box; margin:0; padding:0; }
+body{ font-family:'Tajawal',sans-serif; background:var(--dark); color:var(--tx); min-height:100vh; }
+
+/* ── HERO ── */
+.hero{
+  position:relative; min-height:280px;
+  background:linear-gradient(135deg, var(--brand) 0%, #7c3aed 100%);
+  display:flex; align-items:flex-end; padding:0 24px 0;
+  overflow:hidden;
+}
+.hero-blur{ position:absolute; inset:0; backdrop-filter:blur(0); background:rgba(0,0,0,.25); }
+.hero-content{ position:relative; z-index:1; padding-bottom:60px; }
+
+/* ── PROFILE ── */
+.profile-wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+.profile-card{
+  background:var(--card); border:1px solid var(--bdr);
+  border-radius:20px; margin-top:-48px;
+  padding:20px 24px 24px; position:relative;
+}
+.logo-ring{
+  width:88px; height:88px; border-radius:20px;
+  border:3px solid var(--dark); overflow:hidden;
+  background:linear-gradient(135deg, var(--brand), #7c3aed);
+  display:flex; align-items:center; justify-content:center;
+  font-size:36px; font-weight:900; color:#fff;
+  margin-top:-44px; margin-bottom:12px;
+}
+.logo-ring img{ width:100%; height:100%; object-fit:cover; }
+.shop-name{ font-size:22px; font-weight:800; color:var(--tx); }
+.shop-bio{ font-size:14px; color:var(--tx3); margin-top:4px; line-height:1.6; }
+.shop-meta{ display:flex; gap:16px; margin-top:12px; flex-wrap:wrap; }
+.meta-item{ display:flex; align-items:center; gap:6px; font-size:13px; color:var(--tx3); }
+
+.btn-wa{
+  display:inline-flex; align-items:center; gap:10px;
+  margin-top:16px; padding:13px 22px; border-radius:14px;
+  background:#25d366; color:#fff; font-family:'Tajawal',sans-serif;
+  font-size:15px; font-weight:700; text-decoration:none;
+  transition:all .2s; box-shadow:0 4px 20px rgba(37,211,102,.3);
+}
+.btn-wa:hover{ transform:translateY(-2px); box-shadow:0 8px 28px rgba(37,211,102,.45); }
+.wa-icon{ width:22px; height:22px; }
+
+/* ── TABS ── */
+.tabs{ display:flex; gap:0; margin-top:28px; border-bottom:1px solid var(--bdr); }
+.tab{
+  padding:10px 20px; font-size:14px; font-weight:700; color:var(--tx3);
+  cursor:pointer; border-bottom:2px solid transparent; transition:all .2s;
+}
+.tab.active{ color:var(--brand); border-bottom-color:var(--brand); }
+
+/* ── CONTENT ── */
+.tab-content{ display:none; padding:24px 0; }
+.tab-content.active{ display:block; }
+
+/* Products grid */
+.products-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+@media(min-width:480px){ .products-grid{ grid-template-columns:repeat(3,1fr); } }
+
+.product-card{
+  background:rgba(255,255,255,.03); border:1px solid var(--bdr);
+  border-radius:14px; overflow:hidden; transition:all .2s;
+}
+.product-card:hover{ border-color:rgba(255,255,255,.15); transform:translateY(-2px); }
+.product-img{ width:100%; aspect-ratio:1; object-fit:cover; background:rgba(255,255,255,.05); display:flex; align-items:center; justify-content:center; font-size:32px; }
+.product-img img{ width:100%; height:100%; object-fit:cover; }
+.product-info{ padding:10px 12px; }
+.product-name{ font-size:13px; font-weight:700; color:var(--tx); }
+.product-price{ font-size:12px; color:var(--brand); font-weight:700; margin-top:3px; }
+
+/* Empty state */
+.empty{ text-align:center; padding:48px 20px; }
+.empty-icon{ font-size:40px; margin-bottom:12px; }
+.empty-txt{ font-size:14px; color:var(--tx3); }
+
+/* 404 */
+.not-found{ text-align:center; padding:80px 24px; }
+.not-found .icon{ font-size:56px; margin-bottom:16px; }
+.not-found h2{ font-size:22px; font-weight:800; margin-bottom:8px; }
+.not-found p{ font-size:14px; color:var(--tx3); }
+.not-found a{ display:inline-block; margin-top:20px; color:var(--brand); font-weight:700; text-decoration:none; }
+
+/* Loading */
+.loading{ text-align:center; padding:80px 24px; }
+.spin{ width:36px; height:36px; border:3px solid rgba(244,114,182,.2); border-top-color:var(--brand); border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 14px; }
+@keyframes spin{ to{ transform:rotate(360deg); } }
+
+/* Footer */
+.footer{ text-align:center; padding:32px 24px; margin-top:16px; }
+.footer a{ font-size:12px; color:var(--tx3); text-decoration:none; }
+.footer a:hover{ color:var(--brand); }
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="state-loading" class="loading">
+  <div class="spin"></div>
+  <p style="color:var(--tx3);font-size:14px;">جاري التحميل...</p>
+</div>
+
+<!-- 404 -->
+<div id="state-404" style="display:none" class="not-found">
+  <div class="icon">🔍</div>
+  <h2>المحل غير موجود</h2>
+  <p>لا يوجد محل مسجّل بهذا الرابط</p>
+  <a href="/skillup_landing">← الصفحة الرئيسية</a>
+</div>
+
+<!-- Shop page -->
+<div id="state-shop" style="display:none">
+
+  <!-- Hero banner -->
+  <div class="hero" id="hero-banner">
+    <div class="hero-blur"></div>
+    <div class="hero-content">
+      <p style="font-size:12px;color:rgba(255,255,255,.7);font-weight:600;letter-spacing:.08em;text-transform:uppercase;">متجر على SkillUp CRM</p>
+    </div>
+  </div>
+
+  <div class="profile-wrap">
+
+    <!-- Profile card -->
+    <div class="profile-card">
+      <div class="logo-ring" id="logo-ring">
+        <img id="logo-img" src="" alt="" style="display:none">
+        <span id="logo-letter"></span>
+      </div>
+      <p class="shop-name" id="shop-name">—</p>
+      <p class="shop-bio"  id="shop-bio"></p>
+      <div class="shop-meta">
+        <div class="meta-item" id="meta-location" style="display:none">
+          📍 <span id="shop-location"></span>
+        </div>
+        <div class="meta-item" id="meta-slug">
+          🔗 <span id="shop-slug-txt" style="direction:ltr;"></span>
+        </div>
+      </div>
+      <a class="btn-wa" id="wa-btn" href="#" target="_blank" style="display:none">
+        <svg class="wa-icon" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.116 1.524 5.842L.057 23.5l5.797-1.52A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.894a9.886 9.886 0 01-5.031-1.375l-.361-.214-3.44.903.918-3.352-.235-.374A9.86 9.86 0 012.106 12C2.106 6.58 6.58 2.106 12 2.106S21.894 6.58 21.894 12 17.42 21.894 12 21.894z"/></svg>
+        تواصل على واتساب
+      </a>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('products')">المنتجات</div>
+      <div class="tab" onclick="switchTab('about')">عن المحل</div>
+    </div>
+
+    <!-- Products tab -->
+    <div class="tab-content active" id="tab-products">
+      <div class="products-grid" id="products-grid"></div>
+      <div class="empty" id="products-empty" style="display:none">
+        <div class="empty-icon">🛍️</div>
+        <p class="empty-txt">لا توجد منتجات بعد</p>
+      </div>
+    </div>
+
+    <!-- About tab -->
+    <div class="tab-content" id="tab-about">
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:14px;padding:20px;">
+        <p id="about-bio" style="font-size:15px;color:var(--tx2);line-height:1.8;"></p>
+        <div style="margin-top:16px;display:grid;gap:10px;" id="about-details"></div>
+      </div>
+    </div>
+
+  </div><!-- /profile-wrap -->
+
+  <div class="footer">
+    <a href="/skillup_landing">مدعوم بـ SkillUp CRM</a>
+  </div>
+
+</div><!-- /state-shop -->
+
+<script>
+var SUPA_URL = 'https://kgqmbegbmefftgstkizp.supabase.co';
+var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtncW1iZWdibWVmZnRnc3RraXpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3NjA0MzEsImV4cCI6MjA5MzMzNjQzMX0.bKZMer5IaLzjtGYS5i_9VWoqn-tUAuCSCY_Ba7sH5h4';
+var HDR = { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY };
+
+// Get slug from URL path: /ahmed → ahmed
+var slug = location.pathname.replace(/^\//, '').split('/')[0];
+
+var SKIP = ['skillup_landing','skillup_auth','skillup_crm','skillup_admin','skillup_payment','approve','register','onboarding','index','user',''];
+if (SKIP.indexOf(slug) !== -1) {
+  location.href = '/skillup_landing';
+}
+
+function show(id) {
+  ['state-loading','state-404','state-shop'].forEach(function(s){
+    document.getElementById(s).style.display = 'none';
+  });
+  document.getElementById(id).style.display = 'block';
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.tab-content').forEach(function(t){ t.classList.remove('active'); });
+  event.target.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+async function loadShop() {
+  try {
+    var res  = await fetch(SUPA_URL + '/rest/v1/profiles?slug=eq.' + slug + '&select=*', { headers: HDR });
+    var data = await res.json();
+    if (!data || !data.length) { show('state-404'); return; }
+
+    var p = data[0];
+
+    // Apply brand color
+    if (p.brand_color) {
+      document.documentElement.style.setProperty('--brand', p.brand_color);
+      document.getElementById('hero-banner').style.background =
+        'linear-gradient(135deg,' + p.brand_color + ' 0%, #7c3aed 100%)';
+    }
+
+    // Logo
+    var letter = (p.shop_name || slug).charAt(0).toUpperCase();
+    document.getElementById('logo-letter').textContent = letter;
+    if (p.logo_url) {
+      var img = document.getElementById('logo-img');
+      img.src = p.logo_url;
+      img.style.display = 'block';
+      document.getElementById('logo-letter').style.display = 'none';
+    }
+    if (p.brand_color) {
+      document.getElementById('logo-ring').style.background =
+        'linear-gradient(135deg,' + p.brand_color + ',#7c3aed)';
+    }
+
+    // Info
+    document.getElementById('shop-name').textContent = p.shop_name || slug;
+    document.getElementById('shop-bio').textContent  = p.bio || '';
+    document.getElementById('shop-slug-txt').textContent = 'crm.skilluptech.app/' + slug;
+    document.title = (p.shop_name || slug) + ' — SkillUp CRM';
+
+    if (p.location) {
+      document.getElementById('shop-location').textContent = p.location;
+      document.getElementById('meta-location').style.display = 'flex';
+    }
+    if (p.whatsapp) {
+      var waBtn = document.getElementById('wa-btn');
+      waBtn.href = 'https://wa.me/' + p.whatsapp.replace(/[^0-9]/g,'');
+      waBtn.style.display = 'inline-flex';
+    }
+
+    // About tab
+    document.getElementById('about-bio').textContent = p.bio || 'لا يوجد وصف حتى الآن.';
+    var details = '';
+    if (p.location)  details += '<div style="font-size:14px;color:var(--tx2);">📍 ' + p.location + '</div>';
+    if (p.whatsapp)  details += '<div style="font-size:14px;color:var(--tx2);">📞 ' + p.whatsapp + '</div>';
+    document.getElementById('about-details').innerHTML = details;
+
+    // Load products (future feature — empty for now)
+    document.getElementById('products-empty').style.display = 'block';
+
+    show('state-shop');
+
+  } catch(e) { console.error(e); show('state-404'); }
+}
+
+loadShop();
+</script>
+
+</body>
+</html>
