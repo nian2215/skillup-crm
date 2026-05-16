@@ -454,6 +454,25 @@ footer{
   .mockup-stats{ grid-template-columns:1fr 1fr; }
   .how-steps{ grid-template-columns:1fr; }
 }
+
+/* ── REQUEST FORM ── */
+.req-input{
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(192,132,252,.2);
+  border-radius:12px;
+  padding:14px 18px;
+  color:var(--tx);
+  font-family:'Tajawal',sans-serif;
+  font-size:15px;
+  width:100%;
+  outline:none;
+  transition:border-color .2s, background .2s;
+  text-align:right;
+}
+.req-input:focus{ border-color:rgba(244,114,182,.5); background:rgba(255,255,255,.08); }
+.req-input::placeholder{ color:var(--tx3); }
+.req-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px; }
+@media(max-width:600px){ .req-grid{ grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
@@ -692,15 +711,33 @@ footer{
 
 <!-- CTA -->
 <section class="cta-section" id="contact">
-  <div style="max-width:700px;margin:0 auto;position:relative;z-index:1;">
+  <div style="max-width:580px;margin:0 auto;position:relative;z-index:1;">
     <div class="section-label" id="cta-label">ابدأ اليوم</div>
     <h2><span class="grad" id="cta-title">جاهز لتنمية نشاطك؟</span></h2>
-    <p id="cta-sub">انضم إلى مئات الأنشطة التجارية التي تثق بـ SkillUp CRM لإدارة زبائنها</p>
-    <a href="./skillup_auth.html" class="btn-primary" style="display:inline-flex;">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-      <span id="cta-btn">ابدأ تجربتك المجانية</span>
-    </a>
-    <p class="cta-note" id="cta-note">14 يوم مجاناً · لا حاجة لبطاقة ائتمان · إلغاء في أي وقت</p>
+    <p id="cta-sub">اطلب الوصول الآن وسنتواصل معك خلال 24 ساعة</p>
+
+    <div id="req-form-wrap">
+      <form id="access-form" onsubmit="submitAccessRequest(event)" style="margin-top:28px;">
+        <div class="req-grid">
+          <input class="req-input" id="req-name"  type="text"  placeholder="اسمك الكامل"  required>
+          <input class="req-input" id="req-email" type="email" placeholder="إيميلك"        required>
+          <input class="req-input" id="req-shop"  type="text"  placeholder="اسم المحل"     required>
+          <input class="req-input" id="req-city"  type="text"  placeholder="المدينة"       required>
+        </div>
+        <button type="submit" class="btn-primary" id="req-submit-btn" style="display:inline-flex;margin:0 auto;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
+          <span id="req-btn-text">اطلب الوصول</span>
+        </button>
+        <p class="cta-note" id="cta-note">سيتم مراجعة طلبك والرد خلال 24 ساعة</p>
+      </form>
+    </div>
+
+    <div id="req-success" style="display:none;text-align:center;padding:20px 0;">
+      <div style="font-size:52px;margin-bottom:16px;">✅</div>
+      <h3 style="font-family:'Tajawal',sans-serif;color:white;font-size:22px;margin-bottom:10px;font-weight:800;">تم إرسال طلبك!</h3>
+      <p style="color:var(--tx2);font-size:15px;line-height:1.8;">سنراجع طلبك ونتواصل معك على<br><strong style="color:var(--rose);" id="req-email-shown"></strong><br>خلال 24 ساعة</p>
+    </div>
+    <span id="cta-btn" style="display:none;"></span>
   </div>
 </section>
 
@@ -887,5 +924,63 @@ document.querySelectorAll('.how-step').forEach(function(el, i) {
 
 applyLang();
 </script>
+
+<!-- EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+// ── ACCESS REQUEST FORM ──
+emailjs.init('Ng1ePDq9WXT16lbIb');
+
+var SUPA_URL = 'https://kgqmbegbmefftgstkizp.supabase.co';
+var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtncW1iZWdibWVmZnRnc3RraXpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3NjA0MzEsImV4cCI6MjA5MzMzNjQzMX0.bKZMer5IaLzjtGYS5i_9VWoqn-tUAuCSCY_Ba7sH5h4';
+
+async function submitAccessRequest(e) {
+  e.preventDefault();
+  var btn  = document.getElementById('req-submit-btn');
+  var text = document.getElementById('req-btn-text');
+  var name  = document.getElementById('req-name').value.trim();
+  var email = document.getElementById('req-email').value.trim();
+  var shop  = document.getElementById('req-shop').value.trim();
+  var city  = document.getElementById('req-city').value.trim();
+
+  btn.disabled = true;
+  text.textContent = 'جاري الإرسال...';
+
+  try {
+    // 1. Insert into Supabase
+    var res = await fetch(SUPA_URL + '/rest/v1/access_requests', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer ' + SUPA_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({ name: name, email: email, shop_name: shop, city: city, status: 'pending' })
+    });
+    if (!res.ok) throw new Error('DB error');
+    var data = await res.json();
+    var reqId = (data[0] && data[0].id) ? data[0].id : 'unknown';
+
+    // 2. Send notification email to owner
+    var approveLink = 'https://crm.skilluptech.app/approve.html?id=' + reqId;
+    await emailjs.send('service_sze12ta', 'template_e9op11g', {
+      name: name, email: email, shop_name: shop, city: city, approve_link: approveLink
+    });
+
+    // 3. Show success
+    document.getElementById('req-form-wrap').style.display = 'none';
+    document.getElementById('req-email-shown').textContent = email;
+    document.getElementById('req-success').style.display   = 'block';
+
+  } catch(err) {
+    console.error(err);
+    btn.disabled = false;
+    text.textContent = 'اطلب الوصول';
+    alert('حدث خطأ، يرجى المحاولة مرة أخرى');
+  }
+}
+</script>
+
 </body>
 </html>
