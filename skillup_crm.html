@@ -1130,13 +1130,29 @@ body::before {
       <div id="c-selected-list" style="display:flex;flex-wrap:wrap;gap:8px;min-height:36px;"></div>
     </div>
 
+    <!-- تحميل الصورة أولاً -->
+    <div id="c-dl-wrap" style="display:none;margin-bottom:12px;">
+      <button onclick="downloadCImg()"
+        style="width:100%;padding:13px;border-radius:12px;border:2px solid rgba(52,211,153,.4);background:rgba(52,211,153,.1);color:#34d399;font-family:Tajawal,sans-serif;font-size:14px;font-weight:800;cursor:pointer;"
+        onmouseover="this.style.background='rgba(52,211,153,.2)'" onmouseout="this.style.background='rgba(52,211,153,.1)'">
+        ⬇️ الخطوة 1 — تحميل الصورة لهاتفك
+      </button>
+      <div style="margin-top:10px;background:rgba(244,114,182,.06);border:1px solid rgba(244,114,182,.2);border-radius:12px;padding:12px 16px;font-size:13px;line-height:2.2;color:var(--tx2);">
+        <div style="color:#f9a8d4;font-weight:700;margin-bottom:4px;">📋 خطوات الإرسال:</div>
+        <div>1️⃣ اضغط <strong style="color:#34d399;">تحميل الصورة</strong> — ستنزل لجهازك</div>
+        <div>2️⃣ اضغط على اسم الزبون أدناه — يفتح واتساب</div>
+        <div>3️⃣ اضغط <strong>📎</strong> وارفق الصورة المحملة</div>
+        <div>4️⃣ أرسل — ثم انتقل للزبون التالي</div>
+      </div>
+    </div>
+
     <!-- زر الإرسال -->
     <button onclick="sendC()"
       style="width:100%;padding:16px;border-radius:30px;border:none;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;font-family:Tajawal,sans-serif;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 6px 24px rgba(37,211,102,.4);margin-bottom:20px;transition:all .3s;"
       onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
-      📤 إرسال واتساب للمختارين
+      📤 الخطوة 2 — فتح واتساب للمختارين
     </button>
-    <div id="c-log" style="margin-top:8px;text-align:center;font-size:13px;color:var(--tx3);"></div>
+    <div id="c-log" style="margin-top:8px;"></div>
   </div>
 
 </div>
@@ -3068,23 +3084,6 @@ function renderCGalGrid() {
   }).join('');
 }
 
-function selectCImg(id) {
-  var img = GL.find(function(x){return x.id===id;});
-  if (!img) return;
-  _cImage = img;
-  document.getElementById('c-img-empty').style.display = 'none';
-  document.getElementById('c-img-preview').style.display = 'block';
-  document.getElementById('c-img-thumb').src = img.src;
-  renderCGalGrid();
-}
-
-function clearCImg() {
-  _cImage = null;
-  document.getElementById('c-img-empty').style.display = '';
-  document.getElementById('c-img-preview').style.display = 'none';
-  renderCGalGrid();
-}
-
 function filterCSearch() {
   var q   = normText(document.getElementById('c-search').value);
   var res = document.getElementById('c-search-results');
@@ -3132,11 +3131,42 @@ function renderCSelected() {
   }).join('');
 }
 
+function downloadCImg() {
+  if (!_cImage) return;
+  var a = document.createElement('a');
+  a.href = _cImage.src;
+  a.download = _cImage.name || 'image.jpg';
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function selectCImg(id) {
+  var img = GL.find(function(x){return x.id===id;});
+  if (!img) return;
+  _cImage = img;
+  document.getElementById('c-img-empty').style.display = 'none';
+  document.getElementById('c-img-preview').style.display = 'block';
+  document.getElementById('c-img-thumb').src = img.src;
+  var dlWrap = document.getElementById('c-dl-wrap');
+  if (dlWrap) dlWrap.style.display = 'block';
+  renderCGalGrid();
+}
+
+function clearCImg() {
+  _cImage = null;
+  document.getElementById('c-img-empty').style.display = '';
+  document.getElementById('c-img-preview').style.display = 'none';
+  var dlWrap = document.getElementById('c-dl-wrap');
+  if (dlWrap) dlWrap.style.display = 'none';
+  renderCGalGrid();
+}
+
 function sendC() {
   if (!_cCustomers.length) { toast('اختر زبوناً واحداً على الأقل','err'); return; }
-  var msg    = (document.getElementById('wmsg-c').value||'').trim();
-  var imgUrl = _cImage ? _cImage.src : '';
-  var fullMsg = msg + (imgUrl ? '\n\n🖼️ ' + imgUrl : '');
+  var msg     = (document.getElementById('wmsg-c').value||'').trim();
+  var fullMsg = msg;
   var log = document.getElementById('c-log');
 
   // بناء قائمة أزرار — كل زبون زر مستقل يضغطه المستخدم
